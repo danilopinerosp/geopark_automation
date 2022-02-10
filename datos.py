@@ -22,17 +22,17 @@ def escribir_datos(nombre_documento, cabecera, datos):
     # Verificar si el documento existe
     if os.path.exists(nombre_documento):
         # Si nombre_documento existe se abre en modo append ('agregar informacion')
-        with open(nombre_documento, 'a') as documento_csv:
+        with open(nombre_documento, 'a',  newline='') as documento_csv:
             writer = csv.DictWriter(documento_csv, fieldnames=cabecera)
             writer.writerows(datos)
     else:
-        with open(nombre_documento, 'w') as documento_csv:
+        with open(nombre_documento, 'w', newline='') as documento_csv:
             # Si el documento no existe se abre en modo escritura
             writer = csv.DictWriter(documento_csv, fieldnames=cabecera)
             writer.writeheader() # escribir la cabecera
             writer.writerows(datos)
 
-def leer_datos(documento, inicio, fin):
+def leer_datos(documento, inicio=1, fin=207):
     """
     Leer los datos del documento que recibe como parámetro y retorna una
     lista de diccionarios con todos los datos de documento
@@ -101,8 +101,6 @@ def limpiar_datos(datos):
             continue
         procesados.append(dato)
     return procesados
-            
-
 
 if __name__ == "__main__":
     import os
