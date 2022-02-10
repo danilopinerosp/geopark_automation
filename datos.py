@@ -23,7 +23,7 @@ def escribir_datos(nombre_documento, cabecera, datos):
     if os.path.exists(nombre_documento):
         # Si nombre_documento existe se abre en modo append ('agregar informacion')
         with open(nombre_documento, 'a') as documento_csv:
-            writer = csv.DictWriter(documento_csv, fieldnames=head)
+            writer = csv.DictWriter(documento_csv, fieldnames=cabecera)
             writer.writerows(datos)
     else:
         with open(nombre_documento, 'w') as documento_csv:
@@ -53,7 +53,7 @@ def leer_datos(documento, inicio, fin):
     sheet =  book.active #Por defecto toma como activa la primera hoja
 
     #Extraer le fecha del reporte del nombre del documento
-    fecha = documento.split()[2].split('.')[0]
+    fecha = documento.split('Reportes')[-1].split()[2].split('.')[0]
 
     lista_datos = list() # Para almacenar la lista de diccionarios
 
@@ -80,3 +80,35 @@ def leer_datos(documento, inicio, fin):
             datos['NSV'] = sheet['F' + str(i)].value
             lista_datos.append(datos) # agreagar los datos a la lista de datos
     return lista_datos
+
+def limpiar_datos(datos):
+    """
+    La función es la encargada de limpiar los datos cuando estos no tienen el tipo de datos esperado,
+    o tienen campo vacios que los hacen inválidos.
+
+    Parámetros:
+    -----------
+    datos -> list - Lista de diccionarios con los datos a limpiar
+
+    Retorna:
+    --------
+
+    """
+    procesados = list()
+    for dato in datos: 
+        # Remover los diccionarios con GVO, GSV  NSV vacíos
+        if not dato['GOV'] and not dato['GSV'] and not dato['NSV']:
+            continue
+        procesados.append(dato)
+    return procesados
+            
+
+
+if __name__ == "__main__":
+    import os
+    cabecera = ['fecha', 'empresa', 'operacion', 'campo', 'GOV', 'GSV', 'NSV']
+    reportes = os.path.abspath('..\Reportes')
+    for reporte in os.listdir(reportes):
+        ruta = os.path.join(reportes, reporte)
+        datos = leer_datos(ruta, 1, 206)
+        escribir_datos('balance.csv', cabecera, limpiar_datos(datos))
