@@ -49,7 +49,7 @@ def leer_datos(documento, inicio=1, fin=207):
     import openpyxl
 
     #Cargar el documento excel
-    book = openpyxl.load_workbook(documento)
+    book = openpyxl.load_workbook(documento, data_only=True)
     sheet =  book.active #Por defecto toma como activa la primera hoja
 
     #Extraer le fecha del reporte del nombre del documento
@@ -102,6 +102,31 @@ def limpiar_datos(datos):
         procesados.append(dato)
     return procesados
 
+def celdas_operacion(patron):
+    """
+    Retorna una tupla con una lista con la celdas de excel identificadas en patron y un caracter con la operación a realizar
+    
+    Parámetros:
+    ----------
+    patron -> str - Es una cadena de caracteres que contiene lo valores de una celda formulada para un
+                    documento excel
+    
+    Retorna:
+    --------
+    valores -> tuple - tupla que contiene una lista con las celdas identificadas y la operacion a reliazar
+    """
+    simbolos = ['+', '-', '*', '/', '(', ')']
+    operaciones = list()
+    celda = ''
+    for i in patron:
+        if i.isalnum(): #or i in simbolos:
+            celda += i
+        elif i in simbolos:
+            operaciones.append(i)
+        elif i == '%':
+            operaciones.append('/100') # reemplaza el símbolo de %
+    return operaciones
+
 if __name__ == "__main__":
     import os
     cabecera = ['fecha', 'empresa', 'operacion', 'campo', 'GOV', 'GSV', 'NSV']
@@ -110,3 +135,4 @@ if __name__ == "__main__":
         ruta = os.path.join(reportes, reporte)
         datos = leer_datos(ruta, 1, 206)
         escribir_datos('balance.csv', cabecera, limpiar_datos(datos))
+    #print(celdas_operacion('=+$C$116*$BY$2+C308'))
