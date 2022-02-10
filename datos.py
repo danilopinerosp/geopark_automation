@@ -102,37 +102,50 @@ def limpiar_datos(datos):
         procesados.append(dato)
     return procesados
 
-def celdas_operacion(patron):
+def generar_balance(nombre_balance, cabecera, datos, reportes_procesados):
+    pass
+
+def registrar_procesado(reporte):
     """
-    Retorna una tupla con una lista con la celdas de excel identificadas en patron y un caracter con la operación a realizar
-    
+    Agregar el reporte al documento de reportes procesados, en caso de que el documento
+    no exista, lo creará y luego agregará el reporte. El documento reportes_procesados continene la fecha
+    en la que se procesó el reporte y el nombre del reporte procesado.
+
     Parámetros:
-    ----------
-    patron -> str - Es una cadena de caracteres que contiene lo valores de una celda formulada para un
-                    documento excel
-    
+    -----------
+    reporte -> str - Cadena de caracteres con el nombre del reporte procesado
+    """
+    import datetime
+    cabecera = ['fecha', 'nombre_reporte']
+    datos = [{'fecha': datetime.date.today(), 'nombre_reporte': reporte}]
+    escribir_datos('reportes_procesados.csv', cabecera, datos)
+
+def verificar_procesados(reporte):
+    """
+    Retorna verdadero si encuentra el reporte en el documento reportes procesados,
+    retorna false si el documento no existe o si no ha encontrado el reporte en él.
+
+    Parámetros:
+    -----------
+    reporte -> str - Cadena de caracteres con el nombre del reporte a verificar
+
     Retorna:
     --------
-    valores -> tuple - tupla que contiene una lista con las celdas identificadas y la operacion a reliazar
+    found -> bool - Verdadero si encontró el reporte, falso en otro caso
     """
-    simbolos = ['+', '-', '*', '/', '(', ')']
-    operaciones = list()
-    celda = ''
-    for i in patron:
-        if i.isalnum(): #or i in simbolos:
-            celda += i
-        elif i in simbolos:
-            operaciones.append(i)
-        elif i == '%':
-            operaciones.append('/100') # reemplaza el símbolo de %
-    return operaciones
+    import csv
+    import os
+    found = False
+    if os.path.exists('reportes_procesados.csv'):
+        with open('reportes_procesados.csv', 'r') as reportes:
+            reader = csv.DictReader(reportes)
+            for procesado in reader:
+                if procesado['nombre_reporte'] == reporte:
+                    found = True
+    return found
+
 
 if __name__ == "__main__":
-    import os
-    cabecera = ['fecha', 'empresa', 'operacion', 'campo', 'GOV', 'GSV', 'NSV']
-    reportes = os.path.abspath('..\Reportes')
-    for reporte in os.listdir(reportes):
-        ruta = os.path.join(reportes, reporte)
-        datos = leer_datos(ruta, 1, 206)
-        escribir_datos('balance.csv', cabecera, limpiar_datos(datos))
-    #print(celdas_operacion('=+$C$116*$BY$2+C308'))
+    if not verificar_procesados('Reporte ODCA 01-02-2022'):
+        registrar_procesado('Reporte ODCA 01-02-2022')
+    
