@@ -102,9 +102,6 @@ def limpiar_datos(datos):
         procesados.append(dato)
     return procesados
 
-def generar_balance(nombre_balance, cabecera, datos, reportes_procesados):
-    pass
-
 def registrar_procesado(reporte):
     """
     Agregar el reporte al documento de reportes procesados, en caso de que el documento
