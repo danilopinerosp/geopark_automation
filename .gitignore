@@ -132,3 +132,6 @@ dmypy.json
 
 # Ignorar documentos de excel
 *.xlsx
+
+# Ignorar documentos .csv
+*.csv
