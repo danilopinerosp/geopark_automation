@@ -14,5 +14,21 @@ def leer_datos(documento):
     df = pd.read_csv(documento)
     return df
 
+def nsv_recibo_remitente(datos):
+    """
+    Retorna un DataFrame con el total de NSV recibido diario por cada remitente.
+
+    Parámetros:
+    -----------
+    datos -> DataFrame - Contiene los datos del balance que serán usados para calcular el todal de NSV recibido diario por cada empresa.
+
+    Retorna:
+    -------
+    -> DataFrame - DataFrame que contiene el total diario de NSV por cada empresa, una columna contiene los resultados de una empresa.
+    """
+    recibidos = datos[['RECIBO' in fila for fila in datos['operacion']]]
+    return recibidos.groupby(['fecha', 'empresa'])['NSV'].sum().unstack()   
+
 if __name__ == "__main__":
-    print(leer_datos('balance.csv'))
+    datos = leer_datos('balance.csv')
+    print(nsv_recibo_remitente(datos))
