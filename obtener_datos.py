@@ -32,7 +32,7 @@ def escribir_datos(nombre_documento, cabecera, datos):
             writer.writeheader() # escribir la cabecera
             writer.writerows(datos)
 
-def leer_datos(documento, inicio=1, fin=207):
+def leer_datos(documento, inicio=1, fin=270):
     """
     Leer los datos del documento que recibe como parámetro y retorna una
     lista de diccionarios con todos los datos de documento
@@ -143,6 +143,5 @@ def verificar_procesados(reporte):
 
 
 if __name__ == "__main__":
-    if not verificar_procesados('Reporte ODCA 01-02-2022'):
-        registrar_procesado('Reporte ODCA 01-02-2022')
+    pass
     

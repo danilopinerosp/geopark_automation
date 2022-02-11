@@ -13,7 +13,7 @@ def main():
         if not verificar_procesados(reporte):
             # Procesar el reporte si aún no ha sido procesado
             ruta = os.path.join(reportes, reporte)
-            datos = leer_datos(ruta, 1, 206)
+            datos = leer_datos(ruta, 1, 270)
             escribir_datos('balance.csv', cabecera, limpiar_datos(datos))
             # Registrar el reporte que ya ha sido procesado correctamente
             registrar_procesado(reporte)
