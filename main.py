@@ -1,4 +1,4 @@
-from datos import leer_datos, escribir_datos, limpiar_datos, registrar_procesado, verificar_procesados
+from obtener_datos import leer_datos, escribir_datos, limpiar_datos, registrar_procesado, verificar_procesados
 
 def main():
     import os
