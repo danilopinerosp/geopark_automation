@@ -68,6 +68,23 @@ def total_crudo_empresa(datos, tipo_operacion):
     # Se retorna el DataFrame con los totales, no sin antes remplazar los NaN por ceros.
     return total_crudo.fillna(0)
 
+def total_crudo(datos, tipo_operacion):
+    """
+    Retorna el total acumulado por condiciones de operación.
+
+    Parámetros:
+    -----------
+    datos -> DataFrame - contiene los datos en bruto de la operación
+    tipo_operacion -> str - tipo de operación a la que le queremos calcular los totales.
+                            Puede tener los valores "RECIBO", "DESPACHO", "ENTREGA".
+
+    Retorna:
+    -------
+    resultado -> panda.Series - Una serie que contiene los totales por condiciones de operación del crudo.
+    """
+    resultado = total_crudo_empresa(datos, tipo_operacion).sum()
+    return resultado
+
 def total_nsv_recibo(datos):
     """
     Retorna un diccionario con el valor total de NSV recibido por remitente y en general.
@@ -113,4 +130,4 @@ def nsv_despacho_remitente(datos):
 if __name__ == "__main__":
     datos = leer_datos('balance.csv')
     recibo = nsv_recibo_remitente(datos)
-    print(total_crudo_empresa(datos, 'ENTREGA'))
+    print(total_crudo(datos, 'RECIBO'))
