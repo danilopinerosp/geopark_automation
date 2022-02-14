@@ -30,6 +30,27 @@ def nsv_recibo_remitente(datos):
     recibidos = datos[['RECIBO' in fila for fila in datos['operacion']]]
     return recibidos.groupby(['fecha', 'empresa'])['NSV'].sum().unstack()
 
+def total_nsv_recibo(datos):
+    """
+    Retorna un diccionario con el valor total de NSV recibido por remitente y en general.
+
+    Parámetros:
+    ----------
+    datos -> DataFrame - Datos ya filtrados del NSV recibido diario por cada remitente.
+
+    Retorna:
+    --------
+    total_nsv -> dict - Diccionario con los totales de NSV recibido y el total en general.
+    """
+    total_nsv = dict() # Diccionario para almacenar los totales
+    empresas = datos.columns  # Extraer las empresas
+    total = 0
+    for empresa in empresas:
+        total_nsv[empresa] = datos[empresa].sum() # Calcular el total por empresa
+        total += total_nsv[empresa] # Acumular el total de cada empresa
+    total_nsv['TOTAL'] = total # Agregar al diccionario el total de NSV
+    return total_nsv 
+
 def nsv_despacho_remitente(datos):
     """
     Retorna un DataFrame con el total de NSV daspachado diariamente por cada remitente.
@@ -53,4 +74,6 @@ def nsv_despacho_remitente(datos):
 
 if __name__ == "__main__":
     datos = leer_datos('balance.csv')
-    print(nsv_despacho_remitente(datos))
+    recibo = nsv_recibo_remitente(datos)
+    print(recibo)
+    print(total_nsv_recibo(recibo))
