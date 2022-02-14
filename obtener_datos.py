@@ -5,6 +5,7 @@ CAMPOS = ['CHIRICOCA', 'INDICO-2', 'INDICO-1X', 'AZOGUE', 'GUACO', 'ADALIA',
             'TIGANA ESTACION']
 OPERACIONES = ['DESPACHO POR REMITENTE', 'RECIBO POR REMITENTE JACANA',
                 'RECIBO POR REMITENTE TIGANA', 'ENTREGA POR REMITENTE']
+CONDICIONES = ['GOV', 'GSV', 'NSV']
 
 def escribir_datos(nombre_documento, cabecera, datos):
     """
