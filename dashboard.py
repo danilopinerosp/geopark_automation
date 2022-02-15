@@ -116,7 +116,37 @@ app.layout = html.Div([
                        'fontSize': 40}
                    )], className="card_container three columns")
 
-    ], className="row flex-display")])
+    ], className="row flex-display"),
+    html.Div([
+        # Contenedor para crear el filtro por condicione de operación y mostrar los resultados del último día
+        html.Div([
+            # Filtrar datos según las condicione de operación
+            html.P('Condiciones de Operación:', className='fix_label', style={'color':'white'}),
+            dcc.Dropdown(options=CONDICIONES,
+                        value='NSV',
+                        clearable=False,
+                        id='cond_operacion',
+                        multi=False),
+            html.P(f"Resultados Operación: {datos['fecha'].iloc[-1].strftime('%d/%m/%Y')}",
+                    className='fix_label', style={'color':'white', 'text-align':'center'})
+        ], className='create_container three columns', id='cross-filter-options'), 
+        # Contenedor para graficar la participación en la producción por empresa (según la condición elegida)
+        html.Div([
+            dcc.Graph(id='pie_chart',
+                    config={'displayModeBar':'hover'})
+        ], className='create_container four columns'),
+        # Contenedor para graficar la producción histórica por tipo de empresa y condición de operación
+        html.Div([
+            dcc.Graph(id='line_chart')
+        ], className='create_container seven columns'),
+    ], className='row flex-display'),
+    # Contenedor para la gráfica de la producción por campo y empresa.
+    html.Div([
+        html.Div(
+            [dcc.Graph(id='bar_chart')
+        ], className='create_container1 twelve columns')
+    ], className='row flex-display')
+], id='mainContainer', style={'display':'flex', 'flex-direction':'column'})
 
 if __name__ == '__main__':
     app.run_server(debug=True)
