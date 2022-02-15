@@ -48,7 +48,7 @@ app.layout = html.Div([
         ], className="one-half column", id="title"),
         # Contenedor para la fecha de la última actualización (último reporte contenido en el análisis)
         html.Div([
-            html.H6('Última actualización: ' + str(datos['fecha'].iloc[-1].strftime("%B %d, %Y")),
+            html.H6(f"Última actualización: {datos['fecha'].iloc[-1].strftime('%d/%m/%Y')}",
                     style={'color': 'orange'}),
 
         ], className="one-third column", id='title1'),
