@@ -153,9 +153,15 @@ app.layout = html.Div([
         # Contenedor para mostrar los resultado de la operación de la fecha más reciente de actualización
         # para Geopark
         html.Div([
-            html.P(f"Resultados Operación: {datos['fecha'].iloc[-1].strftime('%d/%m/%Y')}",
-                className='fix_label', style={'color':'white', 'text-align':'center'})
-        ], className='create_container three columns'), 
+            html.P(f"Operación Geopark: {datos['fecha'].iloc[-1].strftime('%d/%m/%Y')}",
+                className='fix_label', style={'color':'white', 'text-align':'center'}),
+            dcc.Graph(id='GOV-geopark', config={'displayModeBar':False}, className='dcc_compon',
+                    style={'margin-top':'20px'}), 
+            dcc.Graph(id='GSV-geopark', config={'displayModeBar':False}, className='dcc_compon',
+                    style={'margin-top':'20px'}), 
+            dcc.Graph(id='NSV-geopark', config={'displayModeBar':False}, className='dcc_compon',
+                    style={'margin-top':'20px'})
+        ], className='create_container four columns'), 
         # Contenedor para graficar la participación en la producción por empresa (según la operación elegida)
         html.Div([
             dcc.Graph(id='participacion-empresa',
@@ -164,7 +170,7 @@ app.layout = html.Div([
         # Contenedor para graficar la producción histórica por tipo de empresa y condición de operación
         html.Div([
             dcc.Graph(id='line_chart')
-        ], className='create_container seven columns'),
+        ], className='create_container six columns'),
     ], className='row flex-display'),
     # Contenedor para la gráfica de la producción por campo y empresa.
     html.Div([
@@ -176,6 +182,104 @@ app.layout = html.Div([
         ], className='create_container1 six columns')
     ], className='row flex-display')
 ], id='mainContainer', style={'display':'flex', 'flex-direction':'column'})
+
+@app.callback(Output('GOV-geopark', 'figure'),
+            [Input('tipo-operacion', 'value')])
+def actualizar_GOV_geopark(tipo_operacion):
+    # Agrupar los valores del DataFrame y hacer una suma por cada grupo
+    datos_agrupados = datos.groupby(['fecha', 'empresa', 'operacion'])['GOV'].sum()
+    # Seleccionar el GOV para el último día reportado
+    gov_actual = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-1], 2)
+    # Seleccionar el GOV para el penúltimo día reportado
+    gov_anterior = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-2], 2)
+    indicador = [go.Indicator(
+                        mode='number+delta',
+                        value=gov_actual,
+                        delta={'reference':gov_anterior,
+                                'position':'right',
+                                'valueformat':',g',
+                                'relative':False,
+                                'font':{'size':15}},
+                        number={'valueformat':',',
+                                'font':{'size':20}},
+                        domain={'y':[0, 1], 'x': [0, 1]}
+    )]
+    layout = go.Layout(title={'text':'GOV (bbls)',
+                                'y':1,
+                                'x':0.5,
+                                'xanchor':'center',
+                                'yanchor':'top'},
+                        font=dict(color='orange'),
+                        paper_bgcolor='#1f2c56',
+                        plot_bgcolor='#1f2c56',
+                        height=50)
+    return {'data': indicador, 'layout':layout}
+
+# Callback para actualizar los datos de producción de GSV de Geopark en el último día reportado
+@app.callback(Output('GSV-geopark', 'figure'),
+            [Input('tipo-operacion', 'value')])
+def actualizar_GOV_geopark(tipo_operacion):
+    # Agrupar los valores del DataFrame y hacer una suma por cada grupo
+    datos_agrupados = datos.groupby(['fecha', 'empresa', 'operacion'])['GSV'].sum()
+    # Seleccionar el GOV para el último día reportado
+    gov_actual = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-1], 2)
+    # Seleccionar el GOV para el penúltimo día reportado
+    gov_anterior = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-2], 2)
+    indicador = [go.Indicator(
+                        mode='number+delta',
+                        value=gov_actual,
+                        delta={'reference':gov_anterior,
+                                'position':'right',
+                                'valueformat':',g',
+                                'relative':False,
+                                'font':{'size':15}},
+                        number={'valueformat':',',
+                                'font':{'size':20}},
+                        domain={'y':[0, 1], 'x': [0, 1]}
+    )]
+    layout = go.Layout(title={'text':'GSV (bbls)',
+                                'y':1,
+                                'x':0.5,
+                                'xanchor':'center',
+                                'yanchor':'top'},
+                        font=dict(color='#dd1e35'),
+                        paper_bgcolor='#1f2c56',
+                        plot_bgcolor='#1f2c56',
+                        height=50)
+    return {'data': indicador, 'layout':layout}
+
+# Callback para actualizar los datos de producción de NSV de Geopark en el último día reportado
+@app.callback(Output('NSV-geopark', 'figure'),
+            [Input('tipo-operacion', 'value')])
+def actualizar_GOV_geopark(tipo_operacion):
+    # Agrupar los valores del DataFrame y hacer una suma por cada grupo
+    datos_agrupados = datos.groupby(['fecha', 'empresa', 'operacion'])['NSV'].sum()
+    # Seleccionar el GOV para el último día reportado
+    gov_actual = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-1], 2)
+    # Seleccionar el GOV para el penúltimo día reportado
+    gov_anterior = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-2], 2)
+    indicador = [go.Indicator(
+                        mode='number+delta',
+                        value=gov_actual,
+                        delta={'reference':gov_anterior,
+                                'position':'right',
+                                'valueformat':',g',
+                                'relative':False,
+                                'font':{'size':15}},
+                        number={'valueformat':',',
+                                'font':{'size':20}},
+                        domain={'y':[0, 1], 'x': [0, 1]}
+    )]
+    layout = go.Layout(title={'text':'NSV (bbls)',
+                                'y':1,
+                                'x':0.5,
+                                'xanchor':'center',
+                                'yanchor':'top'},
+                        font=dict(color='green'),
+                        paper_bgcolor='#1f2c56',
+                        plot_bgcolor='#1f2c56',
+                        height=50)
+    return {'data': indicador, 'layout':layout}
 
 # Callback para actualizar la gráfica de participación de la empresa
 @app.callback(Output('participacion-empresa', component_property='figure'),
