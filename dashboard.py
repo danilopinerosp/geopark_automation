@@ -45,8 +45,8 @@ app.layout = html.Div([
         # Contenedor para el título del dashboard
         html.Div([
             html.Div([
-                html.H3("Geopark", style={"margin-bottom": "0px", 'color': 'white'}),
-                html.H5("Dashboard: Resultado de la operación", style={"margin-top": "0px", 'color': 'white'}),
+                html.H2("Geopark", style={"margin-bottom": "0px", 'color': 'white'}),
+                html.H5("Resultados de la operación", style={"margin-top": "0px", 'color': 'white'}),
             ])
         ], className="one-half column", id="title"),
         # Contenedor para la fecha de la última actualización (último reporte contenido en el análisis)
