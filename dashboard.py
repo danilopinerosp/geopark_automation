@@ -5,8 +5,10 @@ from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 import pandas as pd
 from obtener_datos import CONDICIONES
+from datetime import datetime as dt
+from datetime import date, timedelta
 
-from procesar_datos import total_crudo, total_crudo_empresa
+from procesar_datos import total_crudo, total_crudo_detallado, total_crudo_empresa
 
 # Cargos los datos del balance
 datos = pd.read_csv('balance.csv')
@@ -54,6 +56,23 @@ app.layout = html.Div([
         ], className="one-third column", id='title1'),
 
     ], id="header", className="row flex-display", style={"margin-bottom": "25px"}),
+    html.Div([
+        html.Div([
+            html.H6('Periodo de Análisis', style={'color':'white'}),
+            # Permite seleccionar las fechas en las que se quiere realizar el análisis
+            dcc.DatePickerRange(
+                id='periodo-analisis',
+                # Las fechas mínimas y máximas permitidas dependerán de las fechas de los datos del balance
+                min_date_allowed=datos['fecha'].min().to_pydatetime(),
+                max_date_allowed=datos['fecha'].max().to_pydatetime(),
+                initial_visible_month=dt(datos['fecha'].dt.year.max(), datos['fecha'].max().to_pydatetime().month, 1),
+                # Por defecto toma como periodo de análisis los datos recolectados del último mes.
+                start_date=(datos[datos['fecha'].dt.month == dt.today().month]['fecha'].min()).to_pydatetime(),
+                end_date=datos['fecha'].max().to_pydatetime(),
+            ),
+            html.Div(id='salida-periodo-analisis', style={'color':'white'})
+        ], className='one-third column')
+    ], id="filtro-fechas", className="row flex-display"),
     # Contenedor donde se ubicaran los 4 principales datos acumulados del dashboard
     html.Div([
         # Contenedor para las entregas acumuladas de NSV para todas las empresas
@@ -118,7 +137,7 @@ app.layout = html.Div([
 
     ], className="row flex-display"),
     html.Div([
-        # Contenedor para crear el filtro por condicione de operación y mostrar los resultados del último día
+        # Contenedor para crear el filtro por condiciones de operación y mostrar los resultados del último día
         html.Div([
             # Filtrar datos según las condicione de operación
             html.P('Condiciones de Operación:', className='fix_label', style={'color':'white'}),
@@ -143,10 +162,52 @@ app.layout = html.Div([
     # Contenedor para la gráfica de la producción por campo y empresa.
     html.Div([
         html.Div(
-            [dcc.Graph(id='bar_chart')
-        ], className='create_container1 twelve columns')
+            [dcc.Graph(id='bar_chart1')
+        ], className='create_container1 six columns'),
+        html.Div(
+            [dcc.Graph(id='bar_chart2')
+        ], className='create_container1 six columns')
     ], className='row flex-display')
 ], id='mainContainer', style={'display':'flex', 'flex-direction':'column'})
+
+#@app.callback(Output('salida-periodo-analisis', 'children'),
+#        [Input('periodo-analisis', 'start_date'),
+#        Input('periodo-analisis', 'end_date')]
+#)
+#def actualizar_periodo(start_date, end_date):
+#    string_prefix = 'Has Seleccionado como '
+#    if start_date is not None:
+#        start_date = dt.strptime(start_date, '%Y-%m-%d')
+#        start_date_string = start_date.strftime('%d/%m/%Y')
+#        string_prefix = string_prefix + f'fecha inicial el {start_date_string} y '
+#    if end_date is not None:
+#        end_date = dt.strptime(end_date, '%Y-%m-%d')
+#        end_date_string = end_date.strftime('%d/%m/%Y')
+#        days_selected = (end_date - start_date).days
+#        string_prefix = string_prefix + 'fecha final el ' + end_date_string + ', para un total de ' + str(days_selected + 1) + ' días.'
+#    if len(string_prefix) == len('You have selected: '):
+#        return 'Select a date to see it displayed here'
+#    else:
+#        return string_prefix
+
+@app.callback(Output('bar_chart1', 'figure'),
+            [Input('cond_operacion', 'value')]
+)
+def actualizar_bar(cond_operacion):
+    datos_filtrados = total_crudo_detallado(datos, 'RECIBO')[cond_operacion]
+    traces = []
+    for empresa in datos_filtrados.index.values:
+        datos_empresa = datos_filtrados.loc[empresa, :]
+        traces.append(go.Bar(
+                        name=empresa, 
+                        x=datos_filtrados.columns.values, 
+                        y=datos_empresa,
+        ))
+    return {'data':traces, 
+            'layout':go.Layout(title='My plot',
+                                xaxis={'title':'Campo'},
+                                yaxis={'title':f'{cond_operacion} (bbls)'},
+                                barmode='stack')}
 
 if __name__ == '__main__':
     app.run_server(debug=True)
