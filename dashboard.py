@@ -16,13 +16,6 @@ datos = pd.read_csv('balance.csv')
 # Convertir las fechas al tipo de dato datatime
 datos['fecha'] = pd.to_datetime(datos['fecha'], format='%d-%m-%Y')
 
-# Calcular los acumulados por tipo de operación de las condiciones de operación para NSV
-total_entrega = total_crudo(datos, 'ENTREGA')['NSV']
-total_despacho = total_crudo(datos, 'DESPACHO')['NSV']
-total_recibo = total_crudo(datos, 'RECIBO')['NSV']
-# Calcular el total de entregas de NSV acumuladas para Geopark
-entregas_geopark = total_crudo_empresa(datos, 'ENTREGA').loc['GEOPARK', 'NSV']
-
 # Declarar el objeto app para el dashboard
 app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}])
 
@@ -59,64 +52,63 @@ app.layout = html.Div([
     ], id="header", className="row flex-display", style={"margin-bottom": "25px"}),
     # Contenedor donde se ubicaran los 4 principales datos acumulados del dashboard
     html.Div([
-        # Contenedor para las entregas acumuladas de NSV para todas las empresas
+        # Contenedor para la producción acumulada bajo las condiciones de GOV por operación
         html.Div([
-            html.H6(children='Entregas (bbls)',
+            html.H6(children='GOV (bbls)',
                     style={
                         'textAlign': 'center',
                         'color': 'white'}
                     ),
 
-            html.P(f"{total_entrega:,.2f}", # formatea el valor a 2 decimales
-                   style={
+            html.P(style={
                        'textAlign': 'center',
                        'color': 'orange',
-                       'fontSize': 40}
+                       'fontSize': 40},
+                    id='GOV-acumulado'
                    )], className="card_container three columns",
         ),
-        # Despachos acumulados de NSV para todas las empresas
+        # Contenedor para la producción acumulada bajo las condiciones e GSV por operación
         html.Div([
-            html.H6(children='Despachos (bbls)',
+            html.H6(children='GSV (bbls)',
                     style={
                         'textAlign': 'center',
                         'color': 'white'}
                     ),
 
-            html.P(f"{total_despacho:,.2f}",
-                   style={
+            html.Div(style={
                        'textAlign': 'center',
                        'color': '#dd1e35',
-                       'fontSize': 40}
+                       'fontSize': 40},
+                    id='GSV-acumulado'
                    )], className="card_container three columns",
         ),
-        # Recibos acumulados de NSV para todas las empresas
+        # Contenedor para la producción acumulada bajo las condiciones de NSV por operación
         html.Div([
-            html.H6(children='Recibos (bbls)',
+            html.H6(children='NSV (bbls)',
                     style={
                         'textAlign': 'center',
                         'color': 'white'}
                     ),
-
-            html.P(f"{total_recibo:,.2f}",
-                   style={
+            html.P(style={
                        'textAlign': 'center',
                        'color': 'green',
-                       'fontSize': 40}
+                       'fontSize': 40},
+                    id='NSV-acumulado'
                    )], className="card_container three columns",
         ),
         # Enregas de NSV acumuladas para Geopark
         html.Div([
-            html.H6(children='Entregas Geopark (bbls)',
+            html.H6(children='NSV Geopark (bbls)',
                     style={
                         'textAlign': 'center',
                         'color': 'white'}
                     ),
 
-            html.P(f"{entregas_geopark:,.2f}",
-                   style={
+            html.P(style={
                        'textAlign': 'center',
                        'color': '#e55467',
-                       'fontSize': 40}
+                       'fontSize': 40},
+                    id='NSV-acu-geopark'
                    )], className="card_container three columns")
 
     ], className="row flex-display"),
@@ -155,7 +147,7 @@ app.layout = html.Div([
         html.Div([
             html.P(f"Resultados Operación: {datos['fecha'].iloc[-1].strftime('%d/%m/%Y')}",
                 className='fix_label', style={'color':'white', 'text-align':'center'})
-        ], className='create_container three columns'), 
+        ], className='create_container four columns'), 
         # Contenedor para graficar la participación en la producción por empresa (según la operación elegida)
         html.Div([
             dcc.Graph(id='participacion-empresa',
@@ -164,7 +156,7 @@ app.layout = html.Div([
         # Contenedor para graficar la producción histórica por tipo de empresa y condición de operación
         html.Div([
             dcc.Graph(id='line_chart')
-        ], className='create_container seven columns'),
+        ], className='create_container six columns'),
     ], className='row flex-display'),
     # Contenedor para la gráfica de la producción por campo y empresa.
     html.Div([
@@ -176,6 +168,65 @@ app.layout = html.Div([
         ], className='create_container1 six columns')
     ], className='row flex-display')
 ], id='mainContainer', style={'display':'flex', 'flex-direction':'column'})
+
+# Callback para actualizar el GOV acumulado
+@app.callback(Output('GOV-acumulado', component_property='children'),
+        [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')])
+def actualizar_GOV_acumulado(start_date, end_date, value):
+    """
+    Retorna la producción a acumulada bajo las condiciones GOV para el tipo de operación determinado por
+    value que se encuentra en el periodo de tiempo definido por start_date y end_date.
+    """
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = total_crudo(datos, value)['GOV']
+    return f"{datos_filtrados.sum():,.2f}"
+
+# Callback para actualizar el GSV acumulado
+@app.callback(Output('GSV-acumulado', component_property='children'),
+        [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')])
+def actualizar_GSV_acumulado(start_date, end_date, value):
+    """
+    Retorna la producción a acumulada bajo las condiciones GSV para el tipo de operación determinado por
+    value que se encuentra en el periodo de tiempo definido por start_date y end_date.
+    """
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = total_crudo(datos, value)['GSV']
+    return f"{datos_filtrados.sum():,.2f}"
+
+# Callback para actualizar el NSV acumulado
+@app.callback(Output('NSV-acumulado', component_property='children'),
+        [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')])
+def actualizar_NSV_acumulado(start_date, end_date, value):
+    """
+    Retorna la producción a acumulada bajo las condiciones NSV para el tipo de operación determinado por
+    value que se encuentra en el periodo de tiempo definido por start_date y end_date.
+    """
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = total_crudo(datos, value)['NSV']
+    return f"{datos_filtrados.sum():,.2f}"
+
+# Callback para actualizar el NSV acumulado de Geopark
+@app.callback(Output('NSV-acu-geopark', component_property='children'),
+        [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')])
+def actualizar_NSV_acu_geopark(start_date, end_date, value):
+    """
+    Retorna la producción a acumulada bajo las condiciones NSV para el tipo de operación determinado por
+    value que se encuentra en el periodo de tiempo definido por start_date y end_date para GEOPARK.
+    """
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    # Extraer únicamente los datos para Geopark
+    datos_filtrados = total_crudo_empresa(datos, value).loc['GEOPARK', 'NSV']
+    datos_filtrados = total_crudo(datos, value)['NSV']
+    return f"{datos_filtrados:,.2f}"
+
 
 # Callback para actualizar la gráfica de participación de la empresa
 @app.callback(Output('participacion-empresa', component_property='figure'),
