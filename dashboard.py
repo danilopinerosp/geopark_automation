@@ -175,11 +175,8 @@ app.layout = html.Div([
     # Contenedor para la gráfica de la producción por campo y empresa.
     html.Div([
         html.Div(
-            [dcc.Graph(id='bar_chart1')
-        ], className='create_container1 six columns'),
-        html.Div(
-            [dcc.Graph(id='bar_chart2')
-        ], className='create_container1 six columns')
+            [dcc.Graph(id='resultados-empresa')
+        ], className='create_container1 twelve columns'),
     ], className='row flex-display')
 ], id='mainContainer', style={'display':'flex', 'flex-direction':'column'})
 
