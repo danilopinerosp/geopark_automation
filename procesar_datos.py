@@ -127,7 +127,28 @@ def nsv_despacho_remitente(datos):
     # Se retorna el DataFrame con los datos calculados, y se remplazan los valores NaN por 0.
     return despachos.fillna(0)
 
+def filtrar_datos_fechas(datos, inicio, fin):
+    """
+    Retorna un DataFrame en el cual se contienen únicamente los datos que se encuentran entre las fechas inicio
+    y fin recibidas como parámetro.
+
+    Parámetros:
+    -----------
+    datos -> DataFrame - Contiene los datos a filtrar por fechas
+    inicio -> datetime - Fecha de inicio del período en el formado '%d-%m-%Y'
+    fin    -> datetime - Fecha de fin del período en el formato '%d-%m-%Y'
+
+    Retorna:
+    DataFrame - Datos filtrados según el período dato entre inicio y fin
+    """
+    return datos[(datos['fecha'] >= inicio) & (datos['fecha'] <= fin)]
+
 if __name__ == "__main__":
-    datos = leer_datos('balance.csv')
-    recibo = nsv_recibo_remitente(datos)
-    print(total_crudo(datos, 'RECIBO'))
+    from datetime import datetime as dt
+    from datetime import timedelta
+    import pandas as pd
+    inicio = dt.today() - timedelta(10)
+    fin = inicio + timedelta(3)
+    datos = pd.read_csv('balance.csv')
+    datos['fecha'] = pd.to_datetime(datos['fecha'], format='%d-%m-%Y')
+    print(filtrar_datos_fechas(datos, inicio, fin))
