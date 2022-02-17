@@ -143,6 +143,18 @@ def filtrar_datos_fechas(datos, inicio, fin):
     """
     return datos[(datos['fecha'] >= inicio) & (datos['fecha'] <= fin)]
 
+def diferencias(datos, categoria_1, cateroria_2):
+    """
+    Retorna un DataFrame con el resultado de restar los datos de la caterogia_2 a la categoria_1
+
+    Parámetros:
+    -----------
+    datos  -> DataFrame - datos del balance
+    categoria_1 -> str - cadena de caracteres con la primera categoría de donde vamos a hacer la resta
+    categoria_2 -> str - cadena de caracteres con al segunda categoría que le vamos a restar a la primera categoría
+    """
+    pass
+
 if __name__ == "__main__":
     from datetime import datetime as dt
     from datetime import timedelta

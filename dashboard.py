@@ -28,6 +28,7 @@ app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=devi
 
 # Generar del dashboard
 app.layout = html.Div([
+    # Contenedor para el encabezado
     html.Div([
         # Contenedor para el logo de Geopark
         html.Div([
@@ -61,7 +62,7 @@ app.layout = html.Div([
     html.Div([
         # Contenedor para las entregas acumuladas de NSV para todas las empresas
         html.Div([
-            html.H6(children='Entregas (bbls)',
+            html.H6(children='GOV (bbls)',
                     style={
                         'textAlign': 'center',
                         'color': 'white'}
@@ -76,7 +77,7 @@ app.layout = html.Div([
         ),
         # Despachos acumulados de NSV para todas las empresas
         html.Div([
-            html.H6(children='Despachos (bbls)',
+            html.H6(children='GSV (bbls)',
                     style={
                         'textAlign': 'center',
                         'color': 'white'}
@@ -91,7 +92,7 @@ app.layout = html.Div([
         ),
         # Recibos acumulados de NSV para todas las empresas
         html.Div([
-            html.H6(children='Recibos (bbls)',
+            html.H6(children='NSV (bbls)',
                     style={
                         'textAlign': 'center',
                         'color': 'white'}
@@ -106,7 +107,7 @@ app.layout = html.Div([
         ),
         # Enregas de NSV acumuladas para Geopark
         html.Div([
-            html.H6(children='Entregas Geopark (bbls)',
+            html.H6(children='NSV Geopark (bbls)',
                     style={
                         'textAlign': 'center',
                         'color': 'white'}
@@ -169,7 +170,7 @@ app.layout = html.Div([
         ], className='create_container four columns'),
         # Contenedor para graficar la producción histórica por tipo de empresa y condición de operación
         html.Div([
-            dcc.Graph(id='line_chart')
+            dcc.Graph(id='NSV-historico')
         ], className='create_container six columns'),
     ], className='row flex-display'),
     # Contenedor para la gráfica de la producción por campo y empresa.
@@ -287,6 +288,7 @@ def actualizar_GOV_geopark(tipo_operacion):
 def actualizar_participacion(start_date, end_date, value):
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
     # datos_filtrados = datos_filtrados[datos_filtrados['operacion'] == value]
+    colores = ['red', 'grey']
     if 'RECIBO' in value:
         datos_filtrados = nsv_recibo_remitente(datos_filtrados)
     elif 'DESPACHO' in value:
@@ -301,7 +303,8 @@ def actualizar_participacion(start_date, end_date, value):
                             textfont=dict(size=13),
                             hole=.5,
                             rotation=45,
-                            textposition='outside')]
+                            textposition='outside',
+                            marker=dict(colors=colores))]
     layout = go.Layout(
         plot_bgcolor='#1f2c56',
             paper_bgcolor='#1f2c56',
@@ -326,6 +329,53 @@ def actualizar_participacion(start_date, end_date, value):
             margin=dict(t=60, b=30, l=30, r=30)
             )
     return {'data':trace, 'layout':layout}
+
+# Callback para actualizar la gráfida de los resultados históricos de la operación para cada empresa
+@app.callback(Output('NSV-historico', component_property='figure'),
+            [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')]
+)
+def actualizar_historico(start_date, end_date, value):
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    colores = ['red', 'grey']
+    if 'RECIBO' in value:
+        datos_filtrados = nsv_recibo_remitente(datos_filtrados)
+    elif 'DESPACHO' in value:
+        datos_filtrados = nsv_despacho_remitente(datos_filtrados)
+    else:
+        # Espacio para crear el filtro de 'ENTREGA'
+        pass
+    traces = []
+    for i, empresa, in enumerate(datos_filtrados.columns.values):
+        traces.append(go.Scatter(x=datos_filtrados.index,
+                                y=datos_filtrados[empresa],
+                                name=empresa,
+                                line={'width':4, 'color':colores[i]}))
+    layout = go.Layout(plot_bgcolor='#1f2c56',
+            paper_bgcolor='#1f2c56',
+            hovermode='closest',
+            title={
+                'text': f"Producción NSV histórica (bbls)",
+                'y': 0.93,
+                'x': 0.5,
+                'xanchor': 'center',
+                'yanchor': 'top'},
+            titlefont={
+                       'color': 'white',
+                       'size': 25},
+            legend={
+                'orientation': 'h',
+                'bgcolor': '#1f2c56',
+                'xanchor': 'center', 'x': 0.5, 'y': -0.07},
+            font=dict(
+                family="sans-serif",
+                size=12,
+                color='white'),
+            margin=dict(t=60, b=30, l=30, r=30)
+            )
+    return {'data': traces, 'layout': layout}
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
