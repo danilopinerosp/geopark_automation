@@ -376,6 +376,35 @@ def actualizar_historico(start_date, end_date, value):
             )
     return {'data': traces, 'layout': layout}
 
+@app.callback(Output('resultados-empresa', component_property='figure'),
+            [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')]
+)
+def actualizar_resultado_empresa(start_date, end_date, value):
+
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = total_crudo_detallado(datos, value)['NSV']
+    traces = []
+    colores = ['red', 'grey']
+    for i, empresa in enumerate(datos_filtrados.index):
+        traces.append(go.Bar(name=empresa, 
+                    x=datos_filtrados.columns.values, 
+                    y=datos_filtrados.loc[empresa, :],
+                    marker={'color': colores[i]}))
+
+    layout = go.Layout(title={'text':'Producción NSV por Campo (bbls)',
+                                'y':1,
+                                'x':0.5,
+                                'xanchor':'center',
+                                'yanchor':'top'},
+                        font=dict(color='white'),
+                        paper_bgcolor='#1f2c56',
+                        plot_bgcolor='#1f2c56',
+                        barmode='stack'
+                        )
+    return {'data':traces, 'layout':layout}
+    
 
 if __name__ == '__main__':
     app.run_server(debug=True)
