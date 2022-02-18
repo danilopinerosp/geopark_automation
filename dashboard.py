@@ -61,7 +61,7 @@ app.layout = html.Div([
     ], id="header", className="row flex-display", style={"margin-bottom": "25px"}),
     # Contenedor donde se ubicaran los 4 principales datos acumulados del dashboard
     html.Div([
-        # Contenedor para las entregas acumuladas de NSV para todas las empresas
+        # Contenedor GOV cumulado por tipo de operación en el periodo indicado de todas las empresas
         html.Div([
             html.H6(children='GOV (bbls)',
                     style={
@@ -76,7 +76,7 @@ app.layout = html.Div([
                        'fontSize': 40}
                    )], className="card_container three columns",
         ),
-        # Despachos acumulados de NSV para todas las empresas
+        # Contenedor GSV cumulado por tipo de operación en el periodo indicado de todas las empresas
         html.Div([
             html.H6(children='GSV (bbls)',
                     style={
@@ -91,7 +91,7 @@ app.layout = html.Div([
                        'fontSize': 40}
                    )], className="card_container three columns",
         ),
-        # Recibos acumulados de NSV para todas las empresas
+        # Contenedor NSV cumulado por tipo de operación en el periodo indicado de todas las empresas
         html.Div([
             html.H6(children='NSV (bbls)',
                     style={
@@ -106,7 +106,7 @@ app.layout = html.Div([
                        'fontSize': 40}
                    )], className="card_container three columns",
         ),
-        # Enregas de NSV acumuladas para Geopark
+        # Contenedor NSV acumulado por tipo de operación en el periodo indicado para Geopark
         html.Div([
             html.H6(children='NSV Geopark (bbls)',
                     style={
@@ -394,7 +394,9 @@ def actualizar_resultado_empresa(start_date, end_date, tipo_operacion, tipo_crud
         traces.append(go.Bar(name=empresa, 
                     x=datos_filtrados.columns.values, 
                     y=datos_filtrados.loc[empresa, :],
-                    marker={'color': colores[i]}))
+                    marker={'color': colores[i]},
+                    text=datos_filtrados.loc[empresa, :].round(2),
+                    textposition='auto'))
 
     layout = go.Layout(title={'text':'Producción NSV por Campo (bbls)',
                                 'y':1,
