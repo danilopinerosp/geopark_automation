@@ -190,7 +190,7 @@ app.layout = html.Div([
         html.Div(
             [dcc.Graph(id='resultados-empresa')
         ], className='create_container1 twelve columns'),
-    ], className='row flex-display')
+    ], className='row flex-display'),
 ], id='mainContainer', style={'display':'flex', 'flex-direction':'column'})
 
 @app.callback(Output('GOV-geopark', 'figure'),

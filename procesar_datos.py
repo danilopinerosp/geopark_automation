@@ -163,15 +163,30 @@ def calcular_inventario_campo(datos, empresa, tipo_crudo, inventario_inicial_cam
 
     Retorna:
     --------
-    Series -> Una
+    pandas.core.series.Series -> Inventario por campo para la empresa indicada.
     """
     import numpy as np
     # calcular las diferencias para la empresa para determinado tipo de crudo
     diferencias = calcular_diferencias(datos, 'RECIBO POR REMITENTE TIGANA', 'DESPACHO POR REMITENTE', tipo_crudo, empresa)
     # Agregar el inventario inicial por campo al dataframe de las diferencias
     diferencias = diferencias.append(inventario_inicial_campo, ignore_index=True)
+    # Eliminar las columnas que continen los datos de TIGANA y JACANA
+    diferencias.drop(['JACANA ESTACION', 'TIGANA ESTACION'], inplace=True, axis=1)
     # Retornar el inventario final de los datos
     return np.round(diferencias.sum(), 2)
+
+def calcular_inventario_total(inventario_campo):
+    """
+    Retorna la suma del inventario por campo.
+
+    Parámetros:
+    -----------
+    pandas.core.series.Series - inventario por campo
+
+    Retorna:
+    float - Suma total de cada inventario por campo
+    """
+    return inventario_campo.sum()
 
 if __name__ == "__main__":
     from datetime import datetime as dt
@@ -181,4 +196,4 @@ if __name__ == "__main__":
     fin = inicio + timedelta(3)
     datos = pd.read_csv('balance.csv')
     datos['fecha'] = pd.to_datetime(datos['fecha'], format='%d-%m-%Y')
-    print(calcular_inventario_campo(datos, 'PAREX', 'NSV'))
+    print(calcular_inventario_total(calcular_inventario_campo(datos, 'GEOPARK', 'NSV')))
