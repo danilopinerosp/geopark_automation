@@ -122,17 +122,29 @@ def filtrar_datos_fechas(datos, inicio, fin):
     """
     return datos[(datos['fecha'] >= inicio) & (datos['fecha'] <= fin)]
 
-def diferencias(datos, categoria_1, cateroria_2):
+def calcular_diferencias(datos, tipo_operacion_1, tipo_operacion_2, tipo_crudo='NSV', empresa='GEOPARK'):
     """
-    Retorna un DataFrame con el resultado de restar los datos de la caterogia_2 a la categoria_1
+    Retorna un DataFrame con el resultado de restar los datos de la caterogia_2 a la categoria_1 para cada
+    día de operación por empresa y campo
 
     Parámetros:
     -----------
     datos  -> DataFrame - datos del balance
     categoria_1 -> str - cadena de caracteres con la primera categoría de donde vamos a hacer la resta
     categoria_2 -> str - cadena de caracteres con al segunda categoría que le vamos a restar a la primera categoría
+    tipo_crudo -> str - Indica el tipo de crudo al cual se le van a sacar las diferentes entre las dos categorías
     """
-    pass
+    # Filtrar los datos según las dos categorías a analizar
+    filtro = filtro = (datos['operacion'] ==  tipo_operacion_1) | (datos['operacion'] == tipo_operacion_2)
+    datos_filtrados = datos[filtro]
+    # Agrupar los datos para realizar las respectivas diferencias
+    agrupados = datos_filtrados.groupby(['fecha', 'campo', 'empresa', 'operacion'])[tipo_crudo]
+    # Separar los datos agrupados por operación
+    operacion_1 = agrupados.sum().unstack().unstack().fillna(0)[tipo_operacion_1]
+    operacion_2 = agrupados.sum().unstack().unstack().fillna(0)[tipo_operacion_2]
+    # Calcular las diferencias
+    diferencias = (operacion_1 - operacion_2).unstack().fillna(0)
+    return diferencias[empresa]
 
 if __name__ == "__main__":
     from datetime import datetime as dt
@@ -142,4 +154,4 @@ if __name__ == "__main__":
     fin = inicio + timedelta(3)
     datos = pd.read_csv('balance.csv')
     datos['fecha'] = pd.to_datetime(datos['fecha'], format='%d-%m-%Y')
-    print(filtrar_datos_fechas(datos, inicio, fin))
+    print(calcular_diferencias(datos, 'RECIBO POR REMITENTE TIGANA', 'DESPACHO POR REMITENTE'))
