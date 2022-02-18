@@ -8,8 +8,9 @@ import pandas as pd
 from datetime import datetime as dt
 from datetime import date, timedelta
 import numpy as np
+from obtener_datos import CONDICIONES
 
-from procesar_datos import filtrar_datos_fechas, nsv_despacho_remitente, nsv_recibo_remitente, total_crudo, total_crudo_detallado, total_crudo_empresa
+from procesar_datos import crudo_operacion_remitente, filtrar_datos_fechas, total_crudo, total_crudo_detallado, total_crudo_empresa
 
 # Cargos los datos del balance
 datos = pd.read_csv('balance.csv')
@@ -150,6 +151,7 @@ app.layout = html.Div([
                         multi=False)
         ], className='create_container eight columns', id='cross-filter-options')
     ], id="filtro-analisis", className="row flex-display"),
+    # Contenedor para la participación de Geopark, le operación del día y la producción histórica
     html.Div([
         # Contenedor para mostrar los resultado de la operación de la fecha más reciente de actualización
         # para Geopark
@@ -173,6 +175,16 @@ app.layout = html.Div([
             dcc.Graph(id='NSV-historico')
         ], className='create_container six columns'),
     ], className='row flex-display'),
+    # Contenedor para crear el filtro sobre las condiciones de operación del crudo (GOV, GSV, NSV)
+    html.Div([
+            # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
+            html.P('Tipo de Crudo', className='fix_label', style={'color':'white'}),
+            dcc.Dropdown(options=CONDICIONES,
+                        value='NSV',
+                        clearable=False,
+                        id='condiciones-operacion',
+                        multi=False)
+        ], className='create_container twelve columns'),
     # Contenedor para la gráfica de la producción por campo y empresa.
     html.Div([
         html.Div(
@@ -216,7 +228,7 @@ def actualizar_GOV_geopark(tipo_operacion):
 # Callback para actualizar los datos de producción de GSV de Geopark en el último día reportado
 @app.callback(Output('GSV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
-def actualizar_GOV_geopark(tipo_operacion):
+def actualizar_GSV_geopark(tipo_operacion):
     # Agrupar los valores del DataFrame y hacer una suma por cada grupo
     datos_agrupados = datos.groupby(['fecha', 'empresa', 'operacion'])['GSV'].sum()
     # Seleccionar el GOV para el último día reportado
@@ -249,7 +261,7 @@ def actualizar_GOV_geopark(tipo_operacion):
 # Callback para actualizar los datos de producción de NSV de Geopark en el último día reportado
 @app.callback(Output('NSV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
-def actualizar_GOV_geopark(tipo_operacion):
+def actualizar_NSV_geopark(tipo_operacion):
     # Agrupar los valores del DataFrame y hacer una suma por cada grupo
     datos_agrupados = datos.groupby(['fecha', 'empresa', 'operacion'])['NSV'].sum()
     # Seleccionar el GOV para el último día reportado
@@ -289,13 +301,8 @@ def actualizar_participacion(start_date, end_date, value):
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
     # datos_filtrados = datos_filtrados[datos_filtrados['operacion'] == value]
     colores = ['red', 'grey']
-    if 'RECIBO' in value:
-        datos_filtrados = nsv_recibo_remitente(datos_filtrados)
-    elif 'DESPACHO' in value:
-        datos_filtrados = nsv_despacho_remitente(datos_filtrados)
-    else:
-        # Espacio para crear el filtro de 'ENTREGA'
-        pass
+    # Calcular total de producción diaria para NSV para determinado tipo de operación por empresa
+    datos_filtrados = crudo_operacion_remitente(datos_filtrados, 'NSV', value)
     trace =[go.Pie(labels=datos_filtrados.columns.values,
                             values=[np.sum(datos_filtrados[empresa]) for empresa in datos_filtrados.columns],
                             hoverinfo='percent',
@@ -339,13 +346,7 @@ def actualizar_participacion(start_date, end_date, value):
 def actualizar_historico(start_date, end_date, value):
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
     colores = ['red', 'grey']
-    if 'RECIBO' in value:
-        datos_filtrados = nsv_recibo_remitente(datos_filtrados)
-    elif 'DESPACHO' in value:
-        datos_filtrados = nsv_despacho_remitente(datos_filtrados)
-    else:
-        # Espacio para crear el filtro de 'ENTREGA'
-        pass
+    datos_filtrados = crudo_operacion_remitente(datos, 'NSV', value)
     traces = []
     for i, empresa, in enumerate(datos_filtrados.columns.values):
         traces.append(go.Scatter(x=datos_filtrados.index,
@@ -376,15 +377,17 @@ def actualizar_historico(start_date, end_date, value):
             )
     return {'data': traces, 'layout': layout}
 
+# Callback para actualizar la gráfica de barras sobre la producción por campo para determinado tipo de crudo
 @app.callback(Output('resultados-empresa', component_property='figure'),
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
-            Input('tipo-operacion', 'value')]
+            Input('tipo-operacion', 'value'),
+            Input('condiciones-operacion', 'value')]
 )
-def actualizar_resultado_empresa(start_date, end_date, value):
-
+def actualizar_resultado_empresa(start_date, end_date, tipo_operacion, tipo_crudo):
+    # Filtrar los datos para el período indicado, el tipo de operación de interés y el tipo de crudo
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
-    datos_filtrados = total_crudo_detallado(datos, value)['NSV']
+    datos_filtrados = total_crudo_detallado(datos, tipo_operacion)[tipo_crudo]
     traces = []
     colores = ['red', 'grey']
     for i, empresa in enumerate(datos_filtrados.index):
@@ -403,8 +406,7 @@ def actualizar_resultado_empresa(start_date, end_date, value):
                         plot_bgcolor='#1f2c56',
                         barmode='stack'
                         )
-    return {'data':traces, 'layout':layout}
-    
+    return {'data':traces, 'layout':layout}    
 
 if __name__ == '__main__':
     app.run_server(debug=True)
