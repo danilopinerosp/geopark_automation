@@ -1,3 +1,6 @@
+from codecs import ignore_errors
+
+
 def leer_datos(documento):
     """
     Retorna un dataframe con los datos obtenidos a partir de documento
@@ -146,6 +149,30 @@ def calcular_diferencias(datos, tipo_operacion_1, tipo_operacion_2, tipo_crudo='
     diferencias = (operacion_1 - operacion_2).unstack().fillna(0)
     return diferencias[empresa]
 
+def calcular_inventario_campo(datos, empresa, tipo_crudo, inventario_inicial_campo=dict()):
+    """
+    Retorna el inventario final por campo al sumar y restar las diferencias dadas en inventario_diario_campo
+    del inventario_inicial_campo
+
+    Parámetros:
+    -----------
+    Datos                    -> DataFrame - Contiene los datos de la operación diaria de las empresas
+    empresa                  -> str       - Nombre de la empresa a la que le calculamos el inventario
+    tipo_crudo               -> str       - Cadena de caracteres con el tipo de crudo a analizar
+    inventario_inicial_campo -> dict      - Diccionario con el inventario inicial para cada campo
+
+    Retorna:
+    --------
+    Series -> Una
+    """
+    import numpy as np
+    # calcular las diferencias para la empresa para determinado tipo de crudo
+    diferencias = calcular_diferencias(datos, 'RECIBO POR REMITENTE TIGANA', 'DESPACHO POR REMITENTE', tipo_crudo, empresa)
+    # Agregar el inventario inicial por campo al dataframe de las diferencias
+    diferencias = diferencias.append(inventario_inicial_campo, ignore_index=True)
+    # Retornar el inventario final de los datos
+    return np.round(diferencias.sum(), 2)
+
 if __name__ == "__main__":
     from datetime import datetime as dt
     from datetime import timedelta
@@ -154,4 +181,4 @@ if __name__ == "__main__":
     fin = inicio + timedelta(3)
     datos = pd.read_csv('balance.csv')
     datos['fecha'] = pd.to_datetime(datos['fecha'], format='%d-%m-%Y')
-    print(calcular_diferencias(datos, 'RECIBO POR REMITENTE TIGANA', 'DESPACHO POR REMITENTE'))
+    print(calcular_inventario_campo(datos, 'PAREX', 'NSV'))
