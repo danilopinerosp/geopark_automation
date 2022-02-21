@@ -17,13 +17,6 @@ datos = pd.read_csv('balance.csv')
 # Convertir las fechas al tipo de dato datatime
 datos['fecha'] = pd.to_datetime(datos['fecha'], format='%d-%m-%Y')
 
-# Calcular los acumulados por tipo de operación de las condiciones de operación para NSV
-total_entrega = total_crudo(datos, 'ENTREGA')['NSV']
-total_despacho = total_crudo(datos, 'DESPACHO')['NSV']
-total_recibo = total_crudo(datos, 'RECIBO')['NSV']
-# Calcular el total de entregas de NSV acumuladas para Geopark
-entregas_geopark = total_crudo_empresa(datos, 'ENTREGA').loc['GEOPARK', 'NSV']
-
 # Declarar el objeto app para el dashboard
 app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}])
 
@@ -68,12 +61,11 @@ app.layout = html.Div([
                         'textAlign': 'center',
                         'color': 'white'}
                     ),
-
-            html.P(f"{total_entrega:,.2f}", # formatea el valor a 2 decimales
-                   style={
+            html.P(style={
                        'textAlign': 'center',
                        'color': 'orange',
-                       'fontSize': 40}
+                       'fontSize': 40},
+                       id='GOV-acumulado'
                    )], className="card_container three columns",
         ),
         # Contenedor GSV cumulado por tipo de operación en el periodo indicado de todas las empresas
@@ -84,11 +76,11 @@ app.layout = html.Div([
                         'color': 'white'}
                     ),
 
-            html.P(f"{total_despacho:,.2f}",
-                   style={
+            html.P(style={
                        'textAlign': 'center',
                        'color': '#dd1e35',
-                       'fontSize': 40}
+                       'fontSize': 40},
+                    id='GSV-acumulado'
                    )], className="card_container three columns",
         ),
         # Contenedor NSV cumulado por tipo de operación en el periodo indicado de todas las empresas
@@ -99,11 +91,11 @@ app.layout = html.Div([
                         'color': 'white'}
                     ),
 
-            html.P(f"{total_recibo:,.2f}",
-                   style={
+            html.P(style={
                        'textAlign': 'center',
                        'color': 'green',
-                       'fontSize': 40}
+                       'fontSize': 40},
+                    id='NSV-acumulado'
                    )], className="card_container three columns",
         ),
         # Contenedor NSV acumulado por tipo de operación en el periodo indicado para Geopark
@@ -114,11 +106,11 @@ app.layout = html.Div([
                         'color': 'white'}
                     ),
 
-            html.P(f"{entregas_geopark:,.2f}",
-                   style={
+            html.P(style={
                        'textAlign': 'center',
                        'color': '#e55467',
-                       'fontSize': 40}
+                       'fontSize': 40},
+                    id='NSV-acumulado-geopark'
                    )], className="card_container three columns")
 
     ], className="row flex-display"),
@@ -166,7 +158,6 @@ app.layout = html.Div([
             dcc.Graph(id='NSV-historico')
         ], className='create_container six columns'),
     ], className='row flex-display'),
-
     # Contenedor para la gráfica de la producción por campo y empresa y par la gráfica de inventario
     html.Div([
         html.Div([
@@ -192,6 +183,47 @@ app.layout = html.Div([
             inline=True)
         ], style={'color':'white', 'text-align':'center'})
 ], id='mainContainer', style={'display':'flex', 'flex-direction':'column'})
+
+# Callback para actualizar el GOV acumulado para las dos empresas
+@app.callback(Output('GOV-acumulado', 'children'),
+            [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')])
+def actualizar_GOV_acumulado(start_date, end_date, tipo_operacion):
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['operacion', 'GOV']]
+    gov_acumulado = datos_filtrados[datos_filtrados['operacion'] == tipo_operacion]['GOV'].sum()
+    return f"{gov_acumulado:,.2f}"
+
+# Callback para actualizar el GSV acumulado para las dos empresas
+@app.callback(Output('GSV-acumulado', 'children'),
+            [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')])
+def actualizar_GSV_acumulado(start_date, end_date, tipo_operacion):
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['operacion', 'GSV']]
+    gov_acumulado = datos_filtrados[datos_filtrados['operacion'] == tipo_operacion]['GSV'].sum()
+    return f"{gov_acumulado:,.2f}"
+
+# Callback para actualizar el NSV acumulado para las dos empresas
+@app.callback(Output('NSV-acumulado', 'children'),
+            [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')])
+def actualizar_NSV_acumulado(start_date, end_date, tipo_operacion):
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['operacion', 'NSV']]
+    gov_acumulado = datos_filtrados[datos_filtrados['operacion'] == tipo_operacion]['NSV'].sum()
+    return f"{gov_acumulado:,.2f}"
+
+    # Callback para actualizar el NSV acumulado para Geopark
+@app.callback(Output('NSV-acumulado-geopark', 'children'),
+            [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')])
+def actualizar_NSV_acumulado_geopark(start_date, end_date, tipo_operacion):
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['empresa', 'operacion', 'NSV']]
+    filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'GEOPARK')
+    gov_acumulado = datos_filtrados[filtro]['NSV'].sum()
+    return f"{gov_acumulado:,.2f}"
 
 @app.callback(Output('GOV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
@@ -447,7 +479,7 @@ def actualizar_inventario_total(start_date, end_date, empresa, tipo_crudo):
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
     inventario_campo = calcular_inventario_campo(datos_filtrados, empresa, tipo_crudo)
     inventario_total = calcular_inventario_total(inventario_campo)
-    return f'Inventario Total: {round(inventario_total)}'
+    return f'Inventario Total: {round(inventario_total, 2)}'
 
 if __name__ == '__main__':
     app.run_server(debug=True)
