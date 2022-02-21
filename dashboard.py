@@ -8,9 +8,9 @@ import pandas as pd
 from datetime import datetime as dt
 from datetime import date, timedelta
 import numpy as np
-from obtener_datos import CONDICIONES
+from obtener_datos import CONDICIONES, EMPRESAS
 
-from procesar_datos import crudo_operacion_remitente, filtrar_datos_fechas, total_crudo, total_crudo_detallado, total_crudo_empresa
+from procesar_datos import calcular_inventario_campo, calcular_inventario_total, crudo_operacion_remitente, filtrar_datos_fechas, total_crudo, total_crudo_detallado, total_crudo_empresa
 
 # Cargos los datos del balance
 datos = pd.read_csv('balance.csv')
@@ -167,19 +167,30 @@ app.layout = html.Div([
         ], className='create_container six columns'),
     ], className='row flex-display'),
 
-    # Contenedor para la gráfica de la producción por campo y empresa.
+    # Contenedor para la gráfica de la producción por campo y empresa y par la gráfica de inventario
     html.Div([
-        html.Div(
-            [dcc.Graph(id='resultados-empresa'),
-            # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
+        html.Div([
+            dcc.Graph(id='resultados-empresa'),
+        ], className='create_container six columns'),
+        html.Div([
+            dcc.Graph(id='inventario-empresa'),
+            html.H6(id='inventario-total', className='create_container_inv_total', style={'color':'white','text-align':'center'}),
             html.Div([
-                dcc.RadioItems(options=CONDICIONES,
-                    value='NSV',
-                    id='condiciones-operacion',
+                dcc.RadioItems(options=EMPRESAS,
+                    value='GEOPARK',
+                    id='empresa',
                     inline=True)
             ], style={'color':'white', 'text-align':'center'})
-        ], className='create_container1 twelve columns'),
+        ], className='create_container six columns'),
+        # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
     ], className='row flex-display'),
+    # Contenedor para generar el filtro sobre el tipo de crudo
+    html.Div([
+        dcc.RadioItems(options=CONDICIONES,
+            value='NSV',
+            id='condiciones-operacion',
+            inline=True)
+        ], style={'color':'white', 'text-align':'center'})
 ], id='mainContainer', style={'display':'flex', 'flex-direction':'column'})
 
 @app.callback(Output('GOV-geopark', 'figure'),
@@ -351,9 +362,7 @@ def actualizar_historico(start_date, end_date, value):
                 'x': 0.5,
                 'xanchor': 'center',
                 'yanchor': 'top'},
-            titlefont={
-                       'color': 'white',
-                       'size': 25},
+            titlefont={'color': 'white', 'size': 25},
             legend={
                 'orientation': 'h',
                 'bgcolor': '#1f2c56',
@@ -388,17 +397,57 @@ def actualizar_resultado_empresa(start_date, end_date, tipo_operacion, tipo_crud
                     textposition='auto'))
 
     layout = go.Layout(title={'text':f'Producción {tipo_crudo} por Campo (bbls)',
-                                'y':1,
-                                'x':0.5,
-                                'xanchor':'center',
-                                'yanchor':'top'},
-                        titlefont={'color': 'white', 'size': 25},
+                                'y': 0.93,
+                                'x': 0.5,
+                                'xanchor': 'center',
+                                'yanchor': 'top'},
+                        titlefont={'color': 'white', 'size': 20},
                         font=dict(color='white'),
                         paper_bgcolor='#1f2c56',
                         plot_bgcolor='#1f2c56',
                         barmode='stack'
                         )
     return {'data':traces, 'layout':layout}    
+
+# Callback para actualizar la gráfica de barras sobre el inventario por campo para determinado tipo de crudo
+@app.callback(Output('inventario-empresa', component_property='figure'),
+            [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('empresa', 'value'),
+            Input('condiciones-operacion', 'value')])
+def actualizar_inventario(start_date, end_date, empresa, tipo_crudo):
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    inventario_campo = calcular_inventario_campo(datos_filtrados, empresa, tipo_crudo)
+    trace = [go.Bar(name=empresa,
+                    x=inventario_campo.index,
+                    y=inventario_campo.values, 
+                    text=inventario_campo.values.round(2),
+                    textposition='auto')]
+    
+    layout = go.Layout(title={'text':f'Inventario {tipo_crudo}: {empresa} por Campo (bbls)',
+                                'y':0.93,
+                                'x':0.5,
+                                'xanchor':'center',
+                                'yanchor':'top'},
+                        titlefont={'color': 'white', 'size': 20},
+                        font=dict(color='white'),
+                        
+                        paper_bgcolor='#1f2c56',
+                        plot_bgcolor='#1f2c56',
+                        )
+    return {'data':trace, 'layout':layout} 
+
+# Callback para mostrar el inventario total para determinado periodo, empresa y tipo de crudo
+@app.callback(Output('inventario-total', component_property='children'),
+            [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('empresa', 'value'),
+            Input('condiciones-operacion', 'value')])
+def actualizar_inventario_total(start_date, end_date, empresa, tipo_crudo):
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    inventario_campo = calcular_inventario_campo(datos_filtrados, empresa, tipo_crudo)
+    inventario_total = calcular_inventario_total(inventario_campo)
+    return f'Inventario Total: {round(inventario_total)}'
 
 if __name__ == '__main__':
     app.run_server(debug=True)

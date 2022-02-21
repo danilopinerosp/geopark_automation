@@ -22,6 +22,13 @@ body {
     position: relative;
     box-shadow: 2px 2px 2px #1f2c56;
   }
+
+  .create_container_inv_total {
+    border-radius: 5px;
+    background-color: #107BE7;
+    margin: 18px;
+    padding: 15px;
+  }
   
   .create_container1 {
     border-radius: 5px;
