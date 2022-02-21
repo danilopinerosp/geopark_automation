@@ -122,11 +122,12 @@ app.layout = html.Div([
                    )], className="card_container three columns")
 
     ], className="row flex-display"),
-    # Contenedor para crear los dos filtros (periodo de análisis y tipo de operación)
+    # Contenedor para la participación de Geopark, le operación del día y la producción histórica
     html.Div([
-        # Contenedor para la selección del período de análisis
+        # Contenedor para mostrar los resultado de la operación de la fecha más reciente de actualización
+        # para Geopark y generar los filtros por fecha y tipo de operación
         html.Div([
-            html.P('Periodo de Análisis', className='fix_label', style={'color':'white'}),
+            html.P('Periodo de Análisis', className='fix_label', style={'color':'white', 'text-align':'center'}),
             # Permite seleccionar las fechas en las que se quiere realizar el análisis
             dcc.DatePickerRange(
                 id='periodo-analisis',
@@ -139,27 +140,17 @@ app.layout = html.Div([
                 end_date=datos['fecha'].max().to_pydatetime(),
                 display_format='DD/MM/Y'
             ),
-        ], className='create_container four columns'),
-        # Contenedor para la selección del tipo de operación a analizar
-        html.Div([
             # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
-            html.P('Tipo de Operación a analizar', className='fix_label', style={'color':'white'}),
+            html.P('Tipo de Operación a analizar', className='fix_label', style={'color':'white', 'text-align':'center'}),
             dcc.Dropdown(options=datos['operacion'].unique(),
                         value='RECIBO POR REMITENTE TIGANA',
                         clearable=False,
                         id='tipo-operacion',
-                        multi=False)
-        ], className='create_container eight columns', id='cross-filter-options')
-    ], id="filtro-analisis", className="row flex-display"),
-    # Contenedor para la participación de Geopark, le operación del día y la producción histórica
-    html.Div([
-        # Contenedor para mostrar los resultado de la operación de la fecha más reciente de actualización
-        # para Geopark
-        html.Div([
+                        multi=False),
             html.P(f"Operación Geopark: {datos['fecha'].iloc[-1].strftime('%d/%m/%Y')}",
                 className='fix_label', style={'color':'white', 'text-align':'center'}),
             dcc.Graph(id='GOV-geopark', config={'displayModeBar':False}, className='dcc_compon',
-                    style={'margin-top':'20px'}), 
+                    style={'margin-top':'20px'}),   
             dcc.Graph(id='GSV-geopark', config={'displayModeBar':False}, className='dcc_compon',
                     style={'margin-top':'20px'}), 
             dcc.Graph(id='NSV-geopark', config={'displayModeBar':False}, className='dcc_compon',
@@ -175,20 +166,18 @@ app.layout = html.Div([
             dcc.Graph(id='NSV-historico')
         ], className='create_container six columns'),
     ], className='row flex-display'),
-    # Contenedor para crear el filtro sobre las condiciones de operación del crudo (GOV, GSV, NSV)
-    html.Div([
-            # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
-            html.P('Tipo de Crudo', className='fix_label', style={'color':'white'}),
-            dcc.Dropdown(options=CONDICIONES,
-                        value='NSV',
-                        clearable=False,
-                        id='condiciones-operacion',
-                        multi=False)
-        ], className='create_container twelve columns'),
+
     # Contenedor para la gráfica de la producción por campo y empresa.
     html.Div([
         html.Div(
-            [dcc.Graph(id='resultados-empresa')
+            [dcc.Graph(id='resultados-empresa'),
+            # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
+            html.Div([
+                dcc.RadioItems(options=CONDICIONES,
+                    value='NSV',
+                    id='condiciones-operacion',
+                    inline=True)
+            ], style={'color':'white', 'text-align':'center'})
         ], className='create_container1 twelve columns'),
     ], className='row flex-display'),
 ], id='mainContainer', style={'display':'flex', 'flex-direction':'column'})
@@ -398,11 +387,12 @@ def actualizar_resultado_empresa(start_date, end_date, tipo_operacion, tipo_crud
                     text=datos_filtrados.loc[empresa, :].round(2),
                     textposition='auto'))
 
-    layout = go.Layout(title={'text':'Producción NSV por Campo (bbls)',
+    layout = go.Layout(title={'text':f'Producción {tipo_crudo} por Campo (bbls)',
                                 'y':1,
                                 'x':0.5,
                                 'xanchor':'center',
                                 'yanchor':'top'},
+                        titlefont={'color': 'white', 'size': 25},
                         font=dict(color='white'),
                         paper_bgcolor='#1f2c56',
                         plot_bgcolor='#1f2c56',
