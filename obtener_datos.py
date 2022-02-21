@@ -2,7 +2,7 @@
 EMPRESAS = ['GEOPARK', 'PAREX']
 CAMPOS = ['CHIRICOCA', 'INDICO-2', 'INDICO-1X', 'AZOGUE', 'GUACO', 'ADALIA',
             'AKIRA', 'MARACAS', 'CARMENTEA', 'CALONA', 'CAPACHOS', 'JACANA ESTACION',
-            'TIGANA ESTACION']
+            'TIGANA ESTACION', 'CABRESTERO - BACANO JACANA ESTACION']
 OPERACIONES = ['DESPACHO POR REMITENTE', 'RECIBO POR REMITENTE JACANA',
                 'RECIBO POR REMITENTE TIGANA', 'ENTREGA POR REMITENTE']
 CONDICIONES = ['GOV', 'GSV', 'NSV']
@@ -70,7 +70,7 @@ def leer_datos(documento, inicio=1, fin=270):
             operacion = valor
             continue
         if valor in CAMPOS:
-            # si valor se encuentra en la constante CAMPO guarda todos los leer_datos
+            # si valor se encuentra en la constante CAMPO guarda todos los datos
             # en el diccionario datos
             datos['fecha'] = fecha
             datos['empresa'] = empresa
@@ -98,7 +98,7 @@ def limpiar_datos(datos):
     procesados = list()
     for dato in datos: 
         # Remover los diccionarios con GVO, GSV  NSV vacíos
-        if not dato['GOV'] and not dato['GSV'] and not dato['NSV']:
+        if not isinstance(dato['GOV'], float) and not isinstance(dato['GSV'], float) and not isinstance(dato['NSV'], float):
             continue
         procesados.append(dato)
     return procesados
