@@ -52,11 +52,11 @@ app.layout = html.Div([
         ], className="one-third column", id='title1'),
 
     ], id="header", className="row flex-display", style={"margin-bottom": "25px"}),
-    # Contenedor donde se ubicaran los 4 principales datos acumulados del dashboard
+    # Contenedor donde se ubicaran los 6 acumulados por tipo de crudo para las dos empresas
     html.Div([
-        # Contenedor GOV cumulado por tipo de operación en el periodo indicado de todas las empresas
+        # Contenedor GOV cumulado por tipo de operación en el periodo indicado de Geopark
         html.Div([
-            html.H6(children='GOV (bbls)',
+            html.H6(children='Geopark GOV (bbls)',
                     style={
                         'textAlign': 'center',
                         'color': 'white'}
@@ -64,13 +64,13 @@ app.layout = html.Div([
             html.P(style={
                        'textAlign': 'center',
                        'color': 'orange',
-                       'fontSize': 40},
-                       id='GOV-acumulado'
-                   )], className="card_container three columns",
+                       'fontSize': 25},
+                       id='GOV-acumulado-geopark'
+                   )], className="card_container two columns",
         ),
-        # Contenedor GSV cumulado por tipo de operación en el periodo indicado de todas las empresas
+        # Contenedor GSV cumulado por tipo de operación en el periodo indicado de Geopark
         html.Div([
-            html.H6(children='GSV (bbls)',
+            html.H6(children='Geopark GSV (bbls)',
                     style={
                         'textAlign': 'center',
                         'color': 'white'}
@@ -79,13 +79,13 @@ app.layout = html.Div([
             html.P(style={
                        'textAlign': 'center',
                        'color': '#dd1e35',
-                       'fontSize': 40},
-                    id='GSV-acumulado'
-                   )], className="card_container three columns",
+                       'fontSize': 25},
+                    id='GSV-acumulado-geopark'
+                   )], className="card_container two columns",
         ),
-        # Contenedor NSV cumulado por tipo de operación en el periodo indicado de todas las empresas
+        # Contenedor NSV cumulado por tipo de operación en el periodo indicado de Geopark
         html.Div([
-            html.H6(children='NSV (bbls)',
+            html.H6(children='Geopark NSV (bbls)',
                     style={
                         'textAlign': 'center',
                         'color': 'white'}
@@ -94,13 +94,13 @@ app.layout = html.Div([
             html.P(style={
                        'textAlign': 'center',
                        'color': 'green',
-                       'fontSize': 40},
-                    id='NSV-acumulado'
-                   )], className="card_container three columns",
+                       'fontSize': 25},
+                    id='NSV-acumulado-geopark'
+                   )], className="card_container two columns",
         ),
-        # Contenedor NSV acumulado por tipo de operación en el periodo indicado para Geopark
+        # Contenedor GOV cumulado por tipo de operación en el periodo indicado de Parex
         html.Div([
-            html.H6(children='NSV Geopark (bbls)',
+            html.H6(children='Parex GOV (bbls)',
                     style={
                         'textAlign': 'center',
                         'color': 'white'}
@@ -108,10 +108,38 @@ app.layout = html.Div([
 
             html.P(style={
                        'textAlign': 'center',
-                       'color': '#e55467',
-                       'fontSize': 40},
-                    id='NSV-acumulado-geopark'
-                   )], className="card_container three columns")
+                       'color': 'orange',
+                       'fontSize': 25},
+                    id='GOV-acumulado-parex'
+                   )], className="card_container two columns"),
+        # Contenedor GSV cumulado por tipo de operación en el periodo indicado de Parex
+        html.Div([
+            html.H6(children='Parex GSV (bbls)',
+                    style={
+                        'textAlign': 'center',
+                        'color': 'white'}
+                    ),
+
+            html.P(style={
+                       'textAlign': 'center',
+                       'color': '#dd1e35',
+                       'fontSize': 25},
+                    id='GSV-acumulado-parex'
+                   )], className="card_container two columns"),
+        # Contenedor NSV cumulado por tipo de operación en el periodo indicado de Parex
+        html.Div([
+            html.H6(children='Parex NSV (bbls)',
+                    style={
+                        'textAlign': 'center',
+                        'color': 'white'}
+                    ),
+
+            html.P(style={
+                       'textAlign': 'center',
+                       'color': 'green',
+                       'fontSize': 25},
+                    id='NSV-acumulado-parex'
+                   )], className="card_container two columns")
 
     ], className="row flex-display"),
     # Contenedor para la participación de Geopark, le operación del día y la producción histórica
@@ -184,37 +212,29 @@ app.layout = html.Div([
         ], style={'color':'white', 'text-align':'center'})
 ], id='mainContainer', style={'display':'flex', 'flex-direction':'column'})
 
-# Callback para actualizar el GOV acumulado para las dos empresas
-@app.callback(Output('GOV-acumulado', 'children'),
+# Callback para actualizar el GOV acumulado para geopark
+@app.callback(Output('GOV-acumulado-geopark', 'children'),
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
             Input('tipo-operacion', 'value')])
-def actualizar_GOV_acumulado(start_date, end_date, tipo_operacion):
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['operacion', 'GOV']]
-    gov_acumulado = datos_filtrados[datos_filtrados['operacion'] == tipo_operacion]['GOV'].sum()
+def actualizar_GOV_acumulado_geopark(start_date, end_date, tipo_operacion):
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['empresa', 'operacion', 'GOV']]
+    filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'GEOPARK')
+    gov_acumulado = datos_filtrados[filtro]['GOV'].sum()
     return f"{gov_acumulado:,.2f}"
 
-# Callback para actualizar el GSV acumulado para las dos empresas
-@app.callback(Output('GSV-acumulado', 'children'),
+# Callback para actualizar el GSV acumulado para geopark
+@app.callback(Output('GSV-acumulado-geopark', 'children'),
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
             Input('tipo-operacion', 'value')])
-def actualizar_GSV_acumulado(start_date, end_date, tipo_operacion):
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['operacion', 'GSV']]
-    gov_acumulado = datos_filtrados[datos_filtrados['operacion'] == tipo_operacion]['GSV'].sum()
-    return f"{gov_acumulado:,.2f}"
+def actualizar_GSV_acumulado_geopark(start_date, end_date, tipo_operacion):
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['empresa', 'operacion', 'GSV']]
+    filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'GEOPARK')
+    gsv_acumulado = datos_filtrados[filtro]['GSV'].sum()
+    return f"{gsv_acumulado:,.2f}"
 
-# Callback para actualizar el NSV acumulado para las dos empresas
-@app.callback(Output('NSV-acumulado', 'children'),
-            [Input('periodo-analisis', 'start_date'),
-            Input('periodo-analisis', 'end_date'),
-            Input('tipo-operacion', 'value')])
-def actualizar_NSV_acumulado(start_date, end_date, tipo_operacion):
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['operacion', 'NSV']]
-    gov_acumulado = datos_filtrados[datos_filtrados['operacion'] == tipo_operacion]['NSV'].sum()
-    return f"{gov_acumulado:,.2f}"
-
-    # Callback para actualizar el NSV acumulado para Geopark
+# Callback para actualizar el NSV acumulado para Geopark
 @app.callback(Output('NSV-acumulado-geopark', 'children'),
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
@@ -224,6 +244,39 @@ def actualizar_NSV_acumulado_geopark(start_date, end_date, tipo_operacion):
     filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'GEOPARK')
     gov_acumulado = datos_filtrados[filtro]['NSV'].sum()
     return f"{gov_acumulado:,.2f}"
+
+# Callback para actualizar el NSV acumulado para Parex
+@app.callback(Output('GOV-acumulado-parex', 'children'),
+            [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')])
+def actualizar_GOV_acumulado_parex(start_date, end_date, tipo_operacion):
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['empresa', 'operacion', 'GOV']]
+    filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'PAREX')
+    gov_acumulado = datos_filtrados[filtro]['GOV'].sum()
+    return f"{gov_acumulado:,.2f}"
+
+# Callback para actualizar el GSV acumulado para Parex
+@app.callback(Output('GSV-acumulado-parex', 'children'),
+            [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')])
+def actualizar_GOV_acumulado_parex(start_date, end_date, tipo_operacion):
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['empresa', 'operacion', 'GSV']]
+    filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'PAREX')
+    gsv_acumulado = datos_filtrados[filtro]['GSV'].sum()
+    return f"{gsv_acumulado:,.2f}"
+
+# Callback para actualizar el NSV acumulado para Parex
+@app.callback(Output('NSV-acumulado-parex', 'children'),
+            [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')])
+def actualizar_GOV_acumulado_parex(start_date, end_date, tipo_operacion):
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['empresa', 'operacion', 'NSV']]
+    filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'PAREX')
+    nsv_acumulado = datos_filtrados[filtro]['NSV'].sum()
+    return f"{nsv_acumulado:,.2f}"
 
 @app.callback(Output('GOV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
