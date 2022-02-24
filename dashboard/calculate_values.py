@@ -212,6 +212,6 @@ if __name__ == "__main__":
     from datetime import timedelta
     inicio = dt.today() - timedelta(10)
     fin = inicio + timedelta(3)
-    datos = pd.read_csv('balance.csv')
+    datos = pd.read_csv('datos/balance.csv')
     datos['fecha'] = pd.to_datetime(datos['fecha'], format='%d-%m-%Y')
     print(calcular_inventario_total(calcular_inventario_campo(datos, 'GEOPARK', 'NSV')))

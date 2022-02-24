@@ -1,8 +1,12 @@
-from obtener_datos import leer_datos, escribir_datos, limpiar_datos, registrar_procesado, verificar_procesados
+import os
+from data.get_data import (
+    leer_datos, escribir_datos, 
+    limpiar_datos, 
+    registrar_procesado, 
+    verificar_procesados,
+)
 
 def main():
-    import os
-
     # Nombres de los valores a guardar en el balance
     cabecera = ['fecha', 'empresa', 'operacion', 'campo', 'GOV', 'GSV', 'NSV']
     # Obtener la ruta del directorio reportes
@@ -14,7 +18,7 @@ def main():
             # Procesar el reporte si aún no ha sido procesado
             ruta = os.path.join(reportes, reporte)
             datos = leer_datos(ruta, 1, 270)
-            escribir_datos('balance.csv', cabecera, limpiar_datos(datos))
+            escribir_datos('data/balance.csv', cabecera, limpiar_datos(datos))
             # Registrar el reporte que ya ha sido procesado correctamente
             registrar_procesado(reporte)
 
