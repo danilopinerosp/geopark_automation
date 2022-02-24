@@ -135,3 +135,6 @@ dmypy.json
 
 # Ignorar documentos .csv
 *.csv
+
+# Ignorar directorio .vscode
+.vscode/
