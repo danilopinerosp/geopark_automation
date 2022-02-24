@@ -1,3 +1,15 @@
+"""
+El modulo permite la optención de los datos a partir de los reportes diarios
+de la operación que son entregados en formato .xlsx.
+"""
+# Cargar librerias necesarias para crear el documento de los datos del documento
+import csv
+import os
+# Cargar libreriá para trabajar con fechas
+import datetime
+# Cargar las librerías necesaria para leer el archivo .xlsx
+import openpyxl
+
 # Declaración de constantes
 EMPRESAS = ['GEOPARK', 'PAREX']
 CAMPOS = ['CHIRICOCA', 'INDICO-2', 'INDICO-1X', 'AZOGUE', 'GUACO', 'ADALIA',
@@ -17,9 +29,6 @@ def escribir_datos(nombre_documento, cabecera, datos):
     cabecera   -> str - Cadena de caracteres con los nombres de las columnas
     datos  -> dict - Diccionario con los datos a almacenar en el documento
     """
-    # Cargar librerias necesarias para crear el documento de los datos del documento
-    import csv
-    import os
     # Verificar si el documento existe
     if os.path.exists(nombre_documento):
         # Si nombre_documento existe se abre en modo append ('agregar informacion')
@@ -46,9 +55,6 @@ def leer_datos(documento, inicio=1, fin=270):
     ------
     list -> Retorna una lista de diccionarios con los datos del documento.
     """
-    # Cargar las librerías necesaria para leer el }
-    import openpyxl
-
     #Cargar el documento excel
     book = openpyxl.load_workbook(documento, data_only=True)
     sheet =  book.active #Por defecto toma como activa la primera hoja
@@ -84,8 +90,8 @@ def leer_datos(documento, inicio=1, fin=270):
 
 def limpiar_datos(datos):
     """
-    La función es la encargada de limpiar los datos cuando estos no tienen el tipo de datos esperado,
-    o tienen campo vacios que los hacen inválidos.
+    La función es la encargada de limpiar los datos cuando estos no tienen el
+    tipo de datos esperado, o tienen campo vacios que los hacen inválidos.
 
     Parámetros:
     -----------
@@ -96,9 +102,12 @@ def limpiar_datos(datos):
 
     """
     procesados = list()
-    for dato in datos: 
+    for dato in datos:
         # Remover los diccionarios con GVO, GSV  NSV vacíos
-        if not isinstance(dato['GOV'], float) and not isinstance(dato['GSV'], float) and not isinstance(dato['NSV'], float):
+        float_gov = isinstance(dato['GOV'], float)
+        float_gsv = isinstance(dato['GSV'], float)
+        float_nsv = isinstance(dato['NSV'], float)
+        if not float_gov and not float_gsv and not float_nsv:
             continue
         procesados.append(dato)
     return procesados
@@ -106,14 +115,13 @@ def limpiar_datos(datos):
 def registrar_procesado(reporte):
     """
     Agregar el reporte al documento de reportes procesados, en caso de que el documento
-    no exista, lo creará y luego agregará el reporte. El documento reportes_procesados continene la fecha
-    en la que se procesó el reporte y el nombre del reporte procesado.
+    no exista, lo creará y luego agregará el reporte. El documento reportes_procesados
+    continene la fecha en la que se procesó el reporte y el nombre del reporte procesado.
 
     Parámetros:
     -----------
     reporte -> str - Cadena de caracteres con el nombre del reporte procesado
     """
-    import datetime
     cabecera = ['fecha', 'nombre_reporte']
     datos = [{'fecha': datetime.date.today(), 'nombre_reporte': reporte}]
     escribir_datos('reportes_procesados.csv', cabecera, datos)
@@ -131,8 +139,6 @@ def verificar_procesados(reporte):
     --------
     found -> bool - Verdadero si encontró el reporte, falso en otro caso
     """
-    import csv
-    import os
     found = False
     if os.path.exists('reportes_procesados.csv'):
         with open('reportes_procesados.csv', 'r') as reportes:

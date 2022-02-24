@@ -1,15 +1,20 @@
+# Librería para trabajar con fechas
+from datetime import datetime as dt
+# Librerías necesarias para la realización del dashboard
 import dash
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
+# Librerías para el tratamiento de datos
 import pandas as pd
-# from obtener_datos import CONDICIONES
-from datetime import datetime as dt
 import numpy as np
+# Importar constantes del proceso
 from obtener_datos import CONDICIONES, EMPRESAS
-
-from procesar_datos import calcular_inventario_campo, calcular_inventario_total, crudo_operacion_remitente, filtrar_datos_fechas, total_crudo, total_crudo_detallado, total_crudo_empresa
+# Importar funciones para los valores calculados del proceso
+from procesar_datos import calcular_inventario_campo, calcular_inventario_total
+from procesar_datos import crudo_operacion_remitente, filtrar_datos_fechas
+from procesar_datos import total_crudo_detallado
 
 # Cargos los datos del balance
 datos = pd.read_csv('balance.csv')
@@ -40,10 +45,12 @@ app.layout = html.Div([
         html.Div([
             html.Div([
                 html.H2("Geopark", style={"margin-bottom": "0px", 'color': 'white'}),
-                html.H5("Resultados de la operación", style={"margin-top": "0px", 'color': 'white'}),
+                html.H5("Resultados de la operación",
+                        style={"margin-top": "0px", 'color': 'white'}),
             ])
         ], className="one-half column", id="title"),
-        # Contenedor para la fecha de la última actualización (último reporte contenido en el análisis)
+        # Contenedor para la fecha de la última actualización (último reporte contenido
+        # en el análisis)
         html.Div([
             html.H6(f"Última actualización: {datos['fecha'].iloc[-1].strftime('%d/%m/%Y')}",
                     style={'color': 'orange'}),
@@ -141,26 +148,33 @@ app.layout = html.Div([
                    )], className="card_container two columns")
 
     ], className="row flex-display"),
-    # Contenedor para la participación de Geopark, le operación del día y la producción histórica
+    # Contenedor para la participación de Geopark, le operación del día y la producción
+    # histórica
     html.Div([
-        # Contenedor para mostrar los resultado de la operación de la fecha más reciente de actualización
-        # para Geopark y generar los filtros por fecha y tipo de operación
+        # Contenedor para mostrar los resultado de la operación de la fecha más reciente
+        # de actualización para Geopark y generar los filtros por fecha y tipo de operación
         html.Div([
-            html.P('Periodo de Análisis', className='fix_label', style={'color':'white', 'text-align':'center'}),
+            html.P('Periodo de Análisis',
+                    className='fix_label',
+                    style={'color':'white', 'text-align':'center'}),
             # Permite seleccionar las fechas en las que se quiere realizar el análisis
             dcc.DatePickerRange(
                 id='periodo-analisis',
-                # Las fechas mínimas y máximas permitidas dependerán de las fechas de los datos del balance
+                # Las fechas mínimas y máximas permitidas dependerán de las fechas
+                # de los datos del balance
                 min_date_allowed=datos['fecha'].min().to_pydatetime(),
                 max_date_allowed=datos['fecha'].max().to_pydatetime(),
-                initial_visible_month=dt(datos['fecha'].dt.year.max(), datos['fecha'].max().to_pydatetime().month, 1),
+                initial_visible_month=dt(datos['fecha'].dt.year.max(),
+                                        datos['fecha'].max().to_pydatetime().month, 1),
                 # Por defecto toma como periodo de análisis los datos recolectados del último mes.
                 start_date=(datos[datos['fecha'].dt.month == dt.today().month]['fecha'].min()).to_pydatetime(),
                 end_date=datos['fecha'].max().to_pydatetime(),
                 display_format='DD/MM/Y'
             ),
             # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
-            html.P('Tipo de Operación a analizar', className='fix_label', style={'color':'white', 'text-align':'center'}),
+            html.P('Tipo de Operación a analizar',
+                    className='fix_label',
+                    style={'color':'white', 'text-align':'center'}),
             dcc.Dropdown(options=datos['operacion'].unique(),
                         value='RECIBO POR REMITENTE TIGANA',
                         clearable=False,
@@ -169,18 +183,20 @@ app.layout = html.Div([
             html.P(f"Operación Geopark: {datos['fecha'].iloc[-1].strftime('%d/%m/%Y')}",
                 className='fix_label', style={'color':'white', 'text-align':'center'}),
             dcc.Graph(id='GOV-geopark', config={'displayModeBar':False}, className='dcc_compon',
-                    style={'margin-top':'20px'}),   
+                    style={'margin-top':'20px'}),
             dcc.Graph(id='GSV-geopark', config={'displayModeBar':False}, className='dcc_compon',
-                    style={'margin-top':'20px'}), 
+                    style={'margin-top':'20px'}),
             dcc.Graph(id='NSV-geopark', config={'displayModeBar':False}, className='dcc_compon',
                     style={'margin-top':'20px'})
-        ], className='create_container four columns'), 
-        # Contenedor para graficar la participación en la producción por empresa (según la operación elegida)
+        ], className='create_container four columns'),
+        # Contenedor para graficar la participación en la producción por empresa
+        # (según la operación elegida)
         html.Div([
             dcc.Graph(id='participacion-empresa',
                     config={'displayModeBar':'hover'})
         ], className='create_container four columns'),
-        # Contenedor para graficar la producción histórica por tipo de empresa y condición de operación
+        # Contenedor para graficar la producción histórica por tipo de empresa y condición
+        # de operación
         html.Div([
             dcc.Graph(id='NSV-historico')
         ], className='create_container six columns'),
@@ -192,7 +208,9 @@ app.layout = html.Div([
         ], className='create_container six columns'),
         html.Div([
             dcc.Graph(id='inventario-empresa'),
-            html.H6(id='inventario-total', className='create_container_inv_total', style={'color':'white','text-align':'center'}),
+            html.H6(id='inventario-total',
+                    className='create_container_inv_total',
+                    style={'color':'white','text-align':'center'}),
             html.Div([
                 dcc.RadioItems(options=EMPRESAS,
                     value='GEOPARK',
@@ -216,8 +234,12 @@ app.layout = html.Div([
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
             Input('tipo-operacion', 'value')])
-def actualizar_GOV_acumulado_geopark(start_date, end_date, tipo_operacion):
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['empresa', 'operacion', 'GOV']]
+def actualizar_gov_acumulado_geopark(start_date, end_date, tipo_operacion):
+    """
+    Actualiza el GOV acumulado para Geopark en el periodo indicado
+    """
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = datos_filtrados[['empresa', 'operacion', 'GOV']]
     filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'GEOPARK')
     gov_acumulado = datos_filtrados[filtro]['GOV'].sum()
     return f"{gov_acumulado:,.2f}"
@@ -227,8 +249,12 @@ def actualizar_GOV_acumulado_geopark(start_date, end_date, tipo_operacion):
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
             Input('tipo-operacion', 'value')])
-def actualizar_GSV_acumulado_geopark(start_date, end_date, tipo_operacion):
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['empresa', 'operacion', 'GSV']]
+def actualizar_gsv_acumulado_geopark(start_date, end_date, tipo_operacion):
+    """
+    Actualiza el total de GSV producido por Geopark en periodo de tiempo indicado
+    """
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = datos_filtrados[['empresa', 'operacion', 'GSV']]
     filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'GEOPARK')
     gsv_acumulado = datos_filtrados[filtro]['GSV'].sum()
     return f"{gsv_acumulado:,.2f}"
@@ -238,8 +264,12 @@ def actualizar_GSV_acumulado_geopark(start_date, end_date, tipo_operacion):
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
             Input('tipo-operacion', 'value')])
-def actualizar_NSV_acumulado_geopark(start_date, end_date, tipo_operacion):
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['empresa', 'operacion', 'NSV']]
+def actualizar_nsv_acumulado_geopark(start_date, end_date, tipo_operacion):
+    """
+    Actualiza en acumulado de NSV producido por Geopark en el periodo de tiempo indicado
+    """
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = datos_filtrados[['empresa', 'operacion', 'NSV']]
     filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'GEOPARK')
     gov_acumulado = datos_filtrados[filtro]['NSV'].sum()
     return f"{gov_acumulado:,.2f}"
@@ -249,8 +279,12 @@ def actualizar_NSV_acumulado_geopark(start_date, end_date, tipo_operacion):
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
             Input('tipo-operacion', 'value')])
-def actualizar_GOV_acumulado_parex(start_date, end_date, tipo_operacion):
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['empresa', 'operacion', 'GOV']]
+def actualizar_gov_acumulado_parex(start_date, end_date, tipo_operacion):
+    """
+    Actualiza el GOV acumulado en el periodo indicado para Parex
+    """
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = datos_filtrados[['empresa', 'operacion', 'GOV']]
     filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'PAREX')
     gov_acumulado = datos_filtrados[filtro]['GOV'].sum()
     return f"{gov_acumulado:,.2f}"
@@ -260,8 +294,12 @@ def actualizar_GOV_acumulado_parex(start_date, end_date, tipo_operacion):
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
             Input('tipo-operacion', 'value')])
-def actualizar_GOV_acumulado_parex(start_date, end_date, tipo_operacion):
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['empresa', 'operacion', 'GSV']]
+def actualizar_gsv_acumulado_parex(start_date, end_date, tipo_operacion):
+    """
+    Actualiza el GSV acumulado producido por Parex en el periodo de tiempo indicado
+    """
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = datos_filtrados[['empresa', 'operacion', 'GSV']]
     filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'PAREX')
     gsv_acumulado = datos_filtrados[filtro]['GSV'].sum()
     return f"{gsv_acumulado:,.2f}"
@@ -271,15 +309,25 @@ def actualizar_GOV_acumulado_parex(start_date, end_date, tipo_operacion):
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
             Input('tipo-operacion', 'value')])
-def actualizar_GOV_acumulado_parex(start_date, end_date, tipo_operacion):
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)[['empresa', 'operacion', 'NSV']]
+def actualizar_nsv_acumulado_parex(start_date, end_date, tipo_operacion):
+    """
+    Actualiza el total de NSV acumulado para Parex en el periodo de tiempo indicado
+    """
+    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = datos_filtrados[['empresa', 'operacion', 'NSV']]
     filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == 'PAREX')
     nsv_acumulado = datos_filtrados[filtro]['NSV'].sum()
     return f"{nsv_acumulado:,.2f}"
 
+# Callback para actualizar la producción del último día reportado de GOV
+# para Geopark
 @app.callback(Output('GOV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
-def actualizar_GOV_geopark(tipo_operacion):
+def actualizar_gov_geopark(tipo_operacion):
+    """
+    Actualiza los datos de GOV de la producción del último día reportado
+    para Geopark
+    """
     # Agrupar los valores del DataFrame y hacer una suma por cada grupo
     datos_agrupados = datos.groupby(['fecha', 'empresa', 'operacion'])['GOV'].sum()
     # Seleccionar el GOV para el último día reportado
@@ -312,7 +360,11 @@ def actualizar_GOV_geopark(tipo_operacion):
 # Callback para actualizar los datos de producción de GSV de Geopark en el último día reportado
 @app.callback(Output('GSV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
-def actualizar_GSV_geopark(tipo_operacion):
+def actualizar_gsv_geopark(tipo_operacion):
+    """
+    Actualiza la producción de GSV producida por Geopark en el último día reportado
+    de producción
+    """
     # Agrupar los valores del DataFrame y hacer una suma por cada grupo
     datos_agrupados = datos.groupby(['fecha', 'empresa', 'operacion'])['GSV'].sum()
     # Seleccionar el GOV para el último día reportado
@@ -345,7 +397,10 @@ def actualizar_GSV_geopark(tipo_operacion):
 # Callback para actualizar los datos de producción de NSV de Geopark en el último día reportado
 @app.callback(Output('NSV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
-def actualizar_NSV_geopark(tipo_operacion):
+def actualizar_nsv_geopark(tipo_operacion):
+    """
+    Actualiza el NSV producido por Geopark en el último día reportado de operación
+    """
     # Agrupar los valores del DataFrame y hacer una suma por cada grupo
     datos_agrupados = datos.groupby(['fecha', 'empresa', 'operacion'])['NSV'].sum()
     # Seleccionar el GOV para el último día reportado
@@ -382,20 +437,24 @@ def actualizar_NSV_geopark(tipo_operacion):
             Input('tipo-operacion', 'value')]
 )
 def actualizar_participacion(start_date, end_date, value):
+    """
+    Actualizar el pie que contiene la participación de la empresa por tipo de operación
+    en la producción de NSV
+    """
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
     # datos_filtrados = datos_filtrados[datos_filtrados['operacion'] == value]
     colores = ['red', 'grey']
     # Calcular total de producción diaria para NSV para determinado tipo de operación por empresa
     datos_filtrados = crudo_operacion_remitente(datos_filtrados, 'NSV', value)
     trace =[go.Pie(labels=datos_filtrados.columns.values,
-                            values=[np.sum(datos_filtrados[empresa]) for empresa in datos_filtrados.columns],
-                            hoverinfo='percent',
-                            textinfo='label+value',
-                            textfont=dict(size=13),
-                            hole=.5,
-                            rotation=45,
-                            textposition='outside',
-                            marker=dict(colors=colores))]
+                    values=[np.sum(datos_filtrados[empresa]) for empresa in datos_filtrados.columns],
+                    hoverinfo='percent',
+                    textinfo='label+value',
+                    textfont=dict(size=13),
+                    hole=.5,
+                    rotation=45,
+                    textposition='outside',
+                    marker=dict(colors=colores))]
     layout = go.Layout(
         plot_bgcolor='#1f2c56',
             paper_bgcolor='#1f2c56',
@@ -428,6 +487,10 @@ def actualizar_participacion(start_date, end_date, value):
             Input('tipo-operacion', 'value')]
 )
 def actualizar_historico(start_date, end_date, value):
+    """
+    Actualiza la gráfica de los resultados históricos de la operación para cada empresa
+    y para el periodo de tiempo indicado
+    """
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
     colores = ['red', 'grey']
     datos_filtrados = crudo_operacion_remitente(datos, 'NSV', value)
@@ -441,7 +504,7 @@ def actualizar_historico(start_date, end_date, value):
             paper_bgcolor='#1f2c56',
             hovermode='closest',
             title={
-                'text': f"Producción NSV histórica (bbls)",
+                'text': "Producción NSV histórica (bbls)",
                 'y': 0.93,
                 'x': 0.5,
                 'xanchor': 'center',
@@ -459,7 +522,8 @@ def actualizar_historico(start_date, end_date, value):
             )
     return {'data': traces, 'layout': layout}
 
-# Callback para actualizar la gráfica de barras sobre la producción por campo para determinado tipo de crudo
+# Callback para actualizar la gráfica de barras sobre la producción por campo
+# para determinado tipo de crudo
 @app.callback(Output('resultados-empresa', component_property='figure'),
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
@@ -467,14 +531,17 @@ def actualizar_historico(start_date, end_date, value):
             Input('condiciones-operacion', 'value')]
 )
 def actualizar_resultado_empresa(start_date, end_date, tipo_operacion, tipo_crudo):
+    """
+    Actualiza la gráfica de barras sobre la producción por campo para determinado tipoo de crudo
+    """
     # Filtrar los datos para el período indicado, el tipo de operación de interés y el tipo de crudo
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
     datos_filtrados = total_crudo_detallado(datos, tipo_operacion)[tipo_crudo]
     traces = []
     colores = ['red', 'grey']
     for i, empresa in enumerate(datos_filtrados.index):
-        traces.append(go.Bar(name=empresa, 
-                    x=datos_filtrados.columns.values, 
+        traces.append(go.Bar(name=empresa,
+                    x=datos_filtrados.columns.values,
                     y=datos_filtrados.loc[empresa, :],
                     marker={'color': colores[i]},
                     text=datos_filtrados.loc[empresa, :].round(2),
@@ -491,23 +558,27 @@ def actualizar_resultado_empresa(start_date, end_date, tipo_operacion, tipo_crud
                         plot_bgcolor='#1f2c56',
                         barmode='stack'
                         )
-    return {'data':traces, 'layout':layout}    
+    return {'data':traces, 'layout':layout}
 
-# Callback para actualizar la gráfica de barras sobre el inventario por campo para determinado tipo de crudo
+# Callback para actualizar la gráfica de barras sobre el inventario por campo
+# para determinado tipo de crudo
 @app.callback(Output('inventario-empresa', component_property='figure'),
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
             Input('empresa', 'value'),
             Input('condiciones-operacion', 'value')])
 def actualizar_inventario(start_date, end_date, empresa, tipo_crudo):
+    """
+    Actualiza la gráfica del inventario por empresa y por tipo de crudo
+    """
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
     inventario_campo = calcular_inventario_campo(datos_filtrados, empresa, tipo_crudo)
     trace = [go.Bar(name=empresa,
                     x=inventario_campo.index,
-                    y=inventario_campo.values, 
+                    y=inventario_campo.values,
                     text=inventario_campo.values.round(2),
                     textposition='auto')]
-    
+
     layout = go.Layout(title={'text':f'Inventario {tipo_crudo}: {empresa} por Campo (bbls)',
                                 'y':0.93,
                                 'x':0.5,
@@ -515,11 +586,10 @@ def actualizar_inventario(start_date, end_date, empresa, tipo_crudo):
                                 'yanchor':'top'},
                         titlefont={'color': 'white', 'size': 20},
                         font=dict(color='white'),
-                        
                         paper_bgcolor='#1f2c56',
                         plot_bgcolor='#1f2c56',
                         )
-    return {'data':trace, 'layout':layout} 
+    return {'data':trace, 'layout':layout}
 
 # Callback para mostrar el inventario total para determinado periodo, empresa y tipo de crudo
 @app.callback(Output('inventario-total', component_property='children'),
@@ -528,6 +598,10 @@ def actualizar_inventario(start_date, end_date, empresa, tipo_crudo):
             Input('empresa', 'value'),
             Input('condiciones-operacion', 'value')])
 def actualizar_inventario_total(start_date, end_date, empresa, tipo_crudo):
+    """
+    Actualiza el inventario total por empresa y tipo de crudo para el
+    periodo de tiempo indicado
+    """
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
     inventario_campo = calcular_inventario_campo(datos_filtrados, empresa, tipo_crudo)
     inventario_total = calcular_inventario_total(inventario_campo)
