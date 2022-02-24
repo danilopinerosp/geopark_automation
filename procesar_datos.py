@@ -166,10 +166,12 @@ def calcular_inventario_campo(datos, empresa, tipo_crudo, inventario_inicial_cam
     pandas.core.series.Series -> Inventario por campo para la empresa indicada.
     """
     import numpy as np
+    import pandas as pd
     # calcular las diferencias para la empresa para determinado tipo de crudo
     diferencias = calcular_diferencias(datos, 'RECIBO POR REMITENTE TIGANA', 'DESPACHO POR REMITENTE', tipo_crudo, empresa)
     # Agregar el inventario inicial por campo al dataframe de las diferencias
-    diferencias = diferencias.append(inventario_inicial_campo, ignore_index=True)
+    # diferencias = diferencias.append(inventario_inicial_campo, ignore_index=True)
+    diferencias = pd.concat([diferencias, pd.Series(inventario_inicial_campo, dtype='float64')])
     # Eliminar las columnas que continen los datos de TIGANA y JACANA
     diferencias.drop(['JACANA ESTACION', 'TIGANA ESTACION'], inplace=True, axis=1)
     # Retornar el inventario final de los datos
