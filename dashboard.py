@@ -6,7 +6,6 @@ import plotly.graph_objs as go
 import pandas as pd
 # from obtener_datos import CONDICIONES
 from datetime import datetime as dt
-from datetime import date, timedelta
 import numpy as np
 from obtener_datos import CONDICIONES, EMPRESAS
 
