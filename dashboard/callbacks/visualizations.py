@@ -186,13 +186,14 @@ def actualizar_historico(start_date, end_date, value):
     """
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
     colores = ['red', 'grey']
-    datos_filtrados = crudo_operacion_remitente(datos, 'NSV', value)
+    datos_filtrados = crudo_operacion_remitente(datos_filtrados, 'NSV', value)
     traces = []
     for i, empresa, in enumerate(datos_filtrados.columns.values):
         traces.append(go.Scatter(x=datos_filtrados.index,
                                 y=datos_filtrados[empresa],
                                 name=empresa,
-                                line={'width':4, 'color':colores[i]}))
+                                line={'width':4, 'color':colores[i]},
+                                mode='lines+markers'))
     layout = go.Layout(plot_bgcolor='#1f2c56',
             paper_bgcolor='#1f2c56',
             hovermode='closest',
@@ -229,7 +230,7 @@ def actualizar_resultado_empresa(start_date, end_date, tipo_operacion, tipo_crud
     """
     # Filtrar los datos para el período indicado, el tipo de operación de interés y el tipo de crudo
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
-    datos_filtrados = total_crudo_detallado(datos, tipo_operacion)[tipo_crudo]
+    datos_filtrados = total_crudo_detallado(datos_filtrados, tipo_operacion)[tipo_crudo]
     traces = []
     colores = ['red', 'grey']
     for i, empresa in enumerate(datos_filtrados.index):

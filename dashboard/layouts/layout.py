@@ -148,7 +148,7 @@ layout = html.Div([
                 initial_visible_month=dt(datos['fecha'].dt.year.max(),
                                         datos['fecha'].max().to_pydatetime().month, 1),
                 # Por defecto toma como periodo de análisis los datos recolectados del último mes.
-                start_date=(datos[datos['fecha'].dt.month == dt.today().month]['fecha'].min()).to_pydatetime(),
+                start_date=(datos[datos['fecha'].dt.month == datos['fecha'].max().month]['fecha'].min()).to_pydatetime(),
                 end_date=datos['fecha'].max().to_pydatetime(),
                 display_format='DD/MM/Y'
             ),
