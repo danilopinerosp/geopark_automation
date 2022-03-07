@@ -33,7 +33,7 @@ layout = html.Div([
         # Contenedor para la fecha de la última actualización (último reporte contenido
         # en el análisis)
         html.Div([
-            html.H6(f"Última actualización: {datos['fecha'].iloc[-1].strftime('%d/%m/%Y')}",
+            html.H6(f"Última actualización: {datos['fecha'].max().strftime('%d/%m/%Y')}",
                     style={'color': 'orange'}),
 
         ], className="one-third column", id='title1'),
@@ -161,7 +161,7 @@ layout = html.Div([
                         clearable=False,
                         id='tipo-operacion',
                         multi=False),
-            html.P(f"Operación Geopark: {datos['fecha'].iloc[-1].strftime('%d/%m/%Y')}",
+            html.P(f"Operación Geopark: {datos['fecha'].max().strftime('%d/%m/%Y')}",
                 className='fix_label', style={'color':'white', 'text-align':'center'}),
             dcc.Graph(id='GOV-geopark', config={'displayModeBar':False}, className='dcc_compon',
                     style={'margin-top':'20px'}),
