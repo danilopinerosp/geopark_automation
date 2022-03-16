@@ -74,7 +74,8 @@ def escribir_datos(datos, mes):
     libro = Workbook()
     # Trabajar con la hoja activa.
     hoja = libro.active
-    rows = 0
+    hoja.insert_rows(1, amount=7)
+    rows = 8
     filas_empresas = []
     filas_operaciones = []
     filas_cabecera = []
@@ -120,7 +121,7 @@ def generar_acta_ODCA(mes):
     for i in range(10, 17):
         letter = get_column_letter(i)
         ws.column_dimensions[letter].width = 15
-    wb.save('ACTA ODCA_1' + '.xlsx')
+    wb.save('ACTA ODCA_' + str(mes) +'.xlsx')
 
 if __name__ == "__main__":
-    generar_acta_ODCA(1)
+    generar_acta_ODCA(2)
