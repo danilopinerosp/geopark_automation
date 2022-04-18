@@ -138,3 +138,6 @@ dmypy.json
 
 # Ignorar directorio .vscode
 .vscode/
+
+# Ignorar todas los documentos .db
+*.db
