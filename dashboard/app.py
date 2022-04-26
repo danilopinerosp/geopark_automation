@@ -6,10 +6,17 @@ from datetime import datetime as dt
 from dash import dcc, html
 from server import datos
 
+# Importar layout Dashboard Balance
+from layouts.layout_balance import layout_balance
+
+# Importar todos los callbacks
+from callbacks.visualizations import *
+from callbacks.values import *
+
 EMPRESAS = ['GEOPARK', 'PAREX']
 CONDICIONES = ['GOV', 'GSV', 'NSV']
 
-app = Dash(__name__)
+# app = Dash(__name__)
 
 tabs_styles = {
     'height': '44px'
@@ -28,7 +35,8 @@ tab_selected_style = {
     'padding': '6px'
 }
 
-app.layout = html.Div([
+# app.
+layout = html.Div([
     html.Div([
         # Contenedor para el logo de Geopark
         html.Div([
@@ -62,8 +70,8 @@ app.layout = html.Div([
     ], id="header", className="row flex-display", style={"margin-bottom": "25px"}),
     # Tabs de la aplicación
     dcc.Tabs(id="tabs-styled-with-inline", value='tab-1', children=[
-        dcc.Tab(label='Reportes Diarios', value='tab-1', style=tab_style, selected_style=tab_selected_style),
-        dcc.Tab(label='Generar Reportes', value='tab-2', style=tab_style, selected_style=tab_selected_style),
+        dcc.Tab(label='Datos', value='tab-1', style=tab_style, selected_style=tab_selected_style),
+        dcc.Tab(label='Generarión de Informes', value='tab-2', style=tab_style, selected_style=tab_selected_style),
         dcc.Tab(label='Dashboard Balance', value='tab-3', style=tab_style, selected_style=tab_selected_style),
         dcc.Tab(label='Dashboard Nominaciones', value='tab-4', style=tab_style, selected_style=tab_selected_style),
     ], style=tabs_styles),
@@ -83,12 +91,9 @@ def render_content(tab):
         ])
     elif tab == 'tab-3':
         return html.Div([
-            html.H3('Dashboard Balance')
+            layout_balance
         ])
     elif tab == 'tab-4':
         return html.Div([
             html.H3('Dashboard Nominaciones')
         ])
-
-if __name__ == '__main__':
-    app.run_server(debug=True)
