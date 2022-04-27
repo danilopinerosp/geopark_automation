@@ -1,44 +1,12 @@
 # Librería para trabajar con fechas
 from datetime import datetime as dt
 from dash import dcc, html
-from server import app, datos
+from server import datos
 
 EMPRESAS = ['GEOPARK', 'PAREX']
 CONDICIONES = ['GOV', 'GSV', 'NSV']
 
-layout = html.Div([
-    # Contenedor para el encabezado
-    html.Div([
-        # Contenedor para el logo de Geopark
-        html.Div([
-            html.Img(src=app.get_asset_url('logo_geopark.png'),
-                     id='logo_geopark',
-                     style={
-                         "height": "100px",
-                         "width": "auto",
-                         "margin-bottom": "25px",
-                     },
-                     )
-        ],
-            className="one-third column",
-        ),
-        # Contenedor para el título del dashboard
-        html.Div([
-            html.Div([
-                html.H2("Geopark", style={"margin-bottom": "0px", 'color': 'white'}),
-                html.H5("Resultados de la operación",
-                        style={"margin-top": "0px", 'color': 'white'}),
-            ])
-        ], className="one-half column", id="title"),
-        # Contenedor para la fecha de la última actualización (último reporte contenido
-        # en el análisis)
-        html.Div([
-            html.H6(f"Última actualización: {datos['fecha'].max().strftime('%d/%m/%Y')}",
-                    style={'color': 'orange'}),
-
-        ], className="one-third column", id='title1'),
-
-    ], id="header", className="row flex-display", style={"margin-bottom": "25px"}),
+layout_balance = html.Div([
     # Contenedor donde se ubicaran los 6 acumulados por tipo de crudo para las dos empresas
     html.Div([
         # Contenedor GOV cumulado por tipo de operación en el periodo indicado de Geopark
