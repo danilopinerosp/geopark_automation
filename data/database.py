@@ -9,6 +9,8 @@ def crear_db(db_file):
     # Declarar el cursor para poder crear las tablas
     cursor = conn.cursor()
 
+    ## Crear las tablas para almacenar los datos de la operación
+
     # Crear la tabla para los campos
     cursor.execute('''CREATE TABLE IF NOT EXISTS Campos (
         id_campo INTEGER PRIMARY KEY,
@@ -36,7 +38,7 @@ def crear_db(db_file):
         GSV REAL,
         NSV REAL);
         ''')
-            
+
     conn.commit()
     conn.close()
 

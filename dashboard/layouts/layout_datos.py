@@ -7,7 +7,7 @@ from dash import (Dash,
                 dcc)
 import pandas as pd
 
-df = pd.read_csv("C:/Users/w7joh/OneDrive/Escritorio/GeoPark/auto_geopark/reportes_procesados.csv")
+df = pd.read_csv("C:/Users/DPINEROS/OneDrive - GeoPark Limited/auto_geopark/reportes_procesados.csv")
 
 layout_datos = html.Div([
     html.Div([
