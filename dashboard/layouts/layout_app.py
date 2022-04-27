@@ -8,6 +8,8 @@ from server import datos
 
 # Importar layout Dashboard Balance
 from layouts.layout_balance import layout_balance
+from layouts.layout_datos import layout_datos
+from layouts.layout_informes import layout_informes
 
 # Importar todos los callbacks
 from callbacks.visualizations import *
@@ -83,11 +85,11 @@ layout = html.Div([
 def render_content(tab):
     if tab == 'tab-1':
         return html.Div([
-            html.H3('Reportes Diarios')
+            layout_datos
         ])
     elif tab == 'tab-2':
         return html.Div([
-            html.H3('Generación de Informes')
+            layout_informes
         ])
     elif tab == 'tab-3':
         return html.Div([
