@@ -28,7 +28,7 @@ layout_datos = html.Div([
             html.H2('Operaciones',
                     className='fix_label',
                     style={'color':'white', 'text-align':'center'}),
-            html.Button('Crear', id='crear-val', n_clicks=0),
+            html.Button('Agregar', id='crear-val', n_clicks=0),
             html.Button('Actualizar', id='actualizar-val', n_clicks=0),
             html.Button('Borrar', id='borrar-val', n_clicks=0),
         ], className='create_container three columns'),

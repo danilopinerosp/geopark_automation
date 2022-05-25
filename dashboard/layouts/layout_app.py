@@ -10,6 +10,7 @@ from server import datos
 from layouts.layout_balance import layout_balance
 from layouts.layout_datos import layout_datos
 from layouts.layout_informes import layout_informes
+from layouts.layout_nominaciones import layout_nominaciones
 
 # Importar todos los callbacks
 from callbacks.visualizations import *
@@ -97,5 +98,5 @@ def render_content(tab):
         ])
     elif tab == 'tab-4':
         return html.Div([
-            html.H3('Dashboard Nominaciones')
+            layout_nominaciones
         ])
