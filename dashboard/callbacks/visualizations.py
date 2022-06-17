@@ -1,7 +1,10 @@
+from dash import dcc
+from dash import callback_context
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 # Librerías para el tratamiento de datos
 import numpy as np
+import pandas as pd
 # Importar funciones para los valores calculados del proceso
 from calculate_values import (
     calcular_inventario_campo, 
@@ -11,6 +14,18 @@ from calculate_values import (
     total_crudo_detallado
 )
 from server import app, datos
+
+#################################################################
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                        CALLBACKS DASHBOARD                    #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#################################################################
 
 # Callback para actualizar la producción del último día reportado de GOV
 # para Geopark
@@ -300,3 +315,195 @@ def actualizar_inventario_total(start_date, end_date, empresa, tipo_crudo):
     inventario_campo = calcular_inventario_campo(datos_filtrados, empresa, tipo_crudo)
     inventario_total = calcular_inventario_total(inventario_campo)
     return f'Inventario Total: {round(inventario_total, 2)}'
+
+
+#################################################################
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                        CALLBACKS NOMINACIONES                 #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#################################################################
+
+# @app.callback(Output('inventario-total', component_property='children'),
+
+# callback para actualizar tigana-transportado
+# Datos Dummi tigana_transportado
+tigana_transportado = pd.read_csv("dashboard/callbacks/transportado_tigana.csv", sep=";")
+tigana_transportado["Fecha"] = pd.to_datetime(tigana_transportado["Fecha"], infer_datetime_format=True)
+tigana_transportado.set_index("Fecha")
+
+@app.callback(Output("tigana-transportado", component_property="figure"),
+            Input("mes-nominacion", "value"))
+def actualizar_tigana_transportado(mes):
+    # Generación datos Dummi
+    y_geopark = np.random.rand(30)* 100
+    y_verano = 100 - y_geopark
+    # Generación colores dummi
+    colores = ["red", "grey"]
+
+    trace = [go.Bar(x=np.arange(0, 30),
+                    y=y_geopark,
+                    textposition='auto',
+                    name="% Transportado Tigana Geopark",
+                    marker={"color": colores[0]}),
+            go.Bar(x=np.arange(0, 30),
+                    y=y_verano,
+                    textposition='auto',
+                    name="% Transportado Tigana Verano",
+                    marker={"color": colores[1]}),
+            go.Scatter(x=np.arange(0, 30),
+                    y=y_geopark, 
+                    name="% Nominado Tigana Geopark",
+                    line={'width':3, 'color':colores[0]}),
+            go.Scatter(x=np.arange(0, 30),
+                    y=y_verano,
+                    name="% Nominado Tigana Verano",
+                    line={'width':3, 'color':colores[1]})]
+
+    layout = go.Layout(title={'text': "% Tigana",
+                                'y':0.93,
+                                'x':0.5,
+                                'xanchor':'center',
+                                'yanchor':'top'},
+                        titlefont={'color': 'white', 'size': 20},
+                        font=dict(color='white'),
+                        paper_bgcolor='#1f2c56',
+                        plot_bgcolor='#1f2c56',
+                        legend=dict(orientation="h",
+                                    yanchor="bottom",
+                                    xanchor='center', x= 0.5, y= -0.2   )
+                        )
+    return {'data':trace, 'layout':layout}
+
+
+@app.callback(Output("livianos-transportado", component_property="figure"),
+            Input("mes-nominacion", "value"))
+def actualizar_livianos_transportado(mes):
+    # Generación datos Dummi
+    y_geopark = np.random.rand(30)* 100
+    y_verano = 100 - y_geopark
+    # Generación colores dummi
+    colores = ['red', 'grey']
+
+    trace = [go.Bar(x=np.arange(0, 30),
+                    y=y_geopark,
+                    textposition='auto',
+                    name="% Livianos Transportado Geopark",
+                    marker={"color":colores[0]}),
+            go.Bar(x=np.arange(0, 30),
+                    y=y_verano,
+                    textposition='auto',
+                    name="% Livianos transportaos Verano",
+                    marker={"color":colores[1]}),
+            go.Scatter(x=np.arange(0, 30),
+                    y=y_geopark, 
+                    name="% Livianos Nominado Geopark",
+                    line={'width':3, 'color':colores[0]}),
+            go.Scatter(x=np.arange(0, 30),
+                    y=y_verano,
+                    name="% Livianos Nominado Verano",
+                    line={'width':3, 'color':colores[1]})]
+
+    layout = go.Layout(title={'text': "Nominación Livianos",
+                                'y':0.93,
+                                'x':0.5,
+                                'xanchor':'center',
+                                'yanchor':'top'},
+                        titlefont={'color': 'white', 'size': 20},
+                        font=dict(color='white'),
+                        paper_bgcolor='#1f2c56',
+                        plot_bgcolor='#1f2c56',
+                        legend=dict(orientation="h",
+                                    yanchor="bottom",
+                                    xanchor='center', x= 0.5, y= -0.2   )
+                        )
+    return {'data':trace, 'layout':layout}
+
+@app.callback(Output("factor-servicio", component_property="figure"),
+            [Input("mes-nominacion", "value"),
+            Input("remitente-nominacion", "value")])
+def actualizar_factor_servicio(mes, remitente):
+    # Generación datos Dummi
+    tipos = ["Jacana", "Tigana", "Livianos", "Cabrestero"]
+    # Generación colores dummi
+    colores = {"Jacana":"orange", "Tigana": "blue", "Livianos": "grey", "Cabrestero": "green"}
+    trace = list()
+    for tipo in tipos:
+        y_simulado = np.random.rand(30)* 100
+        trace.append(go.Bar(x=np.arange(0, 30),
+                                y=y_simulado,
+                                textposition='auto',
+                                name=f"{tipo} Transportado",
+                                marker={"color":colores[tipo]}))
+        trace.append(go.Scatter(x=np.arange(0, 30),
+                                y=y_simulado, 
+                                name=f"{tipo} Transportado",
+                                line={'width':3, 'color':colores[tipo]}),
+                    )
+
+    title_graph = f"""
+    Factor de Servicio<br>
+    Mes: {mes}<br>
+    Remitente: {remitente}
+    """
+
+    layout = go.Layout(title={'text': title_graph,
+                                'y':0.93,
+                                'x':0.5,
+                                'xanchor':'center',
+                                'yanchor':'top'},
+                        titlefont={'color': 'white', 'size': 20},
+                        font=dict(color='white'),
+                        paper_bgcolor='#1f2c56',
+                        plot_bgcolor='#1f2c56',
+                        legend=dict(orientation="h",
+                                    yanchor="bottom",
+                                    xanchor='center', x= 0.5, y= -0.5   )
+                        )
+    return {'data':trace, 'layout':layout}
+
+
+#################################################################
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                        CALLBACKS INFORMES                     #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#################################################################
+
+clicks = []
+@app.callback(Output("descargar-informe", "data"),
+            [Input("boton-informe", "n_clicks"),
+            Input("mes-reporte", "value"),
+            Input("tipo-reporte", "value")],
+            prevent_initial_call=True,)
+def descargar_informe(n_clicks, mes, reporte):
+    # Generar datos dummies a descargar
+    df = pd.DataFrame({"a": [1, 2, 3, 4], "b": [2, 1, 5, 6], "c": ["x", "x", "y", "y"]})
+    if n_clicks > 0:
+        return dcc.send_data_frame(df.to_excel, f"{reporte} - {mes}.xlsx", sheet_name=reporte)
+
+
+
+#################################################################
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                        CALLBACKS DATOS                        #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#################################################################
+
+

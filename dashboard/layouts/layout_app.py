@@ -72,7 +72,7 @@ layout = html.Div([
 
     ], id="header", className="row flex-display", style={"margin-bottom": "25px"}),
     # Tabs de la aplicación
-    dcc.Tabs(id="tabs-styled-with-inline", value='tab-1', children=[
+    dcc.Tabs(id="tabs-styled-with-inline", value='tab-3', children=[
         dcc.Tab(label='Datos', value='tab-1', style=tab_style, selected_style=tab_selected_style),
         dcc.Tab(label='Generarión de Informes', value='tab-2', style=tab_style, selected_style=tab_selected_style),
         dcc.Tab(label='Dashboard Balance', value='tab-3', style=tab_style, selected_style=tab_selected_style),
