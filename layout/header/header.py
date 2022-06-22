@@ -1,9 +1,5 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
-from utils.constants import (balance_page_location, 
-                            nominations_page_location, 
-                            reports_page_location, 
-                            upload_page_location)
 
 tabs_styles = {
     'height': '44px'
