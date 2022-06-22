@@ -1,11 +1,11 @@
 # Librería para trabajar con fechas
 from datetime import datetime as dt
 from http import server
+from importlib.resources import path
 from dash import dcc, html
 from dashboard.server import datos
 
-EMPRESAS = ['GEOPARK', 'PAREX']
-CONDICIONES = ['GOV', 'GSV', 'NSV']
+from utils.constants import EMPRESAS, CONDICIONES
 
 layout = html.Div([
     # Contenedor donde se ubicaran los 6 acumulados por tipo de crudo para las dos empresas

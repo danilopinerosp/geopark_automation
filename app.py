@@ -1,6 +1,6 @@
 import dash
 
-from flask_caching import Cache
+#from flask_caching import Cache
 
 from layout.layout import layout
 
@@ -17,9 +17,9 @@ app = dash.Dash(
     ]
 )
 
-cache = Cache(app.server, config={
-    "CACHE_TYPE": "filesystem",
-    "CACHE_DIR": "cache-directory"
-})
+#cache = Cache(app.server, config={
+#    "CACHE_TYPE": "filesystem",
+#    "CACHE_DIR": "cache-directory"
+#})
 
 app.layout = layout

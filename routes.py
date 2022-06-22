@@ -1,4 +1,4 @@
-import dash_bootstrap_components as dbc
+# import dash_bootstrap_components as dbc
 from dash import html
 from dash.dependencies import Input, Output
 
@@ -27,5 +27,3 @@ def render_page_content(pathname):
         return reports.layout
     elif pathname == upload_page_location:
         return upload.layout
-    # If the user tries to reach a page that does not exist, return a 404 page
-    else:

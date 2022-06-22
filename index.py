@@ -1,5 +1,5 @@
 from app import app, server
-from routes import render_page_content
+from layout.header.header_callbacks import render_content
 
 from environment.settings import APP_HOST, APP_PORT, APP_DEBUG, DEV_TOOLS_PROPS_CHECK
 

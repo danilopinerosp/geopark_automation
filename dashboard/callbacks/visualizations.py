@@ -332,11 +332,6 @@ def actualizar_inventario_total(start_date, end_date, empresa, tipo_crudo):
 # @app.callback(Output('inventario-total', component_property='children'),
 
 # callback para actualizar tigana-transportado
-# Datos Dummi tigana_transportado
-tigana_transportado = pd.read_csv("dashboard/callbacks/transportado_tigana.csv", sep=";")
-tigana_transportado["Fecha"] = pd.to_datetime(tigana_transportado["Fecha"], infer_datetime_format=True)
-tigana_transportado.set_index("Fecha")
-
 @app.callback(Output("tigana-transportado", component_property="figure"),
             Input("mes-nominacion", "value"))
 def actualizar_tigana_transportado(mes):
