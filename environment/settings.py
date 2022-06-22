@@ -1,3 +1,7 @@
+"""
+The module creates the logic to read different configurations based on the environment
+"""
+
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
