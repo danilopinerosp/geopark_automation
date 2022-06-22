@@ -1,7 +1,5 @@
 # Librería para trabajar con fechas
 from datetime import datetime as dt
-from http import server
-from importlib.resources import path
 from dash import dcc, html
 from dashboard.server import datos
 
