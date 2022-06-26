@@ -1,7 +1,7 @@
 # Librería para trabajar con fechas
 from datetime import datetime as dt
 from dash import dcc, html
-from dashboard.server import datos
+from data.server import datos
 
 from utils.constants import EMPRESAS, CONDICIONES
 

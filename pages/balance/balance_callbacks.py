@@ -6,14 +6,14 @@ import plotly.graph_objs as go
 import numpy as np
 import pandas as pd
 # Importar funciones para los valores calculados del proceso
-from dashboard.calculate_values import (
+from data.calculate_values import (
     calcular_inventario_campo, 
     calcular_inventario_total,
     crudo_operacion_remitente, 
     filtrar_datos_fechas,
     total_crudo_detallado
 )
-from dashboard.server import datos
+from data.server import datos
 from app import app
 
 def calcular_acumulado(datos, start_date, end_date, tipo_operacion, tipo_crudo, empresa):

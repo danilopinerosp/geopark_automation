@@ -7,15 +7,8 @@ import plotly.graph_objs as go
 # Librerías para el tratamiento de datos
 import numpy as np
 import pandas as pd
-# Importar funciones para los valores calculados del proceso
-from dashboard.calculate_values import (
-    calcular_inventario_campo, 
-    calcular_inventario_total,
-    crudo_operacion_remitente, 
-    filtrar_datos_fechas,
-    total_crudo_detallado
-)
-from dashboard.server import datos
+
+from data.server import datos
 
 @app.callback(Output("descargar-informe", "data"),
             [Input("boton-informe", "n_clicks"),

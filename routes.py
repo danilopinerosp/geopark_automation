@@ -24,7 +24,6 @@ from pages.upload.upload_callbacks import *
     Input("url", "pathname")
 )
 def render_page_content(pathname):
-    print("PATHNAME: ", pathname)
     if pathname == balance_page_location:
         return balance.layout
     elif pathname == nominations_page_location:
