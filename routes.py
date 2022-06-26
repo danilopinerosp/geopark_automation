@@ -14,11 +14,17 @@ from pages.nominations import nominations
 from pages.reports import reports
 from pages.upload import upload
 
+from pages.balance.balance_callbacks import *
+from pages.nominations.nominations_callbacks import *
+from pages.reports.reports_callbacks import *
+from pages.upload.upload_callbacks import *
+
 @app.callback(
     Output("page-content", "children"),
     Input("url", "pathname")
 )
 def render_page_content(pathname):
+    print("PATHNAME: ", pathname)
     if pathname == balance_page_location:
         return balance.layout
     elif pathname == nominations_page_location:
@@ -27,3 +33,9 @@ def render_page_content(pathname):
         return reports.layout
     elif pathname == upload_page_location:
         return upload.layout
+    return balance.layout
+    #return html.Div([
+    #    html.H1("404: Not found", className="text-danger"),
+    #    html.Hr(),
+    #    html.P(f"The pathname {pathname} was not recognized")
+    #])

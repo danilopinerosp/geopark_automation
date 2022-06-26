@@ -1,7 +1,8 @@
 from app import app, server
-from layout.header.header_callbacks import render_content
+from routes import render_page_content
 
 from environment.settings import APP_HOST, APP_PORT, APP_DEBUG, DEV_TOOLS_PROPS_CHECK
+
 
 if __name__ == "__main__":
     app.run_server(

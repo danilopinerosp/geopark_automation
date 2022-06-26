@@ -1,6 +1,12 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
+from utils.constants import (balance_page_location,
+                            nominations_page_location,
+                            reports_page_location,
+                            upload_page_location
+                            )
+
 tabs_styles = {
     'height': '44px'
 }
@@ -53,10 +59,13 @@ top_header = html.Div([
 header = html.Div([
     top_header, 
     # Tabs de la aplicación
-    dcc.Tabs(id="tabs-styled-with-inline", value='tab-3', children=[
-        dcc.Tab(label='Datos', value='tab-1', style=tab_style, selected_style=tab_selected_style),
-        dcc.Tab(label='Generarión de Informes', value='tab-2', style=tab_style, selected_style=tab_selected_style),
-        dcc.Tab(label='Dashboard Balance', value='tab-3', style=tab_style, selected_style=tab_selected_style),
-        dcc.Tab(label='Dashboard Nominaciones', value='tab-4', style=tab_style, selected_style=tab_selected_style),
-    ], style=tabs_styles),
+    dbc.Nav([
+            dbc.NavLink("Balance", href=balance_page_location, active="exact"),
+            dbc.NavLink("Nominations", href=nominations_page_location, active="exact"),
+            dbc.NavLink("Reports", href=reports_page_location, active="exact"),
+            dbc.NavLink("Upload", href=upload_page_location, active="exact"),
+        ],
+        vertical=False,
+        pills=True,
+        style=tabs_styles),
 ])

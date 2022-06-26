@@ -1,12 +1,10 @@
 import dash
 
-#from flask_caching import Cache
-
 from layout.layout import layout
 
 import flask
 
-server = flask.Flask(__name__) # define flask app.server
+server = flask.Flask(__name__)
 
 app = dash.Dash(
     __name__,
@@ -16,10 +14,5 @@ app = dash.Dash(
         {"name": "viewport", "content": "width=device-width, initial-scale=1"}
     ]
 )
-
-#cache = Cache(app.server, config={
-#    "CACHE_TYPE": "filesystem",
-#    "CACHE_DIR": "cache-directory"
-#})
 
 app.layout = layout

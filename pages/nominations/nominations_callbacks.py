@@ -8,7 +8,8 @@ import numpy as np
 import pandas as pd
 
 
-from dashboard.server import app, datos #Line must be remove with the new architecture
+from dashboard.server import datos  #Line must be remove with the new architecture
+from app import app
 
 
 # callback para actualizar tigana-transportado
