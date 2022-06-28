@@ -1,0 +1,74 @@
+#header {
+    color: black;
+    width: 100%;
+}
+
+/*
+Styles for Top header
+*/
+
+#top-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: fit-content;
+    margin: 15px 0;
+}
+
+/*Styling logo*/
+
+#logo_geopark {
+    height: 70%;
+    width: auto;
+}
+
+#logo { 
+    width: 20%;
+}
+
+/*
+Styling main title and date for last update
+*/
+
+#main-title {
+    width: 60%;
+    text-align: center;
+}
+
+#last-update {
+    width: 20%;
+    text-align: right;
+    color: #ed9a35;
+    ;
+}
+
+/* 
+Styles for Nav menu items
+*/
+
+#nav-menu {
+    height: 50px;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    justify-content: center;
+    background-color:  #f3f3f3 ;
+    border-radius: 5px;
+    font-size: 18px;
+    margin: 15px 0;
+}
+
+.nav-menu-item {
+    padding: 0px 35px;
+    font-weight: bold;
+    margin: 0px 15px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    color:  #262830;
+}
+
+.nav-menu-item:hover {
+    color: white;
+    background-color: #262830;
+}
