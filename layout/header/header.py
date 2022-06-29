@@ -15,7 +15,7 @@ top_header = html.Div([
         ], id="logo"),
         # Contenedor para el título del dashboard
         html.Div([
-            html.H2("Resultados de la operación"),
+            html.H1("Resultados de la operación"),
         ], id="main-title"),
         # Contenedor para la fecha de la última actualización (último reporte contenido
         # en el análisis)
