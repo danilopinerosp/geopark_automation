@@ -79,15 +79,14 @@ layout = html.Div([
             ),
             # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
             html.P('Tipo de Operación a analizar',
-                    className='fix_label',
-                    style={'color':'white', 'text-align':'center'}),
+                    className='fix_label'),
             dcc.Dropdown(options=datos['operacion'].unique(),
                         value='RECIBO POR REMITENTE TIGANA',
                         clearable=False,
                         id='tipo-operacion',
                         multi=False),
             html.P(f"Operación Geopark: {datos['fecha'].max().strftime('%d/%m/%Y')}",
-                className='fix_label', style={'color':'white', 'text-align':'center'}),
+                className='fix_label'),
             dcc.Graph(id='GOV-geopark', config={'displayModeBar':False}, className='dcc_compon',
                     style={'margin-top':'20px'}),
             dcc.Graph(id='GSV-geopark', config={'displayModeBar':False}, className='dcc_compon',
@@ -122,7 +121,7 @@ layout = html.Div([
                     value='GEOPARK',
                     id='empresa',
                     inline=True)
-            ], style={'color':'white', 'text-align':'center'})
+            ], style={'text-align':'center'})
         ], className='create_container six columns'),
         # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
     ], className='row flex-display'),
@@ -132,5 +131,5 @@ layout = html.Div([
             value='NSV',
             id='condiciones-operacion',
             inline=True)
-        ], style={'color':'white', 'text-align':'center'})
+        ], style={'text-align':'center'})
 ], id='mainContainer', style={'display':'flex', 'flex-direction':'column'})

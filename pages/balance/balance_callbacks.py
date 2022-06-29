@@ -5,6 +5,8 @@ import plotly.graph_objs as go
 # Librerías para el tratamiento de datos
 import numpy as np
 import pandas as pd
+
+from components.indicator import graph_indicator
 # Importar funciones para los valores calculados del proceso
 from data.calculate_values import (
     calcular_inventario_campo, 
@@ -94,29 +96,8 @@ def actualizar_gov_geopark(tipo_operacion):
     gov_actual = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-1], 2)
     # Seleccionar el GOV para el penúltimo día reportado
     gov_anterior = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-2], 2)
-    indicador = [go.Indicator(
-                        mode='number+delta',
-                        value=gov_actual,
-                        delta={'reference':gov_anterior,
-                                'position':'right',
-                                'valueformat':',g',
-                                'relative':False,
-                                'font':{'size':15}},
-                        number={'valueformat':',',
-                                'font':{'size':20}},
-                        domain={'y':[0, 1], 'x': [0, 1]}
-    )]
-    layout = go.Layout(title={'text':'GOV (bbls)',
-                                'y':1,
-                                'x':0.5,
-                                'xanchor':'center',
-                                'yanchor':'top'},
-                        font=dict(color='orange'),
-                        paper_bgcolor='#1f2c56',
-                        plot_bgcolor='#1f2c56',
-                        height=50)
-    return {'data': indicador, 'layout':layout}
-
+    return graph_indicator(gov_actual, gov_anterior, "orange")
+    
 # Callback para actualizar los datos de producción de GSV de Geopark en el último día reportado
 @app.callback(Output('GSV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
@@ -131,28 +112,7 @@ def actualizar_gsv_geopark(tipo_operacion):
     gov_actual = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-1], 2)
     # Seleccionar el GOV para el penúltimo día reportado
     gov_anterior = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-2], 2)
-    indicador = [go.Indicator(
-                        mode='number+delta',
-                        value=gov_actual,
-                        delta={'reference':gov_anterior,
-                                'position':'right',
-                                'valueformat':',g',
-                                'relative':False,
-                                'font':{'size':15}},
-                        number={'valueformat':',',
-                                'font':{'size':20}},
-                        domain={'y':[0, 1], 'x': [0, 1]}
-    )]
-    layout = go.Layout(title={'text':'GSV (bbls)',
-                                'y':1,
-                                'x':0.5,
-                                'xanchor':'center',
-                                'yanchor':'top'},
-                        font=dict(color='#dd1e35'),
-                        paper_bgcolor='#1f2c56',
-                        plot_bgcolor='#1f2c56',
-                        height=50)
-    return {'data': indicador, 'layout':layout}
+    return graph_indicator(gov_actual, gov_anterior, "#dd1e35")
 
 # Callback para actualizar los datos de producción de NSV de Geopark en el último día reportado
 @app.callback(Output('NSV-geopark', 'figure'),
@@ -167,28 +127,7 @@ def actualizar_nsv_geopark(tipo_operacion):
     gov_actual = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-1], 2)
     # Seleccionar el GOV para el penúltimo día reportado
     gov_anterior = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-2], 2)
-    indicador = [go.Indicator(
-                        mode='number+delta',
-                        value=gov_actual,
-                        delta={'reference':gov_anterior,
-                                'position':'right',
-                                'valueformat':',g',
-                                'relative':False,
-                                'font':{'size':15}},
-                        number={'valueformat':',',
-                                'font':{'size':20}},
-                        domain={'y':[0, 1], 'x': [0, 1]}
-    )]
-    layout = go.Layout(title={'text':'NSV (bbls)',
-                                'y':1,
-                                'x':0.5,
-                                'xanchor':'center',
-                                'yanchor':'top'},
-                        font=dict(color='green'),
-                        paper_bgcolor='#1f2c56',
-                        plot_bgcolor='#1f2c56',
-                        height=50)
-    return {'data': indicador, 'layout':layout}
+    return graph_indicator(gov_actual, gov_anterior, "green")
 
 # Callback para actualizar la gráfica de participación de la empresa
 @app.callback(Output('participacion-empresa', component_property='figure'),
@@ -216,8 +155,8 @@ def actualizar_participacion(start_date, end_date, value):
                     textposition='outside',
                     marker=dict(colors=colores))]
     layout = go.Layout(
-        plot_bgcolor='#1f2c56',
-            paper_bgcolor='#1f2c56',
+        plot_bgcolor='#f3f3f3',
+            paper_bgcolor='#f3f3f3',
             hovermode='closest',
             title={
                 'text': 'Participación NSV',
@@ -226,16 +165,16 @@ def actualizar_participacion(start_date, end_date, value):
                 'xanchor': 'center',
                 'yanchor': 'top'},
             titlefont={
-                       'color': 'white',
+                       'color': '#262830',
                        'size': 25},
             legend={
                 'orientation': 'h',
-                'bgcolor': '#1f2c56',
+                'bgcolor': '#f3f3f3',
                 'xanchor': 'center', 'x': 0.5, 'y': -0.07},
             font=dict(
                 family="sans-serif",
                 size=12,
-                color='white'),
+                color='#262830'),
             margin=dict(t=60, b=30, l=30, r=30)
             )
     return {'data':trace, 'layout':layout}
@@ -261,8 +200,8 @@ def actualizar_historico(start_date, end_date, value):
                                 name=empresa,
                                 line={'width':4, 'color':colores[i]},
                                 mode='lines+markers'))
-    layout = go.Layout(plot_bgcolor='#1f2c56',
-            paper_bgcolor='#1f2c56',
+    layout = go.Layout(plot_bgcolor='#f3f3f3',
+            paper_bgcolor='#f3f3f3',
             hovermode='closest',
             title={
                 'text': "Producción NSV histórica (bbls)",
@@ -270,15 +209,15 @@ def actualizar_historico(start_date, end_date, value):
                 'x': 0.5,
                 'xanchor': 'center',
                 'yanchor': 'top'},
-            titlefont={'color': 'white', 'size': 25},
+            titlefont={'color': '#262830', 'size': 25},
             legend={
                 'orientation': 'h',
-                'bgcolor': '#1f2c56',
+                'bgcolor': '#f3f3f3',
                 'xanchor': 'center', 'x': 0.5, 'y': -0.07},
             font=dict(
                 family="sans-serif",
                 size=12,
-                color='white'),
+                color='#262830'),
             margin=dict(t=60, b=30, l=30, r=30)
             )
     return {'data': traces, 'layout': layout}
@@ -313,10 +252,10 @@ def actualizar_resultado_empresa(start_date, end_date, tipo_operacion, tipo_crud
                                 'x': 0.5,
                                 'xanchor': 'center',
                                 'yanchor': 'top'},
-                        titlefont={'color': 'white', 'size': 20},
-                        font=dict(color='white'),
-                        paper_bgcolor='#1f2c56',
-                        plot_bgcolor='#1f2c56',
+                        titlefont={'color': '#262830', 'size': 20},
+                        font=dict(color='#262830'),
+                        paper_bgcolor='#f3f3f3',
+                        plot_bgcolor='#f3f3f3',
                         barmode='stack'
                         )
     return {'data':traces, 'layout':layout}
@@ -345,10 +284,10 @@ def actualizar_inventario(start_date, end_date, empresa, tipo_crudo):
                                 'x':0.5,
                                 'xanchor':'center',
                                 'yanchor':'top'},
-                        titlefont={'color': 'white', 'size': 20},
-                        font=dict(color='white'),
-                        paper_bgcolor='#1f2c56',
-                        plot_bgcolor='#1f2c56',
+                        titlefont={'color': '#262830', 'size': 20},
+                        font=dict(color='#262830'),
+                        paper_bgcolor='#f3f3f3',
+                        plot_bgcolor='#f3f3f3',
                         )
     return {'data':trace, 'layout':layout}
 
