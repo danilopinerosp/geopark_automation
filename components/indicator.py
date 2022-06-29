@@ -13,7 +13,7 @@ def graph_indicator(data, previous_data, color):
                                 'relative':False,
                                 'font':{'size':15}},
                         number={'valueformat':',',
-                                'font':{'size':20}},
+                                'font':{'size':30}},
                         domain={'y':[0, 1], 'x': [0, 1]}
     )]
     layout = go.Layout(title={'text':'GSV (bbls)',
@@ -21,7 +21,7 @@ def graph_indicator(data, previous_data, color):
                                 'x':0.5,
                                 'xanchor':'center',
                                 'yanchor':'top'},
-                        font=dict(color=color),
+                        font=dict(color=color, size=14),
                         paper_bgcolor='#f3f3f3',
                         plot_bgcolor='#f3f3f3',
                         height=50)

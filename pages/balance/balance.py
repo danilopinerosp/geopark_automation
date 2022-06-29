@@ -92,6 +92,7 @@ layout = html.Div([
             dcc.Graph(id='NSV-geopark', config={'displayModeBar':False}, className='dcc_compon',
                     style={'margin-top':'20px'})
         ], className='create_container four columns'),
+
         # Contenedor para graficar la participación en la producción por empresa
         # (según la operación elegida)
         html.Div([
@@ -99,9 +100,11 @@ layout = html.Div([
             dcc.Graph(id='participacion-empresa',
                     config={'displayModeBar':'hover'})
         ], className='create_container four columns'),
+        
         # Contenedor para graficar la producción histórica por tipo de empresa y condición
         # de operación
         html.Div([
+            html.H3(id="title-historical-nsv"),
             dcc.Graph(id='NSV-historico')
         ], className='create_container six columns'),
     ], className='row flex-display'),

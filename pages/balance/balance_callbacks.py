@@ -174,6 +174,17 @@ def actualizar_participacion(start_date, end_date, value):
             )
     return {'data':trace, 'layout':layout}
 
+
+# Callback to update title for historical nsv per company
+@app.callback(Output("title-historical-nsv", "children"),
+            [Input('periodo-analisis', 'start_date'),
+            Input('periodo-analisis', 'end_date'),
+            Input('tipo-operacion', 'value')])
+def update_title_historical_nsv(start_date, end_date, operation_type):
+    title = f"""{ operation_type.split()[0].capitalize() } NSV:
+     { start_date.split('T')[0] } - { end_date.split('T')[0] }"""
+    return title
+
 # Callback para actualizar la gráfida de los resultados históricos de la operación para cada empresa
 @app.callback(Output('NSV-historico', component_property='figure'),
             [Input('periodo-analisis', 'start_date'),
@@ -198,17 +209,10 @@ def actualizar_historico(start_date, end_date, value):
     layout = go.Layout(plot_bgcolor='#f3f3f3',
             paper_bgcolor='#f3f3f3',
             hovermode='closest',
-            title={
-                'text': "Producción NSV histórica (bbls)",
-                'y': 0.93,
-                'x': 0.5,
-                'xanchor': 'center',
-                'yanchor': 'top'},
-            titlefont={'color': '#262830', 'size': 25},
             legend={
                 'orientation': 'h',
                 'bgcolor': '#f3f3f3',
-                'xanchor': 'center', 'x': 0.5, 'y': -0.07},
+                'xanchor': 'center', 'x': 0.5, 'y': -0.15},
             font=dict(
                 family="sans-serif",
                 size=12,
