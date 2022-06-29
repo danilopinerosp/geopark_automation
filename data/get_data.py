@@ -11,6 +11,10 @@ import datetime
 import openpyxl
 
 # Declaración de constantes
+from utils.constants import (companies,
+                            oils,
+                            operations,
+                            coniditions)
 EMPRESAS = ['GEOPARK', 'PAREX']
 CAMPOS = ['CHIRICOCA', 'INDICO-2', 'INDICO-1X', 'AZOGUE', 'GUACO', 'ADALIA',
             'AKIRA', 'MARACAS', 'CARMENTEA', 'CALONA', 'CAPACHOS', 'JACANA ESTACION',

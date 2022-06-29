@@ -1,6 +1,6 @@
 from dash import html
 import dash_bootstrap_components as dbc
-from utils.constants import BALANCE_DATA
+from utils.constants import balance_data
 from layout.header.header_data import get_date_last_update
 
 from utils.constants import (balance_page_location,
@@ -21,7 +21,7 @@ top_header = html.Div([
         # Contenedor para la fecha de la última actualización (último reporte contenido
         # en el análisis)
         html.Div([
-            html.H6(f"Última actualización: {get_date_last_update(BALANCE_DATA)}"),
+            html.H6(f"Última actualización: {get_date_last_update(balance_data)}"),
 
         ], id="last-update"),
 

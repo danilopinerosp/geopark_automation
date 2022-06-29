@@ -7,7 +7,9 @@ from dash import (Dash,
                 dcc)
 import pandas as pd
 
-df = pd.read_csv("./data/reportes_procesados.csv")
+from utils.constants import balance_data
+
+df = pd.read_csv(balance_data)
 
 layout = html.Div([
     html.Div([
