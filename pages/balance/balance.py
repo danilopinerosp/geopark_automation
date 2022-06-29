@@ -100,7 +100,7 @@ layout = html.Div([
             dcc.Graph(id='participacion-empresa',
                     config={'displayModeBar':'hover'})
         ], className='create_container four columns'),
-        
+
         # Contenedor para graficar la producción histórica por tipo de empresa y condición
         # de operación
         html.Div([
@@ -111,7 +111,8 @@ layout = html.Div([
     # Contenedor para la gráfica de la producción por campo y empresa y par la gráfica de inventario
     html.Div([
         html.Div([
-            dcc.Graph(id='resultados-empresa'),
+            html.H3(id="title-cumulated"),
+            dcc.Graph(id='graph-cumulated'),
         ], className='create_container six columns'),
         html.Div([
             dcc.Graph(id='inventario-empresa'),

@@ -181,8 +181,7 @@ def actualizar_participacion(start_date, end_date, value):
             Input('periodo-analisis', 'end_date'),
             Input('tipo-operacion', 'value')])
 def update_title_historical_nsv(start_date, end_date, operation_type):
-    title = f"""{ operation_type.split()[0].capitalize() } NSV:
-     { start_date.split('T')[0] } - { end_date.split('T')[0] }"""
+    title = f"{ operation_type.split()[0].capitalize() } NSV"
     return title
 
 # Callback para actualizar la gráfida de los resultados históricos de la operación para cada empresa
@@ -221,9 +220,17 @@ def actualizar_historico(start_date, end_date, value):
             )
     return {'data': traces, 'layout': layout}
 
+# Callback to update title for cummulated nsv per oil type
+@app.callback(Output("title-cumulated", "children"),
+            [Input('tipo-operacion', 'value'),
+            Input('condiciones-operacion', 'value')])
+def update_title_cummulated_nsv(operation_type, operation_conditions):
+    title = f"{ operation_type.split()[0].capitalize() } de { operation_conditions } por tipo de crudo"
+    return title
+
 # Callback para actualizar la gráfica de barras sobre la producción por campo
 # para determinado tipo de crudo
-@app.callback(Output('resultados-empresa', component_property='figure'),
+@app.callback(Output('graph-cumulated', component_property='figure'),
             [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
             Input('tipo-operacion', 'value'),
@@ -244,18 +251,13 @@ def actualizar_resultado_empresa(start_date, end_date, tipo_operacion, tipo_crud
                     y=datos_filtrados.loc[empresa, :],
                     marker={'color': colores[i]},
                     text=datos_filtrados.loc[empresa, :].round(2),
-                    textposition='auto'))
+                    textposition='outside'))
 
-    layout = go.Layout(title={'text':f'Producción {tipo_crudo} por Campo (bbls)',
-                                'y': 0.93,
-                                'x': 0.5,
-                                'xanchor': 'center',
-                                'yanchor': 'top'},
-                        titlefont={'color': '#262830', 'size': 20},
-                        font=dict(color='#262830'),
+    layout = go.Layout(font=dict(color='#262830'),
                         paper_bgcolor='#f3f3f3',
                         plot_bgcolor='#f3f3f3',
-                        barmode='stack'
+                        barmode='group',
+                        margin=dict(t=60, b=60, l=30, r=30), 
                         )
     return {'data':traces, 'layout':layout}
 
