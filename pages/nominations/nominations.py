@@ -32,14 +32,13 @@ layout = html.Div([
         # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
     html.Div([
             html.H2("Remitente",
-                    className='fix_label',
-                    style={'color':'white', 'text-align':'center'}),
+                    className='fix_label'),
             dcc.Dropdown(options=['GEOPARK', 'VERANO'],
                         value='GEOPARK', 
                         clearable=False,
                         id='remitente-nominacion',
                         multi=False),
-            dcc.Graph(id="factor-servicio"),
+            dcc.Graph(id="production-factor"),
         ], className="create_container twelve columns"),
     # Contenedor para generar el filtro sobre el tipo de crudo
     
