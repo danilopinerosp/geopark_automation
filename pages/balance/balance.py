@@ -115,6 +115,7 @@ layout = html.Div([
             dcc.Graph(id='graph-cumulated'),
         ], className='create_container six columns'),
         html.Div([
+            html.H3(id="title-inventory"),
             dcc.Graph(id='inventario-empresa'),
             html.H6(id='inventario-total',
                     className='create_container_inv_total',

@@ -181,7 +181,7 @@ def actualizar_participacion(start_date, end_date, value):
             Input('periodo-analisis', 'end_date'),
             Input('tipo-operacion', 'value')])
 def update_title_historical_nsv(start_date, end_date, operation_type):
-    title = f"{ operation_type.split()[0].capitalize() } NSV"
+    title = f"{ operation_type.split()[0].capitalize() } NSV (bbls)"
     return title
 
 # Callback para actualizar la gráfida de los resultados históricos de la operación para cada empresa
@@ -225,7 +225,7 @@ def actualizar_historico(start_date, end_date, value):
             [Input('tipo-operacion', 'value'),
             Input('condiciones-operacion', 'value')])
 def update_title_cummulated_nsv(operation_type, operation_conditions):
-    title = f"{ operation_type.split()[0].capitalize() } de { operation_conditions } por tipo de crudo"
+    title = f"{ operation_type.split()[0].capitalize() } de { operation_conditions } por tipo de crudo (bbls)"
     return title
 
 # Callback para actualizar la gráfica de barras sobre la producción por campo
@@ -261,6 +261,15 @@ def actualizar_resultado_empresa(start_date, end_date, tipo_operacion, tipo_crud
                         )
     return {'data':traces, 'layout':layout}
 
+# Callback to update company inventory graph
+@app.callback(Output("title-inventory", "children"),
+            [Input('condiciones-operacion', 'value'),
+            Input("empresa", "value")]
+)
+def update_title_inventory(operation_conditions, company):
+    title = f" Inventario { operation_conditions } { company } por tipo de crudo (bbls)"
+    return title
+
 # Callback para actualizar la gráfica de barras sobre el inventario por campo
 # para determinado tipo de crudo
 @app.callback(Output('inventario-empresa', component_property='figure'),
@@ -280,13 +289,7 @@ def actualizar_inventario(start_date, end_date, empresa, tipo_crudo):
                     text=inventario_campo.values.round(2),
                     textposition='auto')]
 
-    layout = go.Layout(title={'text':f'Inventario {tipo_crudo}: {empresa} por Campo (bbls)',
-                                'y':0.93,
-                                'x':0.5,
-                                'xanchor':'center',
-                                'yanchor':'top'},
-                        titlefont={'color': '#262830', 'size': 20},
-                        font=dict(color='#262830'),
+    layout = go.Layout(font=dict(color='#262830'),
                         paper_bgcolor='#f3f3f3',
                         plot_bgcolor='#f3f3f3',
                         )
