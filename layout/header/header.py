@@ -31,9 +31,8 @@ header = html.Div([
     # Tabs de la aplicación
     dbc.Nav([
             dbc.NavLink("Balance", href=balance_page_location, active="exact", className="nav-menu-item"),
-            dbc.NavLink("Nominations", href=nominations_page_location, active="exact", className="nav-menu-item"),
-            dbc.NavLink("Reports", href=reports_page_location, active="exact", className="nav-menu-item"),
-            dbc.NavLink("Upload", href=upload_page_location, active="exact", className="nav-menu-item"),
+            dbc.NavLink("Nominaciones", href=nominations_page_location, active="exact", className="nav-menu-item"),
+            dbc.NavLink("Datos", href=upload_page_location, active="exact", className="nav-menu-item"),
         ],
         vertical=False,
         pills=True,
