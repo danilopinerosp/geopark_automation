@@ -30,6 +30,16 @@ inputs = [Input('periodo-analisis', 'start_date'),
             Input('periodo-analisis', 'end_date'),
             Input('tipo-operacion', 'value')]
 
+# Callback for downloading button
+@app.callback(Output("descargar-acta", "data"),
+            Input("descargar-acta-button", "n_clicks"),
+            prevent_initial_call=True,)
+def descargar_informe(n_clicks):
+    # Generar datos dummies a descargar
+    df = pd.DataFrame({"a": [1, 2, 3, 4], "b": [2, 1, 5, 6], "c": ["x", "x", "y", "y"]})
+    if n_clicks > 0:
+        return dcc.send_data_frame(df.to_excel, f"Acta.xlsx", sheet_name="Balance")
+
 # Callback para actualizar el GOV acumulado para geopark
 @app.callback(Output('GOV-acumulado-geopark', 'children'), inputs)
 def actualizar_gov_acumulado_geopark(start_date, end_date, tipo_operacion):

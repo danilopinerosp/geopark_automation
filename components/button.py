@@ -18,6 +18,6 @@ def make_dash_button(text, type_button):
     if type_button == "download":
         return html.Div(
                 [
-                html.Button(text, id=id, className=classname),
+                html.Button(text, id=id+"-button", className=classname),
                 dcc.Download(id=id)
                 ])
