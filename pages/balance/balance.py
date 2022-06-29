@@ -2,6 +2,7 @@
 from datetime import datetime as dt
 from dash import dcc, html
 from data.server import datos
+from components.button import make_dash_button
 
 from utils.constants import EMPRESAS, CONDICIONES
 
@@ -48,6 +49,11 @@ layout = html.Div([
                    )], className="card_container two columns acumulado-parex")
 
     ], className="row flex-display"),
+    # Container for the buttons to download daily reports and upload balance reports
+    html.Div([
+        make_dash_button("Subir reporte diario", type_button="upload")
+    ]),
+
     # Contenedor para la participación de Geopark, le operación del día y la producción
     # histórica
     html.Div([
