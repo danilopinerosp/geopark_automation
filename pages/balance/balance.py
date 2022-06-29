@@ -61,8 +61,7 @@ layout = html.Div([
         # Contenedor para mostrar los resultado de la operación de la fecha más reciente
         # de actualización para Geopark y generar los filtros por fecha y tipo de operación
         html.Div([
-            html.P('Periodo de Análisis',
-                    className='fix_label'),
+            html.H3('Periodo de Análisis'),
             # Permite seleccionar las fechas en las que se quiere realizar el análisis
             dcc.DatePickerRange(
                 id='periodo-analisis',
@@ -78,15 +77,14 @@ layout = html.Div([
                 display_format='DD/MM/Y'
             ),
             # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
-            html.P('Tipo de Operación a analizar',
-                    className='fix_label'),
+            html.H3('Tipo de Operación a analizar'),
             dcc.Dropdown(options=datos['operacion'].unique(),
                         value='RECIBO POR REMITENTE TIGANA',
                         clearable=False,
                         id='tipo-operacion',
                         multi=False),
-            html.P(f"Operación Geopark: {datos['fecha'].max().strftime('%d/%m/%Y')}",
-                className='fix_label'),
+            html.H3(f"Operación Geopark"),
+            html.H4(f"{datos['fecha'].max().strftime('%d/%m/%Y')}"),
             dcc.Graph(id='GOV-geopark', config={'displayModeBar':False}, className='dcc_compon',
                     style={'margin-top':'20px'}),
             dcc.Graph(id='GSV-geopark', config={'displayModeBar':False}, className='dcc_compon',
@@ -97,6 +95,7 @@ layout = html.Div([
         # Contenedor para graficar la participación en la producción por empresa
         # (según la operación elegida)
         html.Div([
+            html.H3(id="title-participaction-company"),
             dcc.Graph(id='participacion-empresa',
                     config={'displayModeBar':'hover'})
         ], className='create_container four columns'),

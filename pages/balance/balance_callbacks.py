@@ -78,9 +78,6 @@ def actualizar_nsv_acumulado_parex(start_date, end_date, tipo_operacion):
     """
     return calcular_acumulado(datos, start_date, end_date, tipo_operacion, 'NSV', 'PAREX')
 
-
-
-
 # Callback para actualizar la producción del último día reportado de GOV
 # para Geopark
 @app.callback(Output('GOV-geopark', 'figure'),
@@ -129,6 +126,13 @@ def actualizar_nsv_geopark(tipo_operacion):
     gov_anterior = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-2], 2)
     return graph_indicator(gov_actual, gov_anterior, "green")
 
+# Render title for company participation in NSV production
+@app.callback(Output("title-participaction-company", "children"),
+            Input('tipo-operacion', 'value'))
+def update_title_participation_company(operation_type):
+    title = f"Participación {operation_type.split()[0].capitalize()} NSV"
+    return title
+
 # Callback para actualizar la gráfica de participación de la empresa
 @app.callback(Output('participacion-empresa', component_property='figure'),
             [Input('periodo-analisis', 'start_date'),
@@ -158,19 +162,10 @@ def actualizar_participacion(start_date, end_date, value):
         plot_bgcolor='#f3f3f3',
             paper_bgcolor='#f3f3f3',
             hovermode='closest',
-            title={
-                'text': 'Participación NSV',
-                'y': 0.93,
-                'x': 0.5,
-                'xanchor': 'center',
-                'yanchor': 'top'},
-            titlefont={
-                       'color': '#262830',
-                       'size': 25},
             legend={
                 'orientation': 'h',
                 'bgcolor': '#f3f3f3',
-                'xanchor': 'center', 'x': 0.5, 'y': -0.07},
+                'xanchor': 'center', 'x': 0.5, 'y': -0.15},
             font=dict(
                 family="sans-serif",
                 size=12,
