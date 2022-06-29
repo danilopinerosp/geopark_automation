@@ -220,8 +220,6 @@
   
   /* Buttons
   –––––––––––––––––––––––––––––––––––––––––––––––––– */
-  .button,
-  button,
   input[type="submit"],
   input[type="reset"],
   input[type="button"] {
@@ -238,14 +236,11 @@
     text-transform: uppercase;
     text-decoration: none;
     white-space: nowrap;
-    background-color: #0fa0ce;
     border-radius: 4px;
     border: 1px solid #bbb;
     cursor: pointer;
-    box-sizing: border-box;
   }
-  .button:hover,
-  button:hover,
+
   input[type="submit"]:hover,
   input[type="reset"]:hover,
   input[type="button"]:hover,
