@@ -6,7 +6,18 @@ def make_dash_button(text, type_button):
     to the type of it. It could be to download or to upload
     a file
     """
+    # Create classname and id for the button
+    id = "-".join(text.split()).lower()
+    classname = type_button + " button"
+
+    # Return a button according to the type of it
     if type_button == "upload":
-        return dcc.Upload(html.Button(text, className=type_button, n_clicks=0))
+        return html.Div(
+                    dcc.Upload(html.Button(text, id=id, className=classname, n_clicks=0))
+                )
     if type_button == "download":
-        return dcc.Download(html.Button(text, className=type_button))
+        return html.Div(
+                [
+                html.Button(text, id=id, className=classname),
+                dcc.Download(id=id)
+                ])
