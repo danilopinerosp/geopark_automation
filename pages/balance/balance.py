@@ -10,90 +10,42 @@ layout = html.Div([
     html.Div([
         # Contenedor GOV cumulado por tipo de operación en el periodo indicado de Geopark
         html.Div([
-            html.H6(children='Geopark GOV (bbls)',
-                    style={
-                        'textAlign': 'center',
-                        'color': 'white'}
-                    ),
-            html.P(style={
-                       'textAlign': 'center',
-                       'color': 'orange',
-                       'fontSize': 25},
-                       id='GOV-acumulado-geopark'
-                   )], className="card_container two columns",
+            html.H6(children='Geopark GOV (bbls)'),
+            html.P(id='GOV-acumulado-geopark'
+                   )], className="card_container two columns acumulado-geopark",
         ),
         # Contenedor GSV cumulado por tipo de operación en el periodo indicado de Geopark
         html.Div([
-            html.H6(children='Geopark GSV (bbls)',
-                    style={
-                        'textAlign': 'center',
-                        'color': 'white'}
-                    ),
+            html.H6(children='Geopark GSV (bbls)'),
 
-            html.P(style={
-                       'textAlign': 'center',
-                       'color': '#dd1e35',
-                       'fontSize': 25},
-                    id='GSV-acumulado-geopark'
-                   )], className="card_container two columns",
+            html.P(id='GSV-acumulado-geopark'
+                   )], className="card_container two columns acumulado-geopark",
         ),
         # Contenedor NSV cumulado por tipo de operación en el periodo indicado de Geopark
         html.Div([
-            html.H6(children='Geopark NSV (bbls)',
-                    style={
-                        'textAlign': 'center',
-                        'color': 'white'}
-                    ),
+            html.H6(children='Geopark NSV (bbls)'),
 
-            html.P(style={
-                       'textAlign': 'center',
-                       'color': 'green',
-                       'fontSize': 25},
-                    id='NSV-acumulado-geopark'
-                   )], className="card_container two columns",
+            html.P(id='NSV-acumulado-geopark'
+                   )], className="card_container two columns acumulado-geopark",
         ),
         # Contenedor GOV cumulado por tipo de operación en el periodo indicado de Parex
         html.Div([
-            html.H6(children='Parex GOV (bbls)',
-                    style={
-                        'textAlign': 'center',
-                        'color': 'white'}
-                    ),
+            html.H6(children='Parex GOV (bbls)'),
 
-            html.P(style={
-                       'textAlign': 'center',
-                       'color': 'orange',
-                       'fontSize': 25},
-                    id='GOV-acumulado-parex'
-                   )], className="card_container two columns"),
+            html.P(id='GOV-acumulado-parex'
+                   )], className="card_container two columns acumulado-parex"),
         # Contenedor GSV cumulado por tipo de operación en el periodo indicado de Parex
         html.Div([
-            html.H6(children='Parex GSV (bbls)',
-                    style={
-                        'textAlign': 'center',
-                        'color': 'white'}
-                    ),
+            html.H6(children='Parex GSV (bbls)'),
 
-            html.P(style={
-                       'textAlign': 'center',
-                       'color': '#dd1e35',
-                       'fontSize': 25},
-                    id='GSV-acumulado-parex'
-                   )], className="card_container two columns"),
+            html.P(id='GSV-acumulado-parex'
+                   )], className="card_container two columns acumulado-parex"),
         # Contenedor NSV cumulado por tipo de operación en el periodo indicado de Parex
         html.Div([
-            html.H6(children='Parex NSV (bbls)',
-                    style={
-                        'textAlign': 'center',
-                        'color': 'white'}
-                    ),
+            html.H6(children='Parex NSV (bbls)'),
 
-            html.P(style={
-                       'textAlign': 'center',
-                       'color': 'green',
-                       'fontSize': 25},
-                    id='NSV-acumulado-parex'
-                   )], className="card_container two columns")
+            html.P(id='NSV-acumulado-parex'
+                   )], className="card_container two columns acumulado-parex")
 
     ], className="row flex-display"),
     # Contenedor para la participación de Geopark, le operación del día y la producción
@@ -103,8 +55,7 @@ layout = html.Div([
         # de actualización para Geopark y generar los filtros por fecha y tipo de operación
         html.Div([
             html.P('Periodo de Análisis',
-                    className='fix_label',
-                    style={'color':'white', 'text-align':'center'}),
+                    className='fix_label'),
             # Permite seleccionar las fechas en las que se quiere realizar el análisis
             dcc.DatePickerRange(
                 id='periodo-analisis',
