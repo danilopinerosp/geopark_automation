@@ -9,6 +9,9 @@ import pandas as pd
 
 layout = html.Div([
     html.Div([
+        html.H2("Dashboard Balance", style={"textAlign": "left"})
+    ]),
+    html.Div([
         html.H2("Mes",
                     className='fix_label',
                     style={'color':'white', 'text-align':'center'}),
@@ -19,11 +22,13 @@ layout = html.Div([
                         multi=False),
     ]),
     html.Div([
-        dcc.Graph(id='tigana-transportado'),
-    ], className='create_container twelve columns'),
-    html.Div([
-        dcc.Graph(id='livianos-transportado'),
-    ], className='create_container twelve columns'),
+        dcc.Tabs(id="tabs-nominations", value='tigana', 
+            children=[dcc.Tab(label='Tigana', value='tigana'),
+                    dcc.Tab(label='Livianos', value='livianos'),
+            ]
+        ),
+        dcc.Graph(id="graph-nominations-results")
+    ], className="tabs-container"),
         # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
     html.Div([
             html.H2("Remitente",
