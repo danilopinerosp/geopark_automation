@@ -17,9 +17,7 @@ layout = html.Div([
         # a realizar con ellos
         html.Div([
             # Seleccionar datos
-            html.H2('Datos',
-                    className='fix_label',
-                    style={'color':'white', 'text-align':'center'}),
+            html.H2('Datos'),
             dcc.Dropdown(options=['Reportes diarios', 'Nominaciones', 'Crudos'],
                         value='Reportes diarios',
                         clearable=False,
@@ -27,9 +25,7 @@ layout = html.Div([
                         multi=False,
                         className='dash-dropdown'),
             # Crear botones para las diferentes operaciones con los datos
-            html.H2('Operaciones',
-                    className='fix_label',
-                    style={'color':'white', 'text-align':'center'}),
+            html.H2('Operaciones'),
             dcc.Upload(html.Button('Agregar', id='crear-val', n_clicks=0)),
             html.Button('Actualizar', id='actualizar-val', n_clicks=0),
             html.Button('Borrar', id='borrar-val', n_clicks=0),
@@ -37,8 +33,7 @@ layout = html.Div([
         # Contenedor para graficar la participación en la producción por empresa
         html.Div([
             html.H3("Registros",
-                    className='fix_label',
-                    style={'color':'white', 'text-align':'center'}),
+                    className='fix_label'),
             dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns], id='tbl')
         ], className='create_container nine columns'),
     ], className='row flex-display'),
