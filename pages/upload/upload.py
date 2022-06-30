@@ -7,9 +7,18 @@ from dash import (Dash,
                 dcc)
 import pandas as pd
 
-from utils.constants import balance_data
+from utils.constants import (daily_reports_processed, 
+                            companies,
+                            oils,
+                            nominations_processed
+                            )
 
-df = pd.read_csv(balance_data)
+from components.table import make_dash_table
+
+balance_processed = pd.read_csv(daily_reports_processed)
+data_companies = pd.read_csv(companies)
+data_oil_types = pd.read_csv(oils)
+data_nominations_processed = pd.read_csv(nominations_processed)
 
 layout = html.Div([
     html.Div([
@@ -17,25 +26,38 @@ layout = html.Div([
         # a realizar con ellos
         html.Div([
             # Seleccionar datos
-            html.H2('Datos'),
-            dcc.Dropdown(options=['Reportes diarios', 'Nominaciones', 'Crudos'],
-                        value='Reportes diarios',
-                        clearable=False,
-                        id='tipo-datos',
-                        multi=False,
-                        className='dash-dropdown'),
-            # Crear botones para las diferentes operaciones con los datos
-            html.H2('Operaciones'),
-            dcc.Upload(html.Button('Agregar', id='crear-val', n_clicks=0)),
-            html.Button('Actualizar', id='actualizar-val', n_clicks=0),
-            html.Button('Borrar', id='borrar-val', n_clicks=0),
-        ], className='create_container three columns'),
+            html.H2('Empresas'),
+            make_dash_table(data_companies),
+            html.Div([
+                html.Button('Agregar', id='add-company', n_clicks=0, className="button add-button"),
+                html.Button('Borrar', id='delete-company', n_clicks=0, className="button delete-button"),
+            ], className="button-data-container")
+            
+        ], className='create_container five columns'),
         # Contenedor para graficar la participación en la producción por empresa
         html.Div([
-            html.H3("Registros",
-                    className='fix_label'),
-            dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns], id='tbl')
-        ], className='create_container nine columns'),
+            html.H2("Tipos de Crudo"),
+            make_dash_table(data_companies),
+            html.Div([
+                html.Button('Agregar', id='add-company', n_clicks=0, className="button add-button"),
+                html.Button('Borrar', id='delete-company', n_clicks=0, className="button delete-button"),
+            ], className="button-data-container")
+        ], className='create_container seven columns'),
+    ], className='row flex-display'),
+
+    html.Div([
+        # Contenedor para la selección del tipo de dato a trabajar y las operaciones
+        # a realizar con ellos
+        html.Div([
+            # Seleccionar datos
+            html.H2('Reportes Diarios Procesados'),
+            make_dash_table(balance_processed),
+        ], className='create_container five columns'),
+        # Contenedor para graficar la participación en la producción por empresa
+        html.Div([
+            html.H2('Nominaciones Procesadas'),
+            make_dash_table(data_nominations_processed)
+        ], className='create_container seven columns'),
     ], className='row flex-display'),
     
 ])
