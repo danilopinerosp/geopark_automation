@@ -7,6 +7,12 @@ Style for button components
     justify-content: end;
 }
 
+.button-data-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 .button {
     display: inline-block;
     margin: 10px;
@@ -41,6 +47,24 @@ Style for button components
 
 .download:hover {
     color: #18ceb5;
-    background-color: 1px solid #18ceb5;
+    border: 1px solid #18ceb5;
+}
+
+.add-button {
+    background-color: #1971ce ;
+}
+
+.add-button:hover {
+    color: #1971ce;
+    border: 1px solid #1971ce;
+}
+
+.delete-button {
+    background-color:  #ce2719;
+}
+
+.delete-button:hover {
+    color:  #ce2719;
+    border: 1px solid #ce2719;
 }
 
