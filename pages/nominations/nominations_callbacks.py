@@ -37,7 +37,7 @@ def actualizar_factor_servicio(mes, remitente):
     colors = {"Jacana":"orange", "Tigana": "blue", "Livianos": "grey", "Cabrestero": "green"}
 
     title_graph = f"""
-    Factor de Producción<br>
+    Factor de Cumplimiento<br>
     Mes: {mes}<br>
     Remitente: {remitente}
     """

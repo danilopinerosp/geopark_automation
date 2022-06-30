@@ -18,12 +18,7 @@ from data.calculate_values import (
 from data.server import datos
 from app import app
 
-def calcular_acumulado(datos, start_date, end_date, tipo_operacion, tipo_crudo, empresa):
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
-    datos_filtrados = datos_filtrados[['empresa', 'operacion', tipo_crudo]]
-    filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == empresa)
-    gov_acumulado = datos_filtrados[filtro][tipo_crudo].sum()
-    return f"{gov_acumulado:,.2f}"
+from pages.balance.balance_data import calcular_acumulado, update_indicators
 
 
 inputs = [Input('periodo-analisis', 'start_date'),
@@ -97,13 +92,8 @@ def actualizar_gov_geopark(tipo_operacion):
     Actualiza los datos de GOV de la producción del último día reportado
     para Geopark
     """
-    # Agrupar los valores del DataFrame y hacer una suma por cada grupo
-    datos_agrupados = datos.groupby(['fecha', 'empresa', 'operacion'])['GOV'].sum()
-    # Seleccionar el GOV para el último día reportado
-    gov_actual = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-1], 2)
-    # Seleccionar el GOV para el penúltimo día reportado
-    gov_anterior = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-2], 2)
-    return graph_indicator(gov_actual, gov_anterior, "orange")
+    (last_gov, previous_gov) = update_indicators(datos, tipo_operacion, "GOV")
+    return graph_indicator(last_gov, previous_gov, "orange", "GOV")
     
 # Callback para actualizar los datos de producción de GSV de Geopark en el último día reportado
 @app.callback(Output('GSV-geopark', 'figure'),
@@ -113,13 +103,8 @@ def actualizar_gsv_geopark(tipo_operacion):
     Actualiza la producción de GSV producida por Geopark en el último día reportado
     de producción
     """
-    # Agrupar los valores del DataFrame y hacer una suma por cada grupo
-    datos_agrupados = datos.groupby(['fecha', 'empresa', 'operacion'])['GSV'].sum()
-    # Seleccionar el GOV para el último día reportado
-    gov_actual = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-1], 2)
-    # Seleccionar el GOV para el penúltimo día reportado
-    gov_anterior = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-2], 2)
-    return graph_indicator(gov_actual, gov_anterior, "#dd1e35")
+    (last_gsv, previous_gsv) = update_indicators(datos, tipo_operacion, "GSV")
+    return graph_indicator(last_gsv, previous_gsv, "#dd1e35", "GSV")
 
 # Callback para actualizar los datos de producción de NSV de Geopark en el último día reportado
 @app.callback(Output('NSV-geopark', 'figure'),
@@ -128,13 +113,8 @@ def actualizar_nsv_geopark(tipo_operacion):
     """
     Actualiza el NSV producido por Geopark en el último día reportado de operación
     """
-    # Agrupar los valores del DataFrame y hacer una suma por cada grupo
-    datos_agrupados = datos.groupby(['fecha', 'empresa', 'operacion'])['NSV'].sum()
-    # Seleccionar el GOV para el último día reportado
-    gov_actual = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-1], 2)
-    # Seleccionar el GOV para el penúltimo día reportado
-    gov_anterior = np.round(datos_agrupados.unstack().unstack()[tipo_operacion]['GEOPARK'][-2], 2)
-    return graph_indicator(gov_actual, gov_anterior, "green")
+    (last_nsv, previous_nsv) = update_indicators(datos, tipo_operacion, "GSV")
+    return graph_indicator(last_nsv, previous_nsv, "green", "NSV")
 
 # Render title for company participation in NSV production
 @app.callback(Output("title-participaction-company", "children"),

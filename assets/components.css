@@ -68,3 +68,9 @@ Style for button components
     border: 1px solid #ce2719;
 }
 
+/*Add styles to table component*/
+
+#tbl {
+    font-size: 17px;
+}
+
