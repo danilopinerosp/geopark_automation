@@ -44,4 +44,16 @@ def actualizar_factor_servicio(mes, remitente):
 
     return graph_production_factor(type_oils, colors, title_graph)
 
+# Callback to download nominations report
+# Callback for downloading button
+@app.callback(Output("descargar-info-nominaciones", "data"),
+            Input("descargar-info-nominaciones-button", "n_clicks"),
+            prevent_initial_call=True,)
+def descargar_informe(n_clicks):
+    # Generar datos dummies a descargar
+    df = pd.DataFrame({"a": [1, 2, 3, 4], "b": [2, 1, 5, 6], "c": ["x", "x", "y", "y"]})
+    if n_clicks > 0:
+        return dcc.send_data_frame(df.to_excel, f"nominaciones.xlsx", 
+                                sheet_name="Consolidado Nominaciones")
+
     

@@ -7,14 +7,15 @@ from dash import (Dash,
                 dcc)
 import pandas as pd
 
+from components.button import make_dash_button
+
 layout = html.Div([
     html.Div([
-        html.H2("Dashboard Balance", style={"textAlign": "left"})
-    ]),
+        make_dash_button("Subir nominaciones", type_button="upload"),
+        make_dash_button("Descargar Info Nominaciones", type_button="download")
+    ], className='button-container'),
     html.Div([
-        html.H2("Mes",
-                    className='fix_label',
-                    style={'color':'white', 'text-align':'center'}),
+        html.H2("Mes"),
         dcc.Dropdown(options=['Enero', 'Febrero', 'Marzo', 'Abril'],
                         value='Abril', 
                         clearable=False,
