@@ -1,6 +1,3 @@
-from re import A
-from tkinter import font
-from turtle import back
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -106,7 +103,7 @@ def generar_acta_ODCA(mes):
     Generar el acta con todos los datos requeridos y el estilo requerido
     """
     # Cargar los datos desde el balance y dar formato a las fechas
-    df = pd.read_csv('data/balance.csv')
+    df = pd.read_csv('data/consolidated_data/balance.csv')
     df['fecha'] = pd.to_datetime(df['fecha'], format='%d-%m-%Y')
     # Escribir los datos en un documento .xlsx
     filas_cabecera, filas_empresas, filas_operaciones = escribir_datos(df, mes)
