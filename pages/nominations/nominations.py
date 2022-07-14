@@ -19,7 +19,7 @@ layout = html.Div([
         dcc.Dropdown(options=['Enero', 'Febrero', 'Marzo', 'Abril'],
                         value='Abril', 
                         clearable=False,
-                        id='mes-nominacion',
+                        id='nomination-month',
                         multi=False),
     ]),
     html.Div([
