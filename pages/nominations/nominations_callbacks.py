@@ -18,6 +18,8 @@ from app import app
 
 from components.nominations_graph import graph_production_factor
 
+from pages.nominations.nominations_data import daily_transported_oil_type
+
 @app.callback(Output("graph-nominations-results", component_property="figure"),
         Input("tabs-nominations", "value"))
 def render_tabs_nominations(tab):
@@ -27,9 +29,10 @@ def render_tabs_nominations(tab):
                 return livianos_nominations()
 
 @app.callback(Output("production-factor", component_property="figure"),
-            [Input("mes-nominacion", "value"),
+            [Input("nomination-period", "start_date"),
+            Input("nomination-period", "end_date"),
             Input("remitente-nominacion", "value")])
-def actualizar_factor_servicio(mes, remitente):
+def actualizar_factor_servicio(start_date, end_date, remitente):
 
     # Generación datos Dummi
     type_oils = ["Jacana", "Tigana", "Livianos", "Cabrestero"]
@@ -38,7 +41,7 @@ def actualizar_factor_servicio(mes, remitente):
 
     title_graph = f"""
     Factor de Cumplimiento<br>
-    Mes: {mes}<br>
+    Mes: {start_date}<br>
     Remitente: {remitente}
     """
 
@@ -47,13 +50,15 @@ def actualizar_factor_servicio(mes, remitente):
 # Callback to download nominations report
 # Callback for downloading button
 @app.callback(Output("descargar-info-nominaciones", "data"),
-            Input("descargar-info-nominaciones-button", "n_clicks"),
+            [Input("descargar-info-nominaciones-button", "n_clicks"),
+            Input("nomination-period", "start_date"),
+            Input("nomination-period", "end_date")],
             prevent_initial_call=True,)
-def descargar_informe(n_clicks):
-    # Generar datos dummies a descargar
-    df = pd.DataFrame({"a": [1, 2, 3, 4], "b": [2, 1, 5, 6], "c": ["x", "x", "y", "y"]})
+def descargar_informe(n_clicks, start_date, end_date):
+    df = pd.read_csv("data/consolidated_data/balance.csv")
+    transported = daily_transported_oil_type(df, start_date, end_date)
     if n_clicks > 0:
-        return dcc.send_data_frame(df.to_excel, f"nominaciones.xlsx", 
-                                sheet_name="Consolidado Nominaciones")
+        return dcc.send_data_frame(transported.to_excel, f"nominaciones.xlsx", 
+                                sheet_name="Consolidado Nominaciones")  
 
     
