@@ -9,6 +9,7 @@ import pandas as pd
 from datetime import datetime as dt
 
 from components.button import make_dash_button
+from components.date_picker_range import make_date_picker_range
 
 from data.server import datos
 
@@ -20,18 +21,7 @@ layout = html.Div([
     html.Div([
         html.Div([
             html.H2("Periodo de Análisis"),
-            dcc.DatePickerRange(
-                id='nomination-period',
-                # Las fechas mínimas y máximas permitidas dependerán de las fechas
-                # de los datos del balance
-                min_date_allowed=datos['fecha'].min().to_pydatetime(),
-                max_date_allowed=datos['fecha'].max().to_pydatetime(),
-                initial_visible_month=dt(datos['fecha'].dt.year.max(),
-                                        datos['fecha'].max().to_pydatetime().month, 1),
-                # Por defecto toma como periodo de análisis los datos recolectados del último mes.
-                start_date=(datos[datos['fecha'].dt.month == datos['fecha'].max().month]['fecha'].min()).to_pydatetime(),
-                end_date=datos['fecha'].max().to_pydatetime(),
-                display_format='DD/MM/Y'),
+            make_date_picker_range("nomination-period", datos),
             html.H2("Remitente"),
             dcc.Dropdown(options=['GEOPARK', 'VERANO'],
                         value='GEOPARK', 
