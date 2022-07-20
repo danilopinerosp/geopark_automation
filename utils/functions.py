@@ -1,6 +1,6 @@
 import pandas as pd
 
-def load_balance_data(filename):
+def load_data(filename):
     """
     Load the balance data from the balance.csv file
     """
@@ -23,5 +23,5 @@ def filter_data_by_date(data, start_date, end_date):
     DataFrame - Datos filtrados según el período dato entre inicio y fin
     """
     filtered_data = data[(data['fecha'] >= start_date) & (data['fecha'] <= end_date)]
-    filtered_data['fecha'] = pd.to_datetime(filtered_data['fecha'])
+    # filtered_data['fecha'] = pd.to_datetime(filtered_data['fecha'])
     return filtered_data
