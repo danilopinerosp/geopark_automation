@@ -4,51 +4,21 @@ from dash import dcc, html
 from components.date_picker_range import make_date_picker_range
 from data.server import datos
 from components.button import make_dash_button
+from components.cumulated_card import make_cumulated_card
 
 from utils.constants import EMPRESAS, CONDICIONES
 
 layout = html.Div([
-    # Contenedor donde se ubicaran los 6 acumulados por tipo de crudo para las dos empresas
+    # Container for cumulates by company and operation conditions
     html.Div([
-        # Contenedor GOV cumulado por tipo de operación en el periodo indicado de Geopark
-        html.Div([
-            html.H6(children='Geopark GOV (bbls)'),
-            html.P(id='GOV-acumulado-geopark'
-                   )], className="card_container two columns acumulado-geopark",
-        ),
-        # Contenedor GSV cumulado por tipo de operación en el periodo indicado de Geopark
-        html.Div([
-            html.H6(children='Geopark GSV (bbls)'),
-
-            html.P(id='GSV-acumulado-geopark'
-                   )], className="card_container two columns acumulado-geopark",
-        ),
-        # Contenedor NSV cumulado por tipo de operación en el periodo indicado de Geopark
-        html.Div([
-            html.H6(children='Geopark NSV (bbls)'),
-
-            html.P(id='NSV-acumulado-geopark'
-                   )], className="card_container two columns acumulado-geopark",
-        ),
-        # Contenedor GOV cumulado por tipo de operación en el periodo indicado de Parex
-        html.Div([
-            html.H6(children='Parex GOV (bbls)'),
-
-            html.P(id='GOV-acumulado-parex'
-                   )], className="card_container two columns acumulado-parex"),
-        # Contenedor GSV cumulado por tipo de operación en el periodo indicado de Parex
-        html.Div([
-            html.H6(children='Parex GSV (bbls)'),
-
-            html.P(id='GSV-acumulado-parex'
-                   )], className="card_container two columns acumulado-parex"),
-        # Contenedor NSV cumulado por tipo de operación en el periodo indicado de Parex
-        html.Div([
-            html.H6(children='Parex NSV (bbls)'),
-
-            html.P(id='NSV-acumulado-parex'
-                   )], className="card_container two columns acumulado-parex")
-
+        # Containers for Geopark's cumulated in specified period of time
+        make_cumulated_card("geopark", "GOV"),
+        make_cumulated_card("geopark", "GSV"),
+        make_cumulated_card("geopark", "NSV"),  
+        # Containers for Parex's cumulated in specified period of time
+        make_cumulated_card("parex", "GOV"),
+        make_cumulated_card("parex", "GSV"),
+        make_cumulated_card("parex", "NSV"),
     ], className="row flex-display"),
     # Container for the buttons to download daily reports and upload balance reports
     html.Div([
