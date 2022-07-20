@@ -1,4 +1,9 @@
+from openpyxl import load_workbook
 import pandas as pd
+import io
+import base64
+import datetime
+from dash import html
 
 def load_data(filename):
     """
@@ -25,3 +30,16 @@ def filter_data_by_date(data, start_date, end_date):
     filtered_data = data[(data['fecha'] >= start_date) & (data['fecha'] <= end_date)]
     # filtered_data['fecha'] = pd.to_datetime(filtered_data['fecha'])
     return filtered_data
+
+def parse_contents(contents, filename, date):
+    """
+    Return workbook
+    """
+    content_type, content_string = contents.split(',')
+
+    decoded = base64.b64decode(content_string)
+    if 'xls' in filename:
+        # Assume that the user uploaded an excel file
+        return load_workbook(io.BytesIO(decoded))
+    else:
+        return "Wrong format, file should have .xlsx extension"
