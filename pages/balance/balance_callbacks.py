@@ -1,4 +1,3 @@
-from dash import callback_context
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 
@@ -27,9 +26,57 @@ from utils.constants import balance_data
 
 data = load_data(balance_data)
 
-inputs = [Input('balance-period-analysis', 'start_date'),
+inputs_cumulated = [Input('balance-period-analysis', 'start_date'),
             Input('balance-period-analysis', 'end_date'),
             Input('tipo-operacion', 'value')]
+
+# Callback para actualizar el GOV acumulado para geopark
+@app.callback(Output('GOV-acumulado-geopark', 'children'), inputs_cumulated)
+def update_gov_cumulated_geopark(start_date, end_date, operation_type):
+    """
+    Actualiza el GOV acumulado para Geopark en el periodo indicado
+    """
+    return get_cumulated(data, start_date, end_date, operation_type, 'GOV', 'GEOPARK')
+
+# Callback para actualizar el GSV acumulado para geopark
+@app.callback(Output('GSV-acumulado-geopark', 'children'), inputs_cumulated)
+def update_gsv_cumulated_geopark(start_date, end_date, operation_type):
+    """
+    Actualiza el total de GSV producido por Geopark en periodo de tiempo indicado
+    """
+    return get_cumulated(data, start_date, end_date, operation_type, 'GSV', 'GEOPARK')
+
+# Callback para actualizar el NSV acumulado para Geopark
+@app.callback(Output('NSV-acumulado-geopark', 'children'), inputs_cumulated)
+def update_nsv_cumulated_geopark(start_date, end_date, operation_type):
+    """
+    Actualiza en acumulado de NSV producido por Geopark en el periodo de tiempo indicado
+    """
+    return get_cumulated(data, start_date, end_date, operation_type, 'NSV', 'GEOPARK')
+
+# Callback para actualizar el NSV acumulado para Parex
+@app.callback(Output('GOV-acumulado-parex', 'children'), inputs_cumulated)
+def update_gov_cumulated_parex(start_date, end_date, operation_type):
+    """
+    Actualiza el GOV acumulado en el periodo indicado para Parex
+    """
+    return get_cumulated(data, start_date, end_date, operation_type, 'GOV', 'PAREX')
+
+# Callback para actualizar el GSV acumulado para Parex
+@app.callback(Output('GSV-acumulado-parex', 'children'), inputs_cumulated)
+def update_gsv_cumulated_parex(start_date, end_date, operation_type):
+    """
+    Actualiza el GSV acumulado producido por Parex en el periodo de tiempo indicado
+    """
+    return get_cumulated(data, start_date, end_date, operation_type, 'GSV', 'PAREX')
+
+# Callback para actualizar el NSV acumulado para Parex
+@app.callback(Output('NSV-acumulado-parex', 'children'), inputs_cumulated)
+def update_nsv_cumulated_parex(start_date, end_date, operation_type):
+    """
+    Actualiza el total de NSV acumulado para Parex en el periodo de tiempo indicado
+    """
+    return get_cumulated(data, start_date, end_date, operation_type, 'NSV', 'PAREX')
 
 # Callback for downloading button
 @app.callback(Output("descargar-acta", "data"),
@@ -57,85 +104,39 @@ def descargar_informe(n_clicks, start_date, end_date):
     
     return wb.save('ACTA ODCA_' + str(month) +'.xlsx')
 
-# Callback para actualizar el GOV acumulado para geopark
-@app.callback(Output('GOV-acumulado-geopark', 'children'), inputs)
-def actualizar_gov_acumulado_geopark(start_date, end_date, tipo_operacion):
-    """
-    Actualiza el GOV acumulado para Geopark en el periodo indicado
-    """
-    return get_cumulated(data, start_date, end_date, tipo_operacion, 'GOV', 'GEOPARK')
 
-# Callback para actualizar el GSV acumulado para geopark
-@app.callback(Output('GSV-acumulado-geopark', 'children'), inputs)
-def actualizar_gsv_acumulado_geopark(start_date, end_date, tipo_operacion):
-    """
-    Actualiza el total de GSV producido por Geopark en periodo de tiempo indicado
-    """
-    return get_cumulated(data, start_date, end_date, tipo_operacion, 'GSV', 'GEOPARK')
-
-# Callback para actualizar el NSV acumulado para Geopark
-@app.callback(Output('NSV-acumulado-geopark', 'children'), inputs)
-def actualizar_nsv_acumulado_geopark(start_date, end_date, tipo_operacion):
-    """
-    Actualiza en acumulado de NSV producido por Geopark en el periodo de tiempo indicado
-    """
-    return get_cumulated(data, start_date, end_date, tipo_operacion, 'NSV', 'GEOPARK')
-
-# Callback para actualizar el NSV acumulado para Parex
-@app.callback(Output('GOV-acumulado-parex', 'children'), inputs)
-def actualizar_gov_acumulado_parex(start_date, end_date, tipo_operacion):
-    """
-    Actualiza el GOV acumulado en el periodo indicado para Parex
-    """
-    return get_cumulated(data, start_date, end_date, tipo_operacion, 'GOV', 'PAREX')
-
-# Callback para actualizar el GSV acumulado para Parex
-@app.callback(Output('GSV-acumulado-parex', 'children'), inputs)
-def actualizar_gsv_acumulado_parex(start_date, end_date, tipo_operacion):
-    """
-    Actualiza el GSV acumulado producido por Parex en el periodo de tiempo indicado
-    """
-    return get_cumulated(data, start_date, end_date, tipo_operacion, 'GSV', 'PAREX')
-
-# Callback para actualizar el NSV acumulado para Parex
-@app.callback(Output('NSV-acumulado-parex', 'children'), inputs)
-def actualizar_nsv_acumulado_parex(start_date, end_date, tipo_operacion):
-    """
-    Actualiza el total de NSV acumulado para Parex en el periodo de tiempo indicado
-    """
-    return get_cumulated(data, start_date, end_date, tipo_operacion, 'NSV', 'PAREX')
 
 # Callback para actualizar la producción del último día reportado de GOV
 # para Geopark
 @app.callback(Output('GOV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
-def actualizar_gov_geopark(tipo_operacion):
+def actualizar_gov_geopark(operation_type):
     """
     Actualiza los datos de GOV de la producción del último día reportado
     para Geopark
     """
-    (last_gov, previous_gov) = update_indicators(data, tipo_operacion, "GOV")
+    (last_gov, previous_gov) = update_indicators(data, operation_type, "GOV")
     return graph_indicator(last_gov, previous_gov, "orange", "GOV")
     
 # Callback para actualizar los datos de producción de GSV de Geopark en el último día reportado
 @app.callback(Output('GSV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
-def actualizar_gsv_geopark(tipo_operacion):
+def actualizar_gsv_geopark(operation_type):
     """
     Actualiza la producción de GSV producida por Geopark en el último día reportado
     de producción
     """
-    (last_gsv, previous_gsv) = update_indicators(data, tipo_operacion, "GSV")
+    (last_gsv, previous_gsv) = update_indicators(data, operation_type, "GSV")
     return graph_indicator(last_gsv, previous_gsv, "#dd1e35", "GSV")
 
 # Callback para actualizar los datos de producción de NSV de Geopark en el último día reportado
 @app.callback(Output('NSV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
-def actualizar_nsv_geopark(tipo_operacion):
+def actualizar_nsv_geopark(operation_type):
     """
     Actualiza el NSV producido por Geopark en el último día reportado de operación
     """
-    (last_nsv, previous_nsv) = update_indicators(data, tipo_operacion, "GSV")
+    (last_nsv, previous_nsv) = update_indicators(data, operation_type, "GSV")
     return graph_indicator(last_nsv, previous_nsv, "green", "NSV")
 
 # Render title for company participation in NSV production
@@ -248,13 +249,13 @@ def update_title_cummulated_nsv(operation_type, operation_conditions):
             Input('tipo-operacion', 'value'),
             Input('condiciones-operacion', 'value')]
 )
-def actualizar_resultado_empresa(start_date, end_date, tipo_operacion, tipo_crudo):
+def actualizar_resultado_empresa(start_date, end_date, operation_type, tipo_crudo):
     """
     Actualiza la gráfica de barras sobre la producción por campo para determinado tipoo de crudo
     """
     # Filtrar los datos para el período indicado, el tipo de operación de interés y el tipo de crudo
     datos_filtrados = filter_data_by_date(data, start_date, end_date)
-    datos_filtrados = total_crudo_detallado(datos_filtrados, tipo_operacion)[tipo_crudo]
+    datos_filtrados = total_crudo_detallado(datos_filtrados, operation_type)[tipo_crudo]
     traces = []
     colores = ['red', 'grey']
     for i, empresa in enumerate(datos_filtrados.index):
