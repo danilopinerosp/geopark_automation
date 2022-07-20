@@ -11,12 +11,10 @@ from utils.constants import (balance_page_location,
 
 from pages.balance import balance
 from pages.nominations import nominations
-from pages.reports import reports
 from pages.upload import upload
 
 from pages.balance.balance_callbacks import *
 from pages.nominations.nominations_callbacks import *
-from pages.reports.reports_callbacks import *
 from pages.upload.upload_callbacks import *
 
 @app.callback(
@@ -28,8 +26,6 @@ def render_page_content(pathname):
         return balance.layout
     elif pathname == nominations_page_location:
         return nominations.layout
-    elif pathname == reports_page_location:
-        return reports.layout
     elif pathname == upload_page_location:
         return upload.layout
     return html.Div([

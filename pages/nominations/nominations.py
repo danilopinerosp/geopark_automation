@@ -6,35 +6,41 @@ from dash import (Dash,
                 html, 
                 dcc)
 import pandas as pd
+from datetime import datetime as dt
+
+from components.button import make_dash_button
+from components.date_picker_range import make_date_picker_range
+
+from data.server import datos
 
 layout = html.Div([
     html.Div([
-        html.H2("Mes",
-                    className='fix_label',
-                    style={'color':'white', 'text-align':'center'}),
-        dcc.Dropdown(options=['Enero', 'Febrero', 'Marzo', 'Abril'],
-                        value='Abril', 
-                        clearable=False,
-                        id='mes-nominacion',
-                        multi=False),
-    ]),
+        make_dash_button("Subir nominaciones", type_button="upload"),
+        make_dash_button("Descargar Info Nominaciones", type_button="download")
+    ], className='button-container'),
     html.Div([
-        dcc.Graph(id='tigana-transportado'),
-    ], className='create_container twelve columns'),
-    html.Div([
-        dcc.Graph(id='livianos-transportado'),
-    ], className='create_container twelve columns'),
-        # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
-    html.Div([
-            html.H2("Remitente",
-                    className='fix_label',
-                    style={'color':'white', 'text-align':'center'}),
+        html.Div([
+            html.H2("Periodo de Análisis"),
+            make_date_picker_range("nomination-period", datos),
+            html.H2("Remitente"),
             dcc.Dropdown(options=['GEOPARK', 'VERANO'],
                         value='GEOPARK', 
                         clearable=False,
                         id='remitente-nominacion',
                         multi=False),
-            dcc.Graph(id="factor-servicio"),
+            ], className="create_container three columns"),
+        html.Div([
+        dcc.Tabs(id="tabs-nominations", value='tigana', 
+            children=[dcc.Tab(label='Tigana', value='tigana'),
+                    dcc.Tab(label='Livianos', value='livianos'),
+            ]
+        ),
+        dcc.Graph(id="graph-nominations-results")
+        ], className="create_container nine columns"),
+    ], className="row flex-display"),
+        # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
+    html.Div([
+            dcc.Graph(id="production-factor"),
         ], className="create_container twelve columns"),
     # Contenedor para generar el filtro sobre el tipo de crudo
     

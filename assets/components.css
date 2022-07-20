@@ -1,0 +1,76 @@
+/*
+Style for button components
+*/
+.button-container {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+}
+
+.button-data-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.button {
+    display: inline-block;
+    margin: 10px;
+    padding: 15px 20px;
+    color: #fff;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.1rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.button:hover{
+    background-color: #fff;
+}
+
+.upload {
+    background-color:  #a41591;
+}
+
+.upload:hover {
+    color: #a41591;
+    border: 1px solid #a41591;
+}
+
+.download {
+    background-color:  #18ceb5;
+}
+
+.download:hover {
+    color: #18ceb5;
+    border: 1px solid #18ceb5;
+}
+
+.add-button {
+    background-color: #1971ce ;
+}
+
+.add-button:hover {
+    color: #1971ce;
+    border: 1px solid #1971ce;
+}
+
+.delete-button {
+    background-color:  #ce2719;
+}
+
+.delete-button:hover {
+    color:  #ce2719;
+    border: 1px solid #ce2719;
+}
+
+/*Add styles to table component*/
+
+#tbl {
+    font-size: 17px;
+}
+

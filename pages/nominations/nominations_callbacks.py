@@ -7,138 +7,58 @@ import plotly.graph_objs as go
 import numpy as np
 import pandas as pd
 
+from dash import html
+
+from components.nominations_graph import graph_nominations_results
+from pages.nominations.tabs.tigana import tigana_nominations
+from pages.nominations.tabs.livianos import livianos_nominations
 
 from data.server import datos  #Line must be remove with the new architecture
 from app import app
 
+from components.nominations_graph import graph_production_factor
 
-# callback para actualizar tigana-transportado
-@app.callback(Output("tigana-transportado", component_property="figure"),
-            Input("mes-nominacion", "value"))
-def actualizar_tigana_transportado(mes):
-    # Generación datos Dummi
-    y_geopark = np.random.rand(30)* 100
-    y_verano = 100 - y_geopark
-    # Generación colores dummi
-    colores = ["red", "grey"]
+from pages.nominations.nominations_data import daily_transported_oil_type
 
-    trace = [go.Bar(x=np.arange(0, 30),
-                    y=y_geopark,
-                    textposition='auto',
-                    name="% Transportado Tigana Geopark",
-                    marker={"color": colores[0]}),
-            go.Bar(x=np.arange(0, 30),
-                    y=y_verano,
-                    textposition='auto',
-                    name="% Transportado Tigana Verano",
-                    marker={"color": colores[1]}),
-            go.Scatter(x=np.arange(0, 30),
-                    y=y_geopark, 
-                    name="% Nominado Tigana Geopark",
-                    line={'width':3, 'color':colores[0]}),
-            go.Scatter(x=np.arange(0, 30),
-                    y=y_verano,
-                    name="% Nominado Tigana Verano",
-                    line={'width':3, 'color':colores[1]})]
+@app.callback(Output("graph-nominations-results", component_property="figure"),
+        Input("tabs-nominations", "value"))
+def render_tabs_nominations(tab):
+        if tab == "tigana":
+                return tigana_nominations()
+        elif tab == "livianos":
+                return livianos_nominations()
 
-    layout = go.Layout(title={'text': "% Tigana",
-                                'y':0.93,
-                                'x':0.5,
-                                'xanchor':'center',
-                                'yanchor':'top'},
-                        titlefont={'color': 'white', 'size': 20},
-                        font=dict(color='white'),
-                        paper_bgcolor='#1f2c56',
-                        plot_bgcolor='#1f2c56',
-                        legend=dict(orientation="h",
-                                    yanchor="bottom",
-                                    xanchor='center', x= 0.5, y= -0.2   )
-                        )
-    return {'data':trace, 'layout':layout}
-
-
-@app.callback(Output("livianos-transportado", component_property="figure"),
-            Input("mes-nominacion", "value"))
-def actualizar_livianos_transportado(mes):
-    # Generación datos Dummi
-    y_geopark = np.random.rand(30)* 100
-    y_verano = 100 - y_geopark
-    # Generación colores dummi
-    colores = ['red', 'grey']
-
-    trace = [go.Bar(x=np.arange(0, 30),
-                    y=y_geopark,
-                    textposition='auto',
-                    name="% Livianos Transportado Geopark",
-                    marker={"color":colores[0]}),
-            go.Bar(x=np.arange(0, 30),
-                    y=y_verano,
-                    textposition='auto',
-                    name="% Livianos transportaos Verano",
-                    marker={"color":colores[1]}),
-            go.Scatter(x=np.arange(0, 30),
-                    y=y_geopark, 
-                    name="% Livianos Nominado Geopark",
-                    line={'width':3, 'color':colores[0]}),
-            go.Scatter(x=np.arange(0, 30),
-                    y=y_verano,
-                    name="% Livianos Nominado Verano",
-                    line={'width':3, 'color':colores[1]})]
-
-    layout = go.Layout(title={'text': "Nominación Livianos",
-                                'y':0.93,
-                                'x':0.5,
-                                'xanchor':'center',
-                                'yanchor':'top'},
-                        titlefont={'color': 'white', 'size': 20},
-                        font=dict(color='white'),
-                        paper_bgcolor='#1f2c56',
-                        plot_bgcolor='#1f2c56',
-                        legend=dict(orientation="h",
-                                    yanchor="bottom",
-                                    xanchor='center', x= 0.5, y= -0.2   )
-                        )
-    return {'data':trace, 'layout':layout}
-
-@app.callback(Output("factor-servicio", component_property="figure"),
-            [Input("mes-nominacion", "value"),
+@app.callback(Output("production-factor", component_property="figure"),
+            [Input("nomination-period", "start_date"),
+            Input("nomination-period", "end_date"),
             Input("remitente-nominacion", "value")])
-def actualizar_factor_servicio(mes, remitente):
+def actualizar_factor_servicio(start_date, end_date, remitente):
+
     # Generación datos Dummi
-    tipos = ["Jacana", "Tigana", "Livianos", "Cabrestero"]
+    type_oils = ["Jacana", "Tigana", "Livianos", "Cabrestero"]
     # Generación colores dummi
-    colores = {"Jacana":"orange", "Tigana": "blue", "Livianos": "grey", "Cabrestero": "green"}
-    trace = list()
-    for tipo in tipos:
-        y_simulado = np.random.rand(30)* 100
-        trace.append(go.Bar(x=np.arange(0, 30),
-                                y=y_simulado,
-                                textposition='auto',
-                                name=f"{tipo} Transportado",
-                                marker={"color":colores[tipo]}))
-        trace.append(go.Scatter(x=np.arange(0, 30),
-                                y=y_simulado, 
-                                name=f"{tipo} Transportado",
-                                line={'width':3, 'color':colores[tipo]}),
-                    )
+    colors = {"Jacana":"orange", "Tigana": "blue", "Livianos": "grey", "Cabrestero": "green"}
 
     title_graph = f"""
-    Factor de Servicio<br>
-    Mes: {mes}<br>
+    Factor de Cumplimiento<br>
+    Mes: {start_date}<br>
     Remitente: {remitente}
     """
 
-    layout = go.Layout(title={'text': title_graph,
-                                'y':0.93,
-                                'x':0.5,
-                                'xanchor':'center',
-                                'yanchor':'top'},
-                        titlefont={'color': 'white', 'size': 20},
-                        font=dict(color='white'),
-                        paper_bgcolor='#1f2c56',
-                        plot_bgcolor='#1f2c56',
-                        legend=dict(orientation="h",
-                                    yanchor="bottom",
-                                    xanchor='center', x= 0.5, y= -0.5   )
-                        )
-    return {'data':trace, 'layout':layout}
+    return graph_production_factor(type_oils, colors, title_graph)
+
+# Callback to download nominations report
+# Callback for downloading button
+@app.callback(Output("descargar-info-nominaciones", "data"),
+            [Input("descargar-info-nominaciones-button", "n_clicks"),
+            Input("nomination-period", "start_date"),
+            Input("nomination-period", "end_date")],
+            prevent_initial_call=True,)
+def descargar_informe(n_clicks, start_date, end_date):
+    df = pd.read_csv("data/consolidated_data/balance.csv")
+    transported = daily_transported_oil_type(df, start_date, end_date)
+    if n_clicks > 0:
+        return dcc.send_data_frame(transported.to_excel, f"nominaciones.xlsx", 
+                                sheet_name="Consolidado Nominaciones")  
+
+    

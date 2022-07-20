@@ -1,6 +1,3 @@
-from re import A
-from tkinter import font
-from turtle import back
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -90,7 +87,7 @@ def escribir_datos(datos, mes):
             hoja.append({c + 6: value for c, value in enumerate(cabecera)})
             rows += 1
             filas_cabecera.append(rows)
-            acumulado = acumulado_mensual_campo(datos, mes, operacion, 'GEOPARK')
+            acumulado = acumulado_mensual_campo(datos, mes, operacion, empresa)
             acumulado['campo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['campo']]
             for r in dataframe_to_rows(acumulado, index=False, header=False):
                 hoja.append({c + 6: value for c, value in enumerate(r)})
@@ -106,7 +103,7 @@ def generar_acta_ODCA(mes):
     Generar el acta con todos los datos requeridos y el estilo requerido
     """
     # Cargar los datos desde el balance y dar formato a las fechas
-    df = pd.read_csv('data/balance.csv')
+    df = pd.read_csv('data/consolidated_data/balance.csv')
     df['fecha'] = pd.to_datetime(df['fecha'], format='%d-%m-%Y')
     # Escribir los datos en un documento .xlsx
     filas_cabecera, filas_empresas, filas_operaciones = escribir_datos(df, mes)
@@ -124,4 +121,4 @@ def generar_acta_ODCA(mes):
     wb.save('ACTA ODCA_' + str(mes) +'.xlsx')
 
 if __name__ == "__main__":
-    generar_acta_ODCA(2)
+    generar_acta_ODCA(6)

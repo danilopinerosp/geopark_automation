@@ -1,26 +1,26 @@
 
 
 body {
-    background-color: #192444;
-    margin: 5%;
+    background-color: white;
+    margin: 0% 5%;
   }
   
-  .card_container {
+.card_container {
     border-radius: 5px;
-    background-color: #1f2c56;
-    margin: 25px;
+    background-color: #f3f3f3;
+    margin: 10px;
     padding: 15px;
     position: relative;
-    box-shadow: 2px 2px 2px #1f2c56;
+    box-shadow: 2px 2px 2px  #dad9d9;
   }
   
   .create_container {
     border-radius: 5px;
-    background-color: #1f2c56;
+    background-color: #f3f3f3;
     margin: 18px;
-    padding: 15px;
+    padding: 35px 25px;
     position: relative;
-    box-shadow: 2px 2px 2px #1f2c56;
+    box-shadow: 2px 2px 2px #dad9d9;
   }
 
   .create_container_inv_total {
@@ -32,11 +32,11 @@ body {
   
   .create_container1 {
     border-radius: 5px;
-    background-color: #1f2c56;
+    background-color: #f3f3f3;
     margin: 10px;
     padding: 15px;
     position: relative;
-    box-shadow: 2px 2px 2px #1f2c56;
+    box-shadow: 2px 2px 2px #dad9d9;
   }
   
   .dcc_compon {
@@ -91,7 +91,7 @@ body {
   }
   
   .Select-control, .Select-menu-outer, .Select-multi-value-wrapper, .select-up, .is-open .Select-control {
-    background-color: #1f2c56;
+    background-color: #f3f3f3;
     color: white;
   
   }
@@ -112,14 +112,14 @@ body {
   
   /* Track */
   ::-webkit-scrollbar-track {
-    background: #1f2c56 !important;
+    background: #f3f3f3 !important;
     border-radius: 10px !important;
     display: block !important;
   }
   
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: #192444;
+    background: #dad9d9;
   }
   
   /* Handle on hover */
