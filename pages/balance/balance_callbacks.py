@@ -1,29 +1,31 @@
-from dash import dcc
 from dash import callback_context
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
+
 # Librerías para el tratamiento de datos
 import numpy as np
-import pandas as pd
 
-from openpyxl import Workbook, load_workbook
-from pages.balance.balance_data import escribir_datos, agregar_estilos
+from openpyxl import load_workbook
+from pages.balance.balance_data import escribir_datos, agregar_estilos, get_cumulated
 from openpyxl.utils import get_column_letter
 
 from components.indicator import graph_indicator
+
 # Importar funciones para los valores calculados del proceso
 from data.calculate_values import (
     calcular_inventario_campo, 
     calcular_inventario_total,
-    crudo_operacion_remitente, 
-    filtrar_datos_fechas,
+    crudo_operacion_remitente,
     total_crudo_detallado
 )
-from data.server import datos
+
 from app import app
 
-from pages.balance.balance_data import calcular_acumulado, update_indicators
+from pages.balance.balance_data import get_cumulated, update_indicators
+from utils.functions import load_data, filter_data_by_date
+from utils.constants import balance_data
 
+data = load_data(balance_data)
 
 inputs = [Input('balance-period-analysis', 'start_date'),
             Input('balance-period-analysis', 'end_date'),
@@ -37,8 +39,7 @@ inputs = [Input('balance-period-analysis', 'start_date'),
 )
 def descargar_informe(n_clicks, start_date, end_date):
     # Cargar los datos desde el balance y dar formato a las fechas
-    df = pd.read_csv('data/consolidated_data/balance.csv')
-    filtered_data = filtrar_datos_fechas(df, start_date, end_date)
+    filtered_data = filter_data_by_date(data, start_date, end_date)
     month = filtered_data['fecha'].dt.month
     # Escribir los datos en un documento .xlsx
     filas_cabecera, filas_empresas, filas_operaciones = escribir_datos(filtered_data, month)
@@ -62,7 +63,7 @@ def actualizar_gov_acumulado_geopark(start_date, end_date, tipo_operacion):
     """
     Actualiza el GOV acumulado para Geopark en el periodo indicado
     """
-    return calcular_acumulado(datos, start_date, end_date, tipo_operacion, 'GOV', 'GEOPARK')
+    return get_cumulated(data, start_date, end_date, tipo_operacion, 'GOV', 'GEOPARK')
 
 # Callback para actualizar el GSV acumulado para geopark
 @app.callback(Output('GSV-acumulado-geopark', 'children'), inputs)
@@ -70,7 +71,7 @@ def actualizar_gsv_acumulado_geopark(start_date, end_date, tipo_operacion):
     """
     Actualiza el total de GSV producido por Geopark en periodo de tiempo indicado
     """
-    return calcular_acumulado(datos, start_date, end_date, tipo_operacion, 'GSV', 'GEOPARK')
+    return get_cumulated(data, start_date, end_date, tipo_operacion, 'GSV', 'GEOPARK')
 
 # Callback para actualizar el NSV acumulado para Geopark
 @app.callback(Output('NSV-acumulado-geopark', 'children'), inputs)
@@ -78,7 +79,7 @@ def actualizar_nsv_acumulado_geopark(start_date, end_date, tipo_operacion):
     """
     Actualiza en acumulado de NSV producido por Geopark en el periodo de tiempo indicado
     """
-    return calcular_acumulado(datos, start_date, end_date, tipo_operacion, 'NSV', 'GEOPARK')
+    return get_cumulated(data, start_date, end_date, tipo_operacion, 'NSV', 'GEOPARK')
 
 # Callback para actualizar el NSV acumulado para Parex
 @app.callback(Output('GOV-acumulado-parex', 'children'), inputs)
@@ -86,7 +87,7 @@ def actualizar_gov_acumulado_parex(start_date, end_date, tipo_operacion):
     """
     Actualiza el GOV acumulado en el periodo indicado para Parex
     """
-    return calcular_acumulado(datos, start_date, end_date, tipo_operacion, 'GOV', 'PAREX')
+    return get_cumulated(data, start_date, end_date, tipo_operacion, 'GOV', 'PAREX')
 
 # Callback para actualizar el GSV acumulado para Parex
 @app.callback(Output('GSV-acumulado-parex', 'children'), inputs)
@@ -94,7 +95,7 @@ def actualizar_gsv_acumulado_parex(start_date, end_date, tipo_operacion):
     """
     Actualiza el GSV acumulado producido por Parex en el periodo de tiempo indicado
     """
-    return calcular_acumulado(datos, start_date, end_date, tipo_operacion, 'GSV', 'PAREX')
+    return get_cumulated(data, start_date, end_date, tipo_operacion, 'GSV', 'PAREX')
 
 # Callback para actualizar el NSV acumulado para Parex
 @app.callback(Output('NSV-acumulado-parex', 'children'), inputs)
@@ -102,7 +103,7 @@ def actualizar_nsv_acumulado_parex(start_date, end_date, tipo_operacion):
     """
     Actualiza el total de NSV acumulado para Parex en el periodo de tiempo indicado
     """
-    return calcular_acumulado(datos, start_date, end_date, tipo_operacion, 'NSV', 'PAREX')
+    return get_cumulated(data, start_date, end_date, tipo_operacion, 'NSV', 'PAREX')
 
 # Callback para actualizar la producción del último día reportado de GOV
 # para Geopark
@@ -113,7 +114,7 @@ def actualizar_gov_geopark(tipo_operacion):
     Actualiza los datos de GOV de la producción del último día reportado
     para Geopark
     """
-    (last_gov, previous_gov) = update_indicators(datos, tipo_operacion, "GOV")
+    (last_gov, previous_gov) = update_indicators(data, tipo_operacion, "GOV")
     return graph_indicator(last_gov, previous_gov, "orange", "GOV")
     
 # Callback para actualizar los datos de producción de GSV de Geopark en el último día reportado
@@ -124,7 +125,7 @@ def actualizar_gsv_geopark(tipo_operacion):
     Actualiza la producción de GSV producida por Geopark en el último día reportado
     de producción
     """
-    (last_gsv, previous_gsv) = update_indicators(datos, tipo_operacion, "GSV")
+    (last_gsv, previous_gsv) = update_indicators(data, tipo_operacion, "GSV")
     return graph_indicator(last_gsv, previous_gsv, "#dd1e35", "GSV")
 
 # Callback para actualizar los datos de producción de NSV de Geopark en el último día reportado
@@ -134,7 +135,7 @@ def actualizar_nsv_geopark(tipo_operacion):
     """
     Actualiza el NSV producido por Geopark en el último día reportado de operación
     """
-    (last_nsv, previous_nsv) = update_indicators(datos, tipo_operacion, "GSV")
+    (last_nsv, previous_nsv) = update_indicators(data, tipo_operacion, "GSV")
     return graph_indicator(last_nsv, previous_nsv, "green", "NSV")
 
 # Render title for company participation in NSV production
@@ -155,7 +156,7 @@ def actualizar_participacion(start_date, end_date, value):
     Actualizar el pie que contiene la participación de la empresa por tipo de operación
     en la producción de NSV
     """
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = filter_data_by_date(data, start_date, end_date)
     # datos_filtrados = datos_filtrados[datos_filtrados['operacion'] == value]
     colores = ['red', 'grey']
     # Calcular total de producción diaria para NSV para determinado tipo de operación por empresa
@@ -206,7 +207,7 @@ def actualizar_historico(start_date, end_date, value):
     Actualiza la gráfica de los resultados históricos de la operación para cada empresa
     y para el periodo de tiempo indicado
     """
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = filter_data_by_date(data, start_date, end_date)
     colores = ['red', 'grey']
     datos_filtrados = crudo_operacion_remitente(datos_filtrados, 'NSV', value)
     traces = []
@@ -252,7 +253,7 @@ def actualizar_resultado_empresa(start_date, end_date, tipo_operacion, tipo_crud
     Actualiza la gráfica de barras sobre la producción por campo para determinado tipoo de crudo
     """
     # Filtrar los datos para el período indicado, el tipo de operación de interés y el tipo de crudo
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = filter_data_by_date(data, start_date, end_date)
     datos_filtrados = total_crudo_detallado(datos_filtrados, tipo_operacion)[tipo_crudo]
     traces = []
     colores = ['red', 'grey']
@@ -292,7 +293,7 @@ def actualizar_inventario(start_date, end_date, empresa, tipo_crudo):
     """
     Actualiza la gráfica del inventario por empresa y por tipo de crudo
     """
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = filter_data_by_date(data, start_date, end_date)
     inventario_campo = calcular_inventario_campo(datos_filtrados, empresa, tipo_crudo)
     trace = [go.Bar(name=empresa,
                     x=inventario_campo.index,
@@ -317,7 +318,7 @@ def actualizar_inventario_total(start_date, end_date, empresa, tipo_crudo):
     Actualiza el inventario total por empresa y tipo de crudo para el
     periodo de tiempo indicado
     """
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
+    datos_filtrados = filter_data_by_date(data, start_date, end_date)
     inventario_campo = calcular_inventario_campo(datos_filtrados, empresa, tipo_crudo)
     inventario_total = calcular_inventario_total(inventario_campo)
     return f'Inventario Total: {round(inventario_total, 2)}'

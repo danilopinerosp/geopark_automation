@@ -1,7 +1,7 @@
 import numpy as np
 
 from data.server import datos
-from data.calculate_values import filtrar_datos_fechas
+from utils.functions import filter_data_by_date
 
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -10,12 +10,12 @@ from openpyxl.utils import get_column_letter
 import datetime
 import pandas as pd
 
-def calcular_acumulado(datos, start_date, end_date, tipo_operacion, tipo_crudo, empresa):
-    datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
-    datos_filtrados = datos_filtrados[['empresa', 'operacion', tipo_crudo]]
-    filtro = (datos_filtrados['operacion'] == tipo_operacion) & (datos_filtrados['empresa'] == empresa)
-    gov_acumulado = datos_filtrados[filtro][tipo_crudo].sum()
-    return f"{gov_acumulado:,.2f}"
+def get_cumulated(data, start_date, end_date, operation_type, operation_condition, company):
+    filtered_data = filter_data_by_date(data, start_date, end_date)
+    filtered_data = filtered_data[['empresa', 'operacion', operation_condition]]
+    filter = (filtered_data['operacion'] == operation_type) & (filtered_data['empresa'] == company)
+    cumulated = filtered_data[filter][operation_condition].sum()
+    return f"{cumulated:,.2f}"
 
 def update_indicators(data, operation_type, operation_conditions):
     # Agrupar los valores del DataFrame y hacer una suma por cada grupo
