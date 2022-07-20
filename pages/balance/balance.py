@@ -1,6 +1,7 @@
 # Librería para trabajar con fechas
 from datetime import datetime as dt
 from dash import dcc, html
+from components.date_picker_range import make_date_picker_range
 from data.server import datos
 from components.button import make_dash_button
 
@@ -63,19 +64,7 @@ layout = html.Div([
         html.Div([
             html.H3('Periodo de Análisis'),
             # Permite seleccionar las fechas en las que se quiere realizar el análisis
-            dcc.DatePickerRange(
-                id='periodo-analisis',
-                # Las fechas mínimas y máximas permitidas dependerán de las fechas
-                # de los datos del balance
-                min_date_allowed=datos['fecha'].min().to_pydatetime(),
-                max_date_allowed=datos['fecha'].max().to_pydatetime(),
-                initial_visible_month=dt(datos['fecha'].dt.year.max(),
-                                        datos['fecha'].max().to_pydatetime().month, 1),
-                # Por defecto toma como periodo de análisis los datos recolectados del último mes.
-                start_date=(datos[datos['fecha'].dt.month == datos['fecha'].max().month]['fecha'].min()).to_pydatetime(),
-                end_date=datos['fecha'].max().to_pydatetime(),
-                display_format='DD/MM/Y'
-            ),
+            make_date_picker_range("balance-period-analysis", datos),
             # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
             html.H3('Tipo de Operación a analizar'),
             dcc.Dropdown(options=datos['operacion'].unique(),

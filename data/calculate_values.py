@@ -136,7 +136,9 @@ def filtrar_datos_fechas(datos, inicio, fin):
     Retorna:
     DataFrame - Datos filtrados según el período dato entre inicio y fin
     """
-    return datos[(datos['fecha'] >= inicio) & (datos['fecha'] <= fin)]
+    datos = datos[(datos['fecha'] >= inicio) & (datos['fecha'] <= fin)]
+    datos['fecha'] = pd.to_datetime(datos['fecha'])
+    return datos
 
 def calcular_diferencias(datos, operacion_1, operacion_2, tipo_crudo='NSV', empresa='GEOPARK'):
     """

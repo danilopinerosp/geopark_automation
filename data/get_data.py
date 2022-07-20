@@ -14,7 +14,7 @@ import openpyxl
 from utils.constants import (companies,
                             oils,
                             operations,
-                            coniditions)
+                            conditions)
 EMPRESAS = ['GEOPARK', 'PAREX']
 CAMPOS = ['CHIRICOCA', 'INDICO-2', 'INDICO-1X', 'AZOGUE', 'GUACO', 'ADALIA',
             'AKIRA', 'MARACAS', 'CARMENTEA', 'CALONA', 'CAPACHOS', 'JACANA ESTACION',

@@ -6,6 +6,10 @@ import plotly.graph_objs as go
 import numpy as np
 import pandas as pd
 
+from openpyxl import Workbook, load_workbook
+from pages.balance.balance_data import escribir_datos, agregar_estilos
+from openpyxl.utils import get_column_letter
+
 from components.indicator import graph_indicator
 # Importar funciones para los valores calculados del proceso
 from data.calculate_values import (
@@ -21,19 +25,36 @@ from app import app
 from pages.balance.balance_data import calcular_acumulado, update_indicators
 
 
-inputs = [Input('periodo-analisis', 'start_date'),
-            Input('periodo-analisis', 'end_date'),
+inputs = [Input('balance-period-analysis', 'start_date'),
+            Input('balance-period-analysis', 'end_date'),
             Input('tipo-operacion', 'value')]
 
 # Callback for downloading button
 @app.callback(Output("descargar-acta", "data"),
-            Input("descargar-acta-button", "n_clicks"),
-            prevent_initial_call=True,)
-def descargar_informe(n_clicks):
-    # Generar datos dummies a descargar
-    df = pd.DataFrame({"a": [1, 2, 3, 4], "b": [2, 1, 5, 6], "c": ["x", "x", "y", "y"]})
-    if n_clicks > 0:
-        return dcc.send_data_frame(df.to_excel, f"Acta.xlsx", sheet_name="Balance")
+            [Input("descargar-acta-button", "n_clicks"),
+            Input('balance-period-analysis', 'start_date'),
+            Input('balance-period-analysis', 'end_date')],
+)
+def descargar_informe(n_clicks, start_date, end_date):
+    # Cargar los datos desde el balance y dar formato a las fechas
+    df = pd.read_csv('data/consolidated_data/balance.csv')
+    filtered_data = filtrar_datos_fechas(df, start_date, end_date)
+    month = filtered_data['fecha'].dt.month
+    # Escribir los datos en un documento .xlsx
+    filas_cabecera, filas_empresas, filas_operaciones = escribir_datos(filtered_data, month)
+    # Cargar el documento generado anteriormente y seleccionar la hoja activa
+    wb = load_workbook('ACTA ODCA_' + str(month) + '.xlsx')
+    ws = wb.active
+    # Agregar estilos al acta
+    agregar_estilos(ws, filas_cabecera, 6, "000000", "FFFFFF")
+    agregar_estilos(ws, filas_operaciones, 6, "FF0000", "FFFFFF", False)
+    agregar_estilos(ws, filas_empresas, 6,"FFFFFF", "000000", False)
+    # Cambiar el ancho de las columnas de los datos
+    for i in range(10, 17):
+        letter = get_column_letter(i)
+        ws.column_dimensions[letter].width = 15
+    
+    return wb.save('ACTA ODCA_' + str(month) +'.xlsx')
 
 # Callback para actualizar el GOV acumulado para geopark
 @app.callback(Output('GOV-acumulado-geopark', 'children'), inputs)
@@ -125,8 +146,8 @@ def update_title_participation_company(operation_type):
 
 # Callback para actualizar la gráfica de participación de la empresa
 @app.callback(Output('participacion-empresa', component_property='figure'),
-            [Input('periodo-analisis', 'start_date'),
-            Input('periodo-analisis', 'end_date'),
+            [Input('balance-period-analysis', 'start_date'),
+            Input('balance-period-analysis', 'end_date'),
             Input('tipo-operacion', 'value')]
 )
 def actualizar_participacion(start_date, end_date, value):
@@ -167,8 +188,8 @@ def actualizar_participacion(start_date, end_date, value):
 
 # Callback to update title for historical nsv per company
 @app.callback(Output("title-historical-nsv", "children"),
-            [Input('periodo-analisis', 'start_date'),
-            Input('periodo-analisis', 'end_date'),
+            [Input('balance-period-analysis', 'start_date'),
+            Input('balance-period-analysis', 'end_date'),
             Input('tipo-operacion', 'value')])
 def update_title_historical_nsv(start_date, end_date, operation_type):
     title = f"{ operation_type.split()[0].capitalize() } NSV (bbls)"
@@ -176,8 +197,8 @@ def update_title_historical_nsv(start_date, end_date, operation_type):
 
 # Callback para actualizar la gráfida de los resultados históricos de la operación para cada empresa
 @app.callback(Output('NSV-historico', component_property='figure'),
-            [Input('periodo-analisis', 'start_date'),
-            Input('periodo-analisis', 'end_date'),
+            [Input('balance-period-analysis', 'start_date'),
+            Input('balance-period-analysis', 'end_date'),
             Input('tipo-operacion', 'value')]
 )
 def actualizar_historico(start_date, end_date, value):
@@ -221,8 +242,8 @@ def update_title_cummulated_nsv(operation_type, operation_conditions):
 # Callback para actualizar la gráfica de barras sobre la producción por campo
 # para determinado tipo de crudo
 @app.callback(Output('graph-cumulated', component_property='figure'),
-            [Input('periodo-analisis', 'start_date'),
-            Input('periodo-analisis', 'end_date'),
+            [Input('balance-period-analysis', 'start_date'),
+            Input('balance-period-analysis', 'end_date'),
             Input('tipo-operacion', 'value'),
             Input('condiciones-operacion', 'value')]
 )
@@ -263,8 +284,8 @@ def update_title_inventory(operation_conditions, company):
 # Callback para actualizar la gráfica de barras sobre el inventario por campo
 # para determinado tipo de crudo
 @app.callback(Output('inventario-empresa', component_property='figure'),
-            [Input('periodo-analisis', 'start_date'),
-            Input('periodo-analisis', 'end_date'),
+            [Input('balance-period-analysis', 'start_date'),
+            Input('balance-period-analysis', 'end_date'),
             Input('empresa', 'value'),
             Input('condiciones-operacion', 'value')])
 def actualizar_inventario(start_date, end_date, empresa, tipo_crudo):
@@ -287,8 +308,8 @@ def actualizar_inventario(start_date, end_date, empresa, tipo_crudo):
 
 # Callback para mostrar el inventario total para determinado periodo, empresa y tipo de crudo
 @app.callback(Output('inventario-total', component_property='children'),
-            [Input('periodo-analisis', 'start_date'),
-            Input('periodo-analisis', 'end_date'),
+            [Input('balance-period-analysis', 'start_date'),
+            Input('balance-period-analysis', 'end_date'),
             Input('empresa', 'value'),
             Input('condiciones-operacion', 'value')])
 def actualizar_inventario_total(start_date, end_date, empresa, tipo_crudo):

@@ -87,7 +87,7 @@ def escribir_datos(datos, mes):
             hoja.append({c + 6: value for c, value in enumerate(cabecera)})
             rows += 1
             filas_cabecera.append(rows)
-            acumulado = acumulado_mensual_campo(datos, mes, operacion, 'GEOPARK')
+            acumulado = acumulado_mensual_campo(datos, mes, operacion, empresa)
             acumulado['campo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['campo']]
             for r in dataframe_to_rows(acumulado, index=False, header=False):
                 hoja.append({c + 6: value for c, value in enumerate(r)})
@@ -121,4 +121,4 @@ def generar_acta_ODCA(mes):
     wb.save('ACTA ODCA_' + str(mes) +'.xlsx')
 
 if __name__ == "__main__":
-    generar_acta_ODCA(2)
+    generar_acta_ODCA(6)
