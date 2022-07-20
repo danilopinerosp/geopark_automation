@@ -1,6 +1,5 @@
 import numpy as np
 
-from data.server import datos
 from utils.functions import filter_data_by_date
 
 from openpyxl import Workbook, load_workbook
@@ -9,6 +8,23 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 import datetime
 import pandas as pd
+
+import os
+import csv
+
+EMPRESAS = ['GEOPARK', 'PAREX']
+CAMPOS = ['CHIRICOCA', 'INDICO-2', 'INDICO-1X', 'AZOGUE', 'GUACO', 'ADALIA',
+            'AKIRA', 'MARACAS', 'CARMENTEA', 'CALONA', 'CAPACHOS', 'JACANA ESTACION',
+            'TIGANA ESTACION', 'CABRESTERO - BACANO JACANA ESTACION']
+OPERACIONES = ['DESPACHO POR REMITENTE', 'RECIBO POR REMITENTE JACANA',
+                'RECIBO POR REMITENTE TIGANA', 'ENTREGA POR REMITENTE']
+CONDICIONES = ['GOV', 'GSV', 'NSV']
+
+def get_date_last_report(data):
+    try:
+        return data['fecha'].max().strftime('%d/%m/%Y')
+    except:
+        return "Aún no hay datos"
 
 def get_cumulated(data, start_date, end_date, operation_type, operation_condition, company):
     filtered_data = filter_data_by_date(data, start_date, end_date)
@@ -25,6 +41,74 @@ def update_indicators(data, operation_type, operation_conditions):
     # Seleccionar el GOV para el penúltimo día reportado
     previous = np.round(datos_agrupados.unstack().unstack()[operation_type]['GEOPARK'][-2], 2)
     return (last, previous)
+
+def read_data_daily_reports(book, filename, start_cell=1, end_cell=270):
+    """
+    Leer los datos del documento que recibe como parámetro y retorna una
+    lista de diccionarios con todos los datos de documento
+
+    Parámetros:
+    -----------
+    documento -> str - Cadena de caracteres que contiene la ruta del
+                        documento de donde se quieren leer los leer_datos
+    Return:
+    ------
+    list -> Retorna una lista de diccionarios con los datos del documento.
+    """
+    sheet =  book.active #Por defecto toma como activa la primera hoja
+
+    #Extraer le fecha del reporte del nombre del documento
+    file_date = filename.split('Reportes')[-1].split()[2].split('.')[0]
+
+    list_data = list() # Para almacenar la lista de diccionarios
+
+    # Recorrer todas las filas del documento excel y extraer los valores
+    for i in range(start_cell, end_cell):
+        column_b = 'B' + str(i) # ayuda a recorrer la columna B
+        value_cell = sheet[column_b].value
+        datos = dict()     # Almacena los datos por cada entrada
+        if value_cell in EMPRESAS:
+            company = value_cell
+            continue
+        if value_cell in OPERACIONES:
+            operation = value_cell
+            continue
+        if value_cell in CAMPOS:
+            # si valor se encuentra en la constante CAMPO guarda todos los datos
+            # en el diccionario datos
+            datos['fecha'] = file_date
+            datos['empresa'] = company
+            datos['operacion'] = operation
+            datos['campo'] = value_cell
+            datos['GOV'] = sheet['D' + str(i)].value
+            datos['GSV'] = sheet['E' + str(i)].value
+            datos['NSV'] = sheet['F' + str(i)].value
+            list_data.append(datos) # agreagar los datos a la lista de datos
+    return list_data
+
+def clean_balance_data(data):
+    """
+    La función es la encargada de limpiar los datos cuando estos no tienen el
+    tipo de datos esperado, o tienen campo vacios que los hacen inválidos.
+
+    Parámetros:
+    -----------
+    datos -> list - Lista de diccionarios con los datos a limpiar
+
+    Retorna:
+    --------
+
+    """
+    processed = list()
+    for d in data:
+        # Remover los diccionarios con GVO, GSV  NSV vacíos
+        float_gov = isinstance(d['GOV'], float)
+        float_gsv = isinstance(d['GSV'], float)
+        float_nsv = isinstance(d['NSV'], float)
+        if not float_gov and not float_gsv and not float_nsv:
+            continue
+        processed.append(d)
+    return processed
 
 # Definición de funciones
 def acumulado_mensual_campo(datos, mes, operacion, empresa):

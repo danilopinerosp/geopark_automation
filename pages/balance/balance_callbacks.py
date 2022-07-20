@@ -1,12 +1,14 @@
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
+from dash import html
 
 # Librerías para el tratamiento de datos
 import numpy as np
 
 from openpyxl import load_workbook
-from pages.balance.balance_data import escribir_datos, agregar_estilos, get_cumulated
+from pages.balance.balance_data import agregar_estilos, get_cumulated
 from openpyxl.utils import get_column_letter
+import datetime
 
 from components.indicator import graph_indicator
 
@@ -20,9 +22,12 @@ from data.calculate_values import (
 
 from app import app
 
-from pages.balance.balance_data import get_cumulated, update_indicators
-from utils.functions import load_data, filter_data_by_date
-from utils.constants import balance_data
+from pages.balance.balance_data import (get_cumulated, 
+                                        update_indicators,
+                                        read_data_daily_reports,
+                                        clean_balance_data)
+from utils.functions import load_data, filter_data_by_date, log_processed, parse_contents, verify_processed, write_data
+from utils.constants import balance_data, daily_reports_processed
 
 data = load_data(balance_data)
 
@@ -77,6 +82,36 @@ def update_nsv_cumulated_parex(start_date, end_date, operation_type):
     Actualiza el total de NSV acumulado para Parex en el periodo de tiempo indicado
     """
     return get_cumulated(data, start_date, end_date, operation_type, 'NSV', 'PAREX')
+
+# Callback for uploading reports
+@app.callback(Output("files-to-process", "children"),
+            [Input("subir-reporte-diario", 'contents')],
+            [State('subir-reporte-diario', 'filename'),
+            State('subir-reporte-diario', 'last_modified')])
+def update_output(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:
+        children = list()
+        # Nombres de los valores a guardar en el balance
+        cabecera = ['fecha', 'empresa', 'operacion', 'campo', 'GOV', 'GSV', 'NSV']
+        for c, n, d in zip(list_of_contents, list_of_names, list_of_dates):
+            try:
+                book = parse_contents(c, n, d)
+                list_data = read_data_daily_reports(book, n, 1, 270)
+                if verify_processed(n):
+                    pass
+                log_processed(n, daily_reports_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
+                write_data(balance_data, cabecera, clean_balance_data(list_data))
+
+                children.append(
+                    html.Div([
+                        html.H5(n),
+                        html.H6(datetime.datetime.fromtimestamp(d)),
+                        ])
+                )
+            except Exception as e:
+                children.append(html.Div(['There was an error processing this file.']))
+
+        return children
 
 # Callback for downloading button
 @app.callback(Output("descargar-acta", "data"),

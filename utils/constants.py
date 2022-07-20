@@ -12,6 +12,7 @@ upload_page_location = "/upload"
 
 # location of data
 balance_data = "data/consolidated_data/balance.csv"
+nominations_data = "data/consolidated_data/nominations.csv"
 companies = "data/consolidated_data/companies.csv"
 oils = "data/consolidated_data/oils.csv"
 daily_reports_processed = "data/log_data/daily_reports_processed.csv"

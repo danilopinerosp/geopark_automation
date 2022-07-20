@@ -1,5 +1,4 @@
 from dash import dcc
-from dash import callback_context
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 
@@ -13,7 +12,6 @@ from components.nominations_graph import graph_nominations_results
 from pages.nominations.tabs.tigana import tigana_nominations
 from pages.nominations.tabs.livianos import livianos_nominations
 
-from data.server import datos  #Line must be remove with the new architecture
 from app import app
 
 from components.nominations_graph import graph_production_factor
