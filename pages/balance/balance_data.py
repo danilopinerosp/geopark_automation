@@ -3,6 +3,13 @@ import numpy as np
 from data.server import datos
 from data.calculate_values import filtrar_datos_fechas
 
+from openpyxl import Workbook, load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+import datetime
+import pandas as pd
+
 def calcular_acumulado(datos, start_date, end_date, tipo_operacion, tipo_crudo, empresa):
     datos_filtrados = filtrar_datos_fechas(datos, start_date, end_date)
     datos_filtrados = datos_filtrados[['empresa', 'operacion', tipo_crudo]]
@@ -18,14 +25,6 @@ def update_indicators(data, operation_type, operation_conditions):
     # Seleccionar el GOV para el penúltimo día reportado
     previous = np.round(datos_agrupados.unstack().unstack()[operation_type]['GEOPARK'][-2], 2)
     return (last, previous)
-
-
-from openpyxl import Workbook, load_workbook
-from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
-import datetime
-import pandas as pd
 
 # Definición de funciones
 def acumulado_mensual_campo(datos, mes, operacion, empresa):
