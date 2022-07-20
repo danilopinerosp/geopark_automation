@@ -4,7 +4,9 @@ def load_balance_data(filename):
     """
     Load the balance data from the balance.csv file
     """
-    return pd.read_csv(filename)
+    df = pd.read_csv(filename)
+    df['fecha'] = pd.to_datetime(df['fecha'], format='%d-%m-%Y')
+    return df
 
 def filter_data_by_date(data, start_date, end_date):
     """
