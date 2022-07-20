@@ -10,7 +10,7 @@ def main():
     # Nombres de los valores a guardar en el balance
     cabecera = ['fecha', 'empresa', 'operacion', 'campo', 'GOV', 'GSV', 'NSV']
     # Obtener la ruta del directorio reportes
-    reportes = os.path.abspath('./JUNIO')
+    reportes = os.path.abspath('./JULIO')
     # Procesar cada reporte que se encuentra en la ruta reportes
     for reporte in os.listdir(reportes):
         # Verificar si el reporte ya fue procesado
