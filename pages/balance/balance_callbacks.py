@@ -194,7 +194,7 @@ def update_participation(start_date, end_date, value):
     """
     filtered_data = filter_data_by_date(data, start_date, end_date)
     # datos_filtrados = datos_filtrados[datos_filtrados['operacion'] == value]
-    colores = ['red', 'grey']
+    colors = ['red', 'grey']
     # Calcular total de producción diaria para NSV para determinado tipo de operación por empresa
     filtered_data = oil_sender_operation(filtered_data, 'NSV', value)
     if filtered_data != 0:
@@ -211,7 +211,7 @@ def update_participation(start_date, end_date, value):
                     hole=.5,
                     rotation=45,
                     textposition='outside',
-                    marker=dict(colors=colores))]
+                    marker=dict(colors=colors))]
     layout = go.Layout(
         plot_bgcolor='#f3f3f3',
             paper_bgcolor='#f3f3f3',
@@ -234,7 +234,7 @@ def update_participation(start_date, end_date, value):
             [Input('balance-period-analysis', 'start_date'),
             Input('balance-period-analysis', 'end_date'),
             Input('tipo-operacion', 'value')])
-def update_title_historical_nsv(start_date, end_date, operation_type):
+def update_title_hystorical_nsv(start_date, end_date, operation_type):
     title = f"{ operation_type.split()[0].capitalize() } NSV (bbls)"
     return title
 
@@ -249,15 +249,17 @@ def update_hystorical(start_date, end_date, value):
     Actualiza la gráfica de los resultados históricos de la operación para cada empresa
     y para el periodo de tiempo indicado
     """
-    datos_filtrados = filter_data_by_date(data, start_date, end_date)
-    colores = ['red', 'grey']
-    datos_filtrados = oil_sender_operation(datos_filtrados, 'NSV', value)
+    filtered_data = filter_data_by_date(data, start_date, end_date)
+    colors = ['red', 'grey']
     traces = []
-    for i, empresa, in enumerate(datos_filtrados.columns.values):
-        traces.append(go.Scatter(x=datos_filtrados.index,
-                                y=datos_filtrados[empresa],
+
+    if filtered_data != 0:
+        filtered_data = oil_sender_operation(filtered_data, 'NSV', value)
+        for i, empresa, in enumerate(filtered_data.columns.values):
+            traces.append(go.Scatter(x=filtered_data.index,
+                                y=filtered_data[empresa],
                                 name=empresa,
-                                line={'width':4, 'color':colores[i]},
+                                line={'width':4, 'color':colors[i]},
                                 mode='lines+markers'))
     layout = go.Layout(plot_bgcolor='#f3f3f3',
             paper_bgcolor='#f3f3f3',
