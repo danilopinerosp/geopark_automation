@@ -29,7 +29,10 @@ def filter_data_by_date(data, start_date, end_date):
     Retorna:
     DataFrame - Datos filtrados según el período dato entre inicio y fin
     """
-    filtered_data = data[(data['fecha'] >= start_date) & (data['fecha'] <= end_date)]
+    try:
+        filtered_data = data[(data['fecha'] >= start_date) & (data['fecha'] <= end_date)]
+    except:
+        filtered_data = 0
     # filtered_data['fecha'] = pd.to_datetime(filtered_data['fecha'])
     return filtered_data
 
