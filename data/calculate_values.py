@@ -24,25 +24,6 @@ def leer_datos(documento):
     datos = pd.read_csv(documento)
     return datos
 
-def crudo_operacion_remitente(datos, cond_operacion, tipo_operacion):
-    """
-    Retorna un DataFrame con el total por tipo de crudo de determinado operación diario
-    por cada remitente.
-
-    Parámetros:
-    -----------
-    datos -> DataFrame - Contiene los datos del balance que serán usados para calcular
-                        el todal de NSV recibido diario por cada empresa.
-
-    Retorna:
-    -------
-    -> DataFrame - DataFrame que contiene el total diario de NSV por cada empresa,
-                    una columna contiene los resultados de una empresa.
-    """
-    # Filtrar solo los datos cuya operación es un recibo
-    recibidos = datos[[tipo_operacion in fila for fila in datos['operacion']]]
-    return recibidos.groupby(['fecha', 'empresa'])[cond_operacion].sum().unstack()
-
 def total_crudo_detallado(datos, tipo_operacion):
     """
     Retorna un DataFrame con el total de Crudo según las condiciones de operación,

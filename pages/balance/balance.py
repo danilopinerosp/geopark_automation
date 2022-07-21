@@ -62,8 +62,8 @@ layout = html.Div([
         # Contenedor para graficar la participación en la producción por empresa
         # (según la operación elegida)
         html.Div([
-            html.H3(id="title-participaction-company"),
-            dcc.Graph(id='participacion-empresa',
+            html.H3(id="title-participation-company"),
+            dcc.Graph(id='participation-company',
                     config={'displayModeBar':'hover'})
         ], className='create_container four columns'),
 

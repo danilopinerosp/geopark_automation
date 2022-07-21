@@ -117,6 +117,29 @@ def clean_balance_data(data):
         processed.append(d)
     return processed
 
+def oil_sender_operation(data, operation_conditions, operation_type):
+    """
+    Retorna un DataFrame con el total por tipo de crudo de determinado operación diario
+    por cada remitente.
+
+    Parámetros:
+    -----------
+    datos -> DataFrame - Contiene los datos del balance que serán usados para calcular
+                        el todal de NSV recibido diario por cada empresa.
+
+    Retorna:
+    -------
+    -> DataFrame - DataFrame que contiene el total diario de NSV por cada empresa,
+                    una columna contiene los resultados de una empresa.
+    """
+    try:
+        # Filtrar solo los datos cuya operación es un recibo
+        recibidos = data[[operation_type in fila for fila in data['operacion']]]
+        result = recibidos.groupby(['fecha', 'empresa'])[operation_conditions].sum().unstack()
+    except:
+        result = 0
+    return result
+
 # Definición de funciones
 def acumulado_mensual_campo(datos, mes, operacion, empresa):
     """

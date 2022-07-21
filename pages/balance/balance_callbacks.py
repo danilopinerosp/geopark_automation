@@ -16,7 +16,6 @@ from components.indicator import graph_indicator
 from data.calculate_values import (
     calcular_inventario_campo, 
     calcular_inventario_total,
-    crudo_operacion_remitente,
     total_crudo_detallado
 )
 
@@ -25,7 +24,8 @@ from app import app
 from pages.balance.balance_data import (get_cumulated, 
                                         update_indicators,
                                         read_data_daily_reports,
-                                        clean_balance_data)
+                                        clean_balance_data,
+                                        oil_sender_operation)
 from utils.functions import load_data, filter_data_by_date, log_processed, parse_contents, verify_processed, write_data
 from utils.constants import balance_data, daily_reports_processed
 
@@ -88,7 +88,7 @@ def update_nsv_cumulated_parex(start_date, end_date, operation_type):
             [Input("subir-reporte-diario", 'contents')],
             [State('subir-reporte-diario', 'filename'),
             State('subir-reporte-diario', 'last_modified')])
-def update_output(list_of_contents, list_of_names, list_of_dates):
+def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
     if list_of_contents is not None:
         children = list()
         # Nombres de los valores a guardar en el balance
@@ -119,7 +119,7 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
             Input('balance-period-analysis', 'start_date'),
             Input('balance-period-analysis', 'end_date')],
 )
-def descargar_informe(n_clicks, start_date, end_date):
+def download_balance_report(n_clicks, start_date, end_date):
     # Cargar los datos desde el balance y dar formato a las fechas
     filtered_data = filter_data_by_date(data, start_date, end_date)
     month = filtered_data['fecha'].dt.month
@@ -145,7 +145,7 @@ def descargar_informe(n_clicks, start_date, end_date):
 # para Geopark
 @app.callback(Output('GOV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
-def actualizar_gov_geopark(operation_type):
+def update_gov_geopark(operation_type):
     """
     Actualiza los datos de GOV de la producción del último día reportado
     para Geopark
@@ -156,7 +156,7 @@ def actualizar_gov_geopark(operation_type):
 # Callback para actualizar los datos de producción de GSV de Geopark en el último día reportado
 @app.callback(Output('GSV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
-def actualizar_gsv_geopark(operation_type):
+def update_gsv_geopark(operation_type):
     """
     Actualiza la producción de GSV producida por Geopark en el último día reportado
     de producción
@@ -167,7 +167,7 @@ def actualizar_gsv_geopark(operation_type):
 # Callback para actualizar los datos de producción de NSV de Geopark en el último día reportado
 @app.callback(Output('NSV-geopark', 'figure'),
             [Input('tipo-operacion', 'value')])
-def actualizar_nsv_geopark(operation_type):
+def update_nsv_geopark(operation_type):
     """
     Actualiza el NSV producido por Geopark en el último día reportado de operación
     """
@@ -175,30 +175,36 @@ def actualizar_nsv_geopark(operation_type):
     return graph_indicator(last_nsv, previous_nsv, "green", "NSV")
 
 # Render title for company participation in NSV production
-@app.callback(Output("title-participaction-company", "children"),
+@app.callback(Output("title-participation-company", "children"),
             Input('tipo-operacion', 'value'))
 def update_title_participation_company(operation_type):
     title = f"Participación {operation_type.split()[0].capitalize()} NSV"
     return title
 
 # Callback para actualizar la gráfica de participación de la empresa
-@app.callback(Output('participacion-empresa', component_property='figure'),
+@app.callback(Output('participation-company', component_property='figure'),
             [Input('balance-period-analysis', 'start_date'),
             Input('balance-period-analysis', 'end_date'),
             Input('tipo-operacion', 'value')]
 )
-def actualizar_participacion(start_date, end_date, value):
+def update_participation(start_date, end_date, value):
     """
     Actualizar el pie que contiene la participación de la empresa por tipo de operación
     en la producción de NSV
     """
-    datos_filtrados = filter_data_by_date(data, start_date, end_date)
+    filtered_data = filter_data_by_date(data, start_date, end_date)
     # datos_filtrados = datos_filtrados[datos_filtrados['operacion'] == value]
     colores = ['red', 'grey']
     # Calcular total de producción diaria para NSV para determinado tipo de operación por empresa
-    datos_filtrados = crudo_operacion_remitente(datos_filtrados, 'NSV', value)
-    trace =[go.Pie(labels=datos_filtrados.columns.values,
-                    values=[np.sum(datos_filtrados[empresa]) for empresa in datos_filtrados.columns],
+    filtered_data = oil_sender_operation(filtered_data, 'NSV', value)
+    if filtered_data != 0:
+        labels = data.columns.values
+        values = [np.sum(filtered_data[empresa]) for empresa in filtered_data.columns]
+    else:
+        labels = ["Aún no hay datos"]
+        values = [0]
+    trace =[go.Pie(labels=labels,
+                    values=values,
                     hoverinfo='percent',
                     textinfo='label+value',
                     textfont=dict(size=13),
@@ -238,14 +244,14 @@ def update_title_historical_nsv(start_date, end_date, operation_type):
             Input('balance-period-analysis', 'end_date'),
             Input('tipo-operacion', 'value')]
 )
-def actualizar_historico(start_date, end_date, value):
+def update_hystorical(start_date, end_date, value):
     """
     Actualiza la gráfica de los resultados históricos de la operación para cada empresa
     y para el periodo de tiempo indicado
     """
     datos_filtrados = filter_data_by_date(data, start_date, end_date)
     colores = ['red', 'grey']
-    datos_filtrados = crudo_operacion_remitente(datos_filtrados, 'NSV', value)
+    datos_filtrados = oil_sender_operation(datos_filtrados, 'NSV', value)
     traces = []
     for i, empresa, in enumerate(datos_filtrados.columns.values):
         traces.append(go.Scatter(x=datos_filtrados.index,
@@ -284,7 +290,7 @@ def update_title_cummulated_nsv(operation_type, operation_conditions):
             Input('tipo-operacion', 'value'),
             Input('condiciones-operacion', 'value')]
 )
-def actualizar_resultado_empresa(start_date, end_date, operation_type, tipo_crudo):
+def update_company_results(start_date, end_date, operation_type, tipo_crudo):
     """
     Actualiza la gráfica de barras sobre la producción por campo para determinado tipoo de crudo
     """
@@ -325,7 +331,7 @@ def update_title_inventory(operation_conditions, company):
             Input('balance-period-analysis', 'end_date'),
             Input('empresa', 'value'),
             Input('condiciones-operacion', 'value')])
-def actualizar_inventario(start_date, end_date, empresa, tipo_crudo):
+def update_inventory(start_date, end_date, empresa, tipo_crudo):
     """
     Actualiza la gráfica del inventario por empresa y por tipo de crudo
     """
@@ -349,7 +355,7 @@ def actualizar_inventario(start_date, end_date, empresa, tipo_crudo):
             Input('balance-period-analysis', 'end_date'),
             Input('empresa', 'value'),
             Input('condiciones-operacion', 'value')])
-def actualizar_inventario_total(start_date, end_date, empresa, tipo_crudo):
+def update_total_inventory(start_date, end_date, empresa, tipo_crudo):
     """
     Actualiza el inventario total por empresa y tipo de crudo para el
     periodo de tiempo indicado
