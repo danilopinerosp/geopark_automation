@@ -124,7 +124,7 @@ def descargar_informe(n_clicks, start_date, end_date):
     filtered_data = filter_data_by_date(data, start_date, end_date)
     month = filtered_data['fecha'].dt.month
     # Escribir los datos en un documento .xlsx
-    filas_cabecera, filas_empresas, filas_operaciones = escribir_datos(filtered_data, month)
+    filas_cabecera, filas_empresas, filas_operaciones = write_data(filtered_data, month)
     # Cargar el documento generado anteriormente y seleccionar la hoja activa
     wb = load_workbook('ACTA ODCA_' + str(month) + '.xlsx')
     ws = wb.active
