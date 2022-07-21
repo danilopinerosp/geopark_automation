@@ -25,7 +25,8 @@ from pages.balance.balance_data import (get_cumulated,
                                         update_indicators,
                                         read_data_daily_reports,
                                         clean_balance_data,
-                                        oil_sender_operation)
+                                        oil_sender_operation,
+                                        write_data_monthly_report)
 from utils.functions import load_data, filter_data_by_date, log_processed, parse_contents, verify_processed, write_data
 from utils.constants import balance_data, daily_reports_processed
 
@@ -122,9 +123,12 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
 def download_balance_report(n_clicks, start_date, end_date):
     # Cargar los datos desde el balance y dar formato a las fechas
     filtered_data = filter_data_by_date(data, start_date, end_date)
-    month = filtered_data['fecha'].dt.month
+    try:
+        month = filtered_data['fecha'].dt.month
+    except:
+        month = 0
     # Escribir los datos en un documento .xlsx
-    filas_cabecera, filas_empresas, filas_operaciones = write_data(filtered_data, month)
+    filas_cabecera, filas_empresas, filas_operaciones = write_data_monthly_report(filtered_data, month)
     # Cargar el documento generado anteriormente y seleccionar la hoja activa
     wb = load_workbook('ACTA ODCA_' + str(month) + '.xlsx')
     ws = wb.active
@@ -138,8 +142,6 @@ def download_balance_report(n_clicks, start_date, end_date):
         ws.column_dimensions[letter].width = 15
     
     return wb.save('ACTA ODCA_' + str(month) +'.xlsx')
-
-
 
 # Callback para actualizar la producción del último día reportado de GOV
 # para Geopark

@@ -188,49 +188,52 @@ def agregar_estilos(hoja, filas, columna, background_color, font_color, header=T
             # de la cabecera
             hoja.merge_cells(start_row=fila, start_column=columna, end_row=fila, end_column=columna + 10)
 
-def escribir_datos(datos, mes):
+def write_data_monthly_report(data, month):
     """
     Escribir los datos acumulados por empresa y por tipo de operación en el
     ACTA para el mes indicado en un documento .xlsx
     """
     # Generar constante que almacena lo valores para la cabecera
-    cabecera = ['CAMPO','GOV (bls)','GSV (bls)','NSV (bls)','API @60ºF','S&W/Lab',
+    header = ['CAMPO','GOV (bls)','GSV (bls)','NSV (bls)','API @60ºF','S&W/Lab',
                 '% Azufre','VISC 30 °C. /cSt']
     # Generar constante para cambiar los nombre de algunos valores
-    nombres = {'RECIBO POR REMITENTE TIGANA': 'RECIBO POR REMITENTE EN TANQUE TK-780A',
+    names = {'RECIBO POR REMITENTE TIGANA': 'RECIBO POR REMITENTE EN TANQUE TK-780A',
                 'PAREX': 'VERANO',
                 'DESPACHO POR REMITENTE': 'DESPACHO POR REMITENTE',
                 'ENTREGA POR REMITENTE': 'ENTREGA POR REMITENTE',
                 'GEOPARK': 'GEOPARK'}
     # Declarar el objeto workbook
-    libro = Workbook()
+    book = Workbook()
     # Trabajar con la hoja activa.
-    hoja = libro.active
+    hoja = book.active
     hoja.insert_rows(1, amount=7)
     rows = 8
     filas_empresas = []
     filas_operaciones = []
     filas_cabecera = []
-    for operacion in datos['operacion'].unique():
-        hoja.append({6: nombres[operacion]})
-        rows += 1
-        filas_operaciones.append(rows)
-        for empresa in datos['empresa'].unique():
-            hoja.append({6: nombres[empresa]})
+    try:
+        for operation in data['operacion'].unique():
+            hoja.append({6: names[operation]})
             rows += 1
-            filas_empresas.append(rows)
-            hoja.append({c + 6: value for c, value in enumerate(cabecera)})
-            rows += 1
-            filas_cabecera.append(rows)
-            acumulado = acumulado_mensual_campo(datos, mes, operacion, 'GEOPARK')
-            acumulado['campo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['campo']]
-            for r in dataframe_to_rows(acumulado, index=False, header=False):
-                hoja.append({c + 6: value for c, value in enumerate(r)})
+            filas_operaciones.append(rows)
+            for empresa in data['empresa'].unique():
+                hoja.append({6: names[empresa]})
                 rows += 1
-            hoja.append(())
-            rows += 1
+                filas_empresas.append(rows)
+                hoja.append({c + 6: value for c, value in enumerate(header)})
+                rows += 1
+                filas_cabecera.append(rows)
+                acumulado = acumulado_mensual_campo(data, month, operation, 'GEOPARK')
+                acumulado['campo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['campo']]
+                for r in dataframe_to_rows(acumulado, index=False, header=False):
+                    hoja.append({c + 6: value for c, value in enumerate(r)})
+                    rows += 1
+                hoja.append(())
+                rows += 1
+    except Exception as e:
+        print(e)
     hoja.insert_cols(7, amount=3)
-    libro.save("ACTA ODCA_" + str(mes) + '.xlsx')
+    book.save("ACTA ODCA_" + str(month) + '.xlsx')
     return filas_cabecera, filas_empresas, filas_operaciones
 
 def generar_acta_ODCA(mes):
@@ -241,7 +244,7 @@ def generar_acta_ODCA(mes):
     df = pd.read_csv('data/consolidated_data/balance.csv')
     df['fecha'] = pd.to_datetime(df['fecha'], format='%d-%m-%Y')
     # Escribir los datos en un documento .xlsx
-    filas_cabecera, filas_empresas, filas_operaciones = escribir_datos(df, mes)
+    filas_cabecera, filas_empresas, filas_operaciones = write_data_monthly_report(df, mes)
     # Cargar el documento generado anteriormente y seleccionar la hoja activa
     wb = load_workbook('ACTA ODCA_' + str(mes) + '.xlsx')
     ws = wb.active
