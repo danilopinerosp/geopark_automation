@@ -37,12 +37,16 @@ def get_cumulated(data, start_date, end_date, operation_type, operation_conditio
     return f"{cumulated:,.2f}"
 
 def update_indicators(data, operation_type, operation_conditions):
-    # Agrupar los valores del DataFrame y hacer una suma por cada grupo
-    datos_agrupados = data.groupby(['fecha', 'empresa', 'operacion'])[operation_conditions].sum()
-    # Seleccionar el GOV para el último día reportado
-    last = np.round(datos_agrupados.unstack().unstack()[operation_type]['GEOPARK'][-1], 2)
-    # Seleccionar el GOV para el penúltimo día reportado
-    previous = np.round(datos_agrupados.unstack().unstack()[operation_type]['GEOPARK'][-2], 2)
+    try:
+        # Agrupar los valores del DataFrame y hacer una suma por cada grupo
+        datos_agrupados = data.groupby(['fecha', 'empresa', 'operacion'])[operation_conditions].sum()
+        # Seleccionar el GOV para el último día reportado
+        last = np.round(datos_agrupados.unstack().unstack()[operation_type]['GEOPARK'][-1], 2)
+        # Seleccionar el GOV para el penúltimo día reportado
+        previous = np.round(datos_agrupados.unstack().unstack()[operation_type]['GEOPARK'][-2], 2)
+    except:
+        last = 0
+        previous = 0
     return (last, previous)
 
 def read_data_daily_reports(book, filename, start_cell=1, end_cell=270):
