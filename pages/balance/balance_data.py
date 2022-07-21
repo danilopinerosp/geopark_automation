@@ -28,9 +28,12 @@ def get_date_last_report(data):
 
 def get_cumulated(data, start_date, end_date, operation_type, operation_condition, company):
     filtered_data = filter_data_by_date(data, start_date, end_date)
-    filtered_data = filtered_data[['empresa', 'operacion', operation_condition]]
-    filter = (filtered_data['operacion'] == operation_type) & (filtered_data['empresa'] == company)
-    cumulated = filtered_data[filter][operation_condition].sum()
+    if filtered_data != 0:
+        filtered_data = filtered_data[['empresa', 'operacion', operation_condition]]
+        filter = (filtered_data['operacion'] == operation_type) & (filtered_data['empresa'] == company)
+        cumulated = filtered_data[filter][operation_condition].sum()
+    else:
+        cumulated = filtered_data
     return f"{cumulated:,.2f}"
 
 def update_indicators(data, operation_type, operation_conditions):
