@@ -98,7 +98,8 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
                 book = parse_contents(c, n, d)
                 list_data = read_data_daily_reports(book, n, 1, 270)
                 if verify_processed(n, daily_reports_processed):
-                    remove_entries_balance(data, n)
+                    new_data = remove_entries_balance(balance_data, n)
+                    new_data.to_csv(balance_data, index=False)
                 else:
                     log_processed(n, daily_reports_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
                 data_cleaned = clean_balance_data(list_data)
@@ -253,6 +254,7 @@ def update_hystorical(start_date, end_date, value):
     Actualiza la gráfica de los resultados históricos de la operación para cada empresa
     y para el periodo de tiempo indicado
     """
+    data = load_data(balance_data)
     filtered_data = filter_data_by_date(data, start_date, end_date)
     colors = ['red', 'grey']
     traces = []

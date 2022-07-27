@@ -246,10 +246,11 @@ def monthly_cumulated_oil_type(data, month, operation, company):
 def get_date_report(filename):
     return filename.split('Reportes')[-1].split()[2].split('.')[0]
 
-def remove_entries_balance(data, filename):
+def remove_entries_balance(filepath, filename):
     date_report = get_date_report(filename)
+    df = pd.read_csv(filepath)
     # date_report = datetime.datetime.strftime(date_report)
-    print(data[data['fecha'] != date_report]['fecha'].unique())
+    return df[df['fecha'] != date_report]
     
 
 def estilo_celda(celda, background_color, font_color):
