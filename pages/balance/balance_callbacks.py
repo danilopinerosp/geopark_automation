@@ -106,12 +106,7 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
                 #print(data_cleaned)
                 write_data(balance_data, header, data_cleaned)
 
-                children.append(
-                    html.Div([
-                        html.H5(n),
-                        html.H6(datetime.datetime.fromtimestamp(d)),
-                        ])
-                )
+                children.append(html.P(n))
             except Exception as e:
                 children.append(html.Div(['There was an error processing this file.']))
 

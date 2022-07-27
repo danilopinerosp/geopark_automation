@@ -30,8 +30,10 @@ layout = html.Div([
     html.Div([
         make_dash_button("Subir reporte diario", type_button="upload"),
         make_dash_button("Descargar Acta", type_button="download"),
-        html.Div(id="files-to-process")
     ], className='button-container'),
+    html.Div([
+        html.P(id="files-to-process")
+    ], className='row flex-container'),
 
     # Contenedor para la participación de Geopark, le operación del día y la producción
     # histórica
