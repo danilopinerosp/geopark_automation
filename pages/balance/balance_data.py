@@ -1,6 +1,7 @@
+from dotenv import load_dotenv
 import numpy as np
 
-from utils.functions import filter_data_by_date
+from utils.functions import filter_data_by_date, load_data
 
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -28,12 +29,12 @@ def get_date_last_report(data):
 
 def get_cumulated(data, start_date, end_date, operation_type, operation_condition, company):
     filtered_data = filter_data_by_date(data, start_date, end_date)
-    if filtered_data != 0:
+    if filtered_data.shape != (0,0):
         filtered_data = filtered_data[['empresa', 'operacion', operation_condition]]
         filter = (filtered_data['operacion'] == operation_type) & (filtered_data['empresa'] == company)
         cumulated = filtered_data[filter][operation_condition].sum()
     else:
-        cumulated = filtered_data
+        cumulated = 0
     return f"{cumulated:,.2f}"
 
 def update_indicators(data, operation_type, operation_conditions):
@@ -65,7 +66,7 @@ def read_data_daily_reports(book, filename, start_cell=1, end_cell=270):
     sheet =  book.active #Por defecto toma como activa la primera hoja
 
     #Extraer le fecha del reporte del nombre del documento
-    file_date = filename.split('Reportes')[-1].split()[2].split('.')[0]
+    file_date = get_date_report(filename)
 
     list_data = list() # Para almacenar la lista de diccionarios
 
@@ -86,11 +87,11 @@ def read_data_daily_reports(book, filename, start_cell=1, end_cell=270):
             datos['fecha'] = file_date
             datos['empresa'] = company
             datos['operacion'] = operation
-            datos['campo'] = value_cell
+            datos['tipo crudo'] = value_cell
             datos['GOV'] = sheet['D' + str(i)].value
             datos['GSV'] = sheet['E' + str(i)].value
             datos['NSV'] = sheet['F' + str(i)].value
-            list_data.append(datos) # agreagar los datos a la lista de datos
+            list_data.append(datos) # agregar los datos a la lista de datos
     return list_data
 
 def clean_balance_data(data):
@@ -137,7 +138,7 @@ def oil_sender_operation(data, operation_condition, operation_type):
         recibidos = data[[operation_type in fila for fila in data['operacion']]]
         result = recibidos.groupby(['fecha', 'empresa'])[operation_condition].sum().unstack()
     except:
-        result = 0
+        result = pd.DataFrame()
     return result
 
 def calculate_diff(data, operation_1, operation_2, operation_condition='NSV', company='GEOPARK'):
@@ -159,7 +160,7 @@ def calculate_diff(data, operation_1, operation_2, operation_condition='NSV', co
     filtro = (data['operacion'] ==  operation_1) | (data['operacion'] == operation_2)
     datos_filtrados = data[filtro]
     # Agrupar los datos para realizar las respectivas diferencias
-    agrupados = datos_filtrados.groupby(['fecha', 'campo', 'empresa', 'operacion'])[operation_condition]
+    agrupados = datos_filtrados.groupby(['fecha', 'tipo crudo', 'empresa', 'operacion'])[operation_condition]
     # Separar los datos agrupados por operación
     op_1 = agrupados.sum().unstack().unstack().fillna(0)[operation_1]
     op_2 = agrupados.sum().unstack().unstack().fillna(0)[operation_2]
@@ -169,7 +170,7 @@ def calculate_diff(data, operation_1, operation_2, operation_condition='NSV', co
 
 def calculate_inventory_oil_type(data, company, operation_condition, initial_inventory_oil_type=None):
     """
-    Retorna el inventario final por campo al sumar y restar las diferencias dadas
+    Retorna el inventario final por tipo crudo al sumar y restar las diferencias dadas
     en inventario_diario_campo del inventario_inicial_campo
 
     Parámetros:
@@ -225,22 +226,31 @@ def total_oil_detailed(datos, tipo_operacion):
     # Filtrar los datos por tipo de operación
     total_crudo = datos[[tipo_operacion in fila for fila in datos['operacion']]]
     # Calcular los totales por condiciones de operación, campo y empresa
-    total_crudo =  total_crudo.groupby(['empresa', 'campo'])[['GOV', 'GSV', 'NSV']].sum().unstack()
+    total_crudo =  total_crudo.groupby(['empresa', 'tipo crudo'])[['GOV', 'GSV', 'NSV']].sum().unstack()
     # Se retorna el DataFrame con los totales, no sin antes remplazar los NaN por ceros.
     return total_crudo.fillna(0)
 
 # Definición de funciones
-def acumulado_mensual_campo(datos, mes, operacion, empresa):
+def monthly_cumulated_oil_type(data, month, operation, company):
     """
     Retorna un DataFrame con el acumulado por campo para cada tipo de crudo
     en el mes, tipo de operación y empresa indicados
     """
-    datos_mes = datos[datos['fecha'].dt.month == mes]
-    datos_operacion = datos_mes[datos_mes['operacion'] == operacion]
-    datos_empresa = datos_operacion[datos_operacion['empresa'] == empresa]
-    acumulado_mensual = datos_empresa.groupby('campo')[['GOV', 'GSV', 'NSV']].sum()
+    month_data = data[data['fecha'].dt.month == month]
+    operation_data = month_data[month_data['operacion'] == operation]
+    company_data = operation_data[operation_data['empresa'] == company]
+    cumulated_month = company_data.groupby('tipo crudo')[['GOV', 'GSV', 'NSV']].sum()
     # Retornas los acumulados mensuales redondeados a 2 decimales
-    return acumulado_mensual.round(2).reset_index()
+    return cumulated_month.round(2).reset_index()
+
+def get_date_report(filename):
+    return filename.split('Reportes')[-1].split()[2].split('.')[0]
+
+def remove_entries_balance(data, filename):
+    date_report = get_date_report(filename)
+    # date_report = datetime.datetime.strftime(date_report)
+    print(data[data['fecha'] != date_report]['fecha'].unique())
+    
 
 def estilo_celda(celda, background_color, font_color):
     """
@@ -312,8 +322,8 @@ def write_data_monthly_report(data, month):
                 hoja.append({c + 6: value for c, value in enumerate(header)})
                 rows += 1
                 filas_cabecera.append(rows)
-                acumulado = acumulado_mensual_campo(data, month, operation, 'GEOPARK')
-                acumulado['campo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['campo']]
+                acumulado = monthly_cumulated_oil_type(data, month, operation, 'GEOPARK')
+                acumulado['tipo crudo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['tipo crudo']]
                 for r in dataframe_to_rows(acumulado, index=False, header=False):
                     hoja.append({c + 6: value for c, value in enumerate(r)})
                     rows += 1

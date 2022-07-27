@@ -10,7 +10,8 @@ from pages.balance.balance_data import (
             agregar_estilos, 
             calculate_inventory_oil_type, 
             calculate_total_inventory, 
-            get_cumulated, 
+            get_cumulated,
+            remove_entries_balance, 
             total_oil_detailed)
 from openpyxl.utils import get_column_letter
 import datetime
@@ -91,15 +92,18 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
     if list_of_contents is not None:
         children = list()
         # Nombres de los valores a guardar en el balance
-        cabecera = ['fecha', 'empresa', 'operacion', 'campo', 'GOV', 'GSV', 'NSV']
+        header = ['fecha', 'empresa', 'operacion', 'tipo crudo', 'GOV', 'GSV', 'NSV']
         for c, n, d in zip(list_of_contents, list_of_names, list_of_dates):
             try:
                 book = parse_contents(c, n, d)
                 list_data = read_data_daily_reports(book, n, 1, 270)
-                if verify_processed(n):
-                    pass
-                log_processed(n, daily_reports_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
-                write_data(balance_data, cabecera, clean_balance_data(list_data))
+                if verify_processed(n, daily_reports_processed):
+                    remove_entries_balance(data, n)
+                else:
+                    log_processed(n, daily_reports_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
+                data_cleaned = clean_balance_data(list_data)
+                #print(data_cleaned)
+                write_data(balance_data, header, data_cleaned)
 
                 children.append(
                     html.Div([
@@ -197,7 +201,7 @@ def update_participation(start_date, end_date, value):
     colors = ['red', 'grey']
     # Calcular total de producción diaria para NSV para determinado tipo de operación por empresa
     filtered_data = oil_sender_operation(filtered_data, 'NSV', value)
-    if filtered_data != 0:
+    if filtered_data.shape != (0,0):
         labels = data.columns.values
         values = [np.sum(filtered_data[empresa]) for empresa in filtered_data.columns]
     else:
@@ -253,7 +257,7 @@ def update_hystorical(start_date, end_date, value):
     colors = ['red', 'grey']
     traces = []
 
-    if filtered_data != 0:
+    if filtered_data.shape != (0,0):
         filtered_data = oil_sender_operation(filtered_data, 'NSV', value)
         for i, empresa, in enumerate(filtered_data.columns.values):
             traces.append(go.Scatter(x=filtered_data.index,
@@ -300,7 +304,7 @@ def update_company_results(start_date, end_date, operation_type, oil_condition):
     filtered_data = filter_data_by_date(data, start_date, end_date)
     traces = []
     colors = ['red', 'grey']
-    if filtered_data != 0:
+    if filtered_data.shape != (0,0):
         filtered_data = total_oil_detailed(filtered_data, operation_type)[oil_condition]
         for i, company in enumerate(filtered_data.index):
             traces.append(go.Bar(name=company,
@@ -340,7 +344,7 @@ def update_inventory(start_date, end_date, company, tipo_crudo):
     """
     filtered_data = filter_data_by_date(data, start_date, end_date)
     trace = []
-    if filtered_data != 0:
+    if filtered_data.shape != (0,0):
         inventario_campo = calculate_inventory_oil_type(filtered_data, company, tipo_crudo)
         trace = [go.Bar(name=company,
                         x=inventario_campo.index,
@@ -367,7 +371,7 @@ def update_total_inventory(start_date, end_date, company, operation_condition):
     """
     filtered_data = filter_data_by_date(data, start_date, end_date)
     total_inventory = 0
-    if filtered_data != 0:
+    if filtered_data.shape != (0,0):
         inventory_oil_type = calculate_inventory_oil_type(filtered_data, company, operation_condition)
         total_inventory = calculate_total_inventory(inventory_oil_type)
     return f'Inventario Total: {round(total_inventory, 2)}'

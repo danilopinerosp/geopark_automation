@@ -32,7 +32,7 @@ def filter_data_by_date(data, start_date, end_date):
     try:
         filtered_data = data[(data['fecha'] >= start_date) & (data['fecha'] <= end_date)]
     except:
-        filtered_data = 0
+        filtered_data = pd.DataFrame()
     # filtered_data['fecha'] = pd.to_datetime(filtered_data['fecha'])
     return filtered_data
 
@@ -45,7 +45,7 @@ def parse_contents(contents, filename, date):
     decoded = base64.b64decode(content_string)
     if 'xls' in filename:
         # Assume that the user uploaded an excel file
-        return load_workbook(io.BytesIO(decoded))
+        return load_workbook(io.BytesIO(decoded), data_only=True)
     return -1
 
 def write_data(filename, header, data):
@@ -102,6 +102,7 @@ def verify_processed(report, filepath):
         with open(filepath, 'r') as reports:
             reader = csv.DictReader(reports)
             for processed in reader:
-                if processed['nombre_reporte'] == report:
+                if processed['fecha reporte'] == report:
                     found = True
     return found
+    
