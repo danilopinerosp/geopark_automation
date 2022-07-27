@@ -117,7 +117,7 @@ def clean_balance_data(data):
         processed.append(d)
     return processed
 
-def oil_sender_operation(data, operation_conditions, operation_type):
+def oil_sender_operation(data, operation_condition, operation_type):
     """
     Retorna un DataFrame con el total por tipo de crudo de determinado operación diario
     por cada remitente.
@@ -135,10 +135,99 @@ def oil_sender_operation(data, operation_conditions, operation_type):
     try:
         # Filtrar solo los datos cuya operación es un recibo
         recibidos = data[[operation_type in fila for fila in data['operacion']]]
-        result = recibidos.groupby(['fecha', 'empresa'])[operation_conditions].sum().unstack()
+        result = recibidos.groupby(['fecha', 'empresa'])[operation_condition].sum().unstack()
     except:
         result = 0
     return result
+
+def calculate_diff(data, operation_1, operation_2, operation_condition='NSV', company='GEOPARK'):
+    """
+    Retorna un DataFrame con el resultado de restar los datos de la caterogia_2 a la
+    categoria_1 para cada día de operación por empresa y campo
+
+    Parámetros:
+    -----------
+    datos  -> DataFrame - datos del balance
+    categoria_1 -> str - cadena de caracteres con la primera categoría de donde vamos
+                        a hacer la resta
+    categoria_2 -> str - cadena de caracteres con al segunda categoría que le vamos
+                        a restar a la primera categoría
+    tipo_crudo -> str - Indica el tipo de crudo al cual se le van a sacar las diferentes
+                        entre las dos categorías
+    """
+    # Filtrar los datos según las dos categorías a analizar
+    filtro = (data['operacion'] ==  operation_1) | (data['operacion'] == operation_2)
+    datos_filtrados = data[filtro]
+    # Agrupar los datos para realizar las respectivas diferencias
+    agrupados = datos_filtrados.groupby(['fecha', 'campo', 'empresa', 'operacion'])[operation_condition]
+    # Separar los datos agrupados por operación
+    op_1 = agrupados.sum().unstack().unstack().fillna(0)[operation_1]
+    op_2 = agrupados.sum().unstack().unstack().fillna(0)[operation_2]
+    # Calcular las diferencias
+    diferencias = (op_1 - op_2).unstack().fillna(0)
+    return diferencias[company]
+
+def calculate_inventory_oil_type(data, company, operation_condition, initial_inventory_oil_type=None):
+    """
+    Retorna el inventario final por campo al sumar y restar las diferencias dadas
+    en inventario_diario_campo del inventario_inicial_campo
+
+    Parámetros:
+    -----------
+    Datos -> DataFrame - Contiene los datos de la operación diaria de las empresas
+    empresa -> str - Nombre de la empresa a la que le calculamos el inventario
+    tipo_crudo -> str - Cadena de caracteres con el tipo de crudo a analizar
+    inventario_inicial_campo -> dict - Diccionario con el inventario inicial para cada campo
+
+    Retorna:
+    --------
+    pandas.core.series.Series -> Inventario por campo para la empresa indicada.
+    """
+    # calcular las diferencias para la empresa para determinado tipo de crudo
+    diferencias = calculate_diff(data,
+                                        'RECIBO POR REMITENTE TIGANA',
+                                        'DESPACHO POR REMITENTE',
+                                        operation_condition, company)
+    # Agregar el inventario inicial por campo al dataframe de las diferencias
+    if initial_inventory_oil_type is not None:
+        diferencias = pd.concat([diferencias, pd.Series(initial_inventory_oil_type, dtype='float64')])
+    # Eliminar las columnas que continen los datos de TIGANA y JACANA
+    diferencias.drop(['JACANA ESTACION', 'TIGANA ESTACION'], inplace=True, axis=1)
+    # Retornar el inventario final de los datos
+    return np.round(diferencias.sum(), 2)
+
+def calculate_total_inventory(inventory_oil_type):
+    """
+    Retorna la suma del inventario por campo.
+
+    Parámetros:
+    -----------
+    pandas.core.series.Series - inventario por campo
+
+    Retorna:
+    float - Suma total de cada inventario por campo
+    """
+    return inventory_oil_type.sum()
+
+def total_oil_detailed(datos, tipo_operacion):
+    """
+    Retorna un DataFrame con el total de Crudo según las condiciones de operación,
+    el campo y el remitente.
+
+    Parámetros:
+    -----------
+    datos -> DataFrame - Contiene los datos de crudo por tiempo de operación, campo y empresa.
+
+    Retorna:
+    --------
+    total_crudo -> DataFrame - Totales por condiciones de operación, campo y remitente
+    """
+    # Filtrar los datos por tipo de operación
+    total_crudo = datos[[tipo_operacion in fila for fila in datos['operacion']]]
+    # Calcular los totales por condiciones de operación, campo y empresa
+    total_crudo =  total_crudo.groupby(['empresa', 'campo'])[['GOV', 'GSV', 'NSV']].sum().unstack()
+    # Se retorna el DataFrame con los totales, no sin antes remplazar los NaN por ceros.
+    return total_crudo.fillna(0)
 
 # Definición de funciones
 def acumulado_mensual_campo(datos, mes, operacion, empresa):

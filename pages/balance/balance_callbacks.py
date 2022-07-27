@@ -6,18 +6,16 @@ from dash import html
 import numpy as np
 
 from openpyxl import load_workbook
-from pages.balance.balance_data import agregar_estilos, get_cumulated
+from pages.balance.balance_data import (
+            agregar_estilos, 
+            calculate_inventory_oil_type, 
+            calculate_total_inventory, 
+            get_cumulated, 
+            total_oil_detailed)
 from openpyxl.utils import get_column_letter
 import datetime
 
 from components.indicator import graph_indicator
-
-# Importar funciones para los valores calculados del proceso
-from data.calculate_values import (
-    calcular_inventario_campo, 
-    calcular_inventario_total,
-    total_crudo_detallado
-)
 
 from app import app
 
@@ -294,22 +292,23 @@ def update_title_cummulated_nsv(operation_type, operation_conditions):
             Input('tipo-operacion', 'value'),
             Input('condiciones-operacion', 'value')]
 )
-def update_company_results(start_date, end_date, operation_type, tipo_crudo):
+def update_company_results(start_date, end_date, operation_type, oil_condition):
     """
-    Actualiza la gráfica de barras sobre la producción por campo para determinado tipoo de crudo
+    Actualiza la gráfica de barras sobre la producción por campo para determinado tipo de crudo
     """
     # Filtrar los datos para el período indicado, el tipo de operación de interés y el tipo de crudo
-    datos_filtrados = filter_data_by_date(data, start_date, end_date)
-    datos_filtrados = total_crudo_detallado(datos_filtrados, operation_type)[tipo_crudo]
+    filtered_data = filter_data_by_date(data, start_date, end_date)
     traces = []
-    colores = ['red', 'grey']
-    for i, empresa in enumerate(datos_filtrados.index):
-        traces.append(go.Bar(name=empresa,
-                    x=datos_filtrados.columns.values,
-                    y=datos_filtrados.loc[empresa, :],
-                    marker={'color': colores[i]},
-                    text=datos_filtrados.loc[empresa, :].round(2),
-                    textposition='outside'))
+    colors = ['red', 'grey']
+    if filtered_data != 0:
+        filtered_data = total_oil_detailed(filtered_data, operation_type)[oil_condition]
+        for i, company in enumerate(filtered_data.index):
+            traces.append(go.Bar(name=company,
+                        x=filtered_data.columns.values,
+                        y=filtered_data.loc[company, :],
+                        marker={'color': colors[i]},
+                        text=filtered_data.loc[company, :].round(2),
+                        textposition='outside'))
 
     layout = go.Layout(font=dict(color='#262830'),
                         paper_bgcolor='#f3f3f3',
@@ -335,17 +334,19 @@ def update_title_inventory(operation_conditions, company):
             Input('balance-period-analysis', 'end_date'),
             Input('empresa', 'value'),
             Input('condiciones-operacion', 'value')])
-def update_inventory(start_date, end_date, empresa, tipo_crudo):
+def update_inventory(start_date, end_date, company, tipo_crudo):
     """
     Actualiza la gráfica del inventario por empresa y por tipo de crudo
     """
-    datos_filtrados = filter_data_by_date(data, start_date, end_date)
-    inventario_campo = calcular_inventario_campo(datos_filtrados, empresa, tipo_crudo)
-    trace = [go.Bar(name=empresa,
-                    x=inventario_campo.index,
-                    y=inventario_campo.values,
-                    text=inventario_campo.values.round(2),
-                    textposition='auto')]
+    filtered_data = filter_data_by_date(data, start_date, end_date)
+    trace = []
+    if filtered_data != 0:
+        inventario_campo = calculate_inventory_oil_type(filtered_data, company, tipo_crudo)
+        trace = [go.Bar(name=company,
+                        x=inventario_campo.index,
+                        y=inventario_campo.values,
+                        text=inventario_campo.values.round(2),
+                        textposition='auto')]
 
     layout = go.Layout(font=dict(color='#262830'),
                         paper_bgcolor='#f3f3f3',
@@ -359,12 +360,14 @@ def update_inventory(start_date, end_date, empresa, tipo_crudo):
             Input('balance-period-analysis', 'end_date'),
             Input('empresa', 'value'),
             Input('condiciones-operacion', 'value')])
-def update_total_inventory(start_date, end_date, empresa, tipo_crudo):
+def update_total_inventory(start_date, end_date, company, operation_condition):
     """
     Actualiza el inventario total por empresa y tipo de crudo para el
     periodo de tiempo indicado
     """
-    datos_filtrados = filter_data_by_date(data, start_date, end_date)
-    inventario_campo = calcular_inventario_campo(datos_filtrados, empresa, tipo_crudo)
-    inventario_total = calcular_inventario_total(inventario_campo)
-    return f'Inventario Total: {round(inventario_total, 2)}'
+    filtered_data = filter_data_by_date(data, start_date, end_date)
+    total_inventory = 0
+    if filtered_data != 0:
+        inventory_oil_type = calculate_inventory_oil_type(filtered_data, company, operation_condition)
+        total_inventory = calculate_total_inventory(inventory_oil_type)
+    return f'Inventario Total: {round(total_inventory, 2)}'
