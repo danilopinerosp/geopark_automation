@@ -13,6 +13,9 @@ import pandas as pd
 import os
 import csv
 
+from utils.constants import months
+from dash import callback_context, html
+
 EMPRESAS = ['GEOPARK', 'PAREX']
 CAMPOS = ['CHIRICOCA', 'INDICO-2', 'INDICO-1X', 'AZOGUE', 'GUACO', 'ADALIA',
             'AKIRA', 'MARACAS', 'CARMENTEA', 'CALONA', 'CAPACHOS', 'JACANA ESTACION',
@@ -244,6 +247,7 @@ def monthly_cumulated_oil_type(data, month, operation, company):
     return cumulated_month.round(2).reset_index()
 
 def get_date_report(filename):
+    print(filename.split('Reportes')[-1].split()[2].split('.')[0])
     return filename.split('Reportes')[-1].split()[2].split('.')[0]
 
 def remove_entries_balance(filepath, filename):
@@ -288,7 +292,7 @@ def agregar_estilos(hoja, filas, columna, background_color, font_color, header=T
             # de la cabecera
             hoja.merge_cells(start_row=fila, start_column=columna, end_row=fila, end_column=columna + 10)
 
-def write_data_monthly_report(data, month):
+def write_data_monthly_report(data, month, year):
     """
     Escribir los datos acumulados por empresa y por tipo de operación en el
     ACTA para el mes indicado en un documento .xlsx
@@ -333,20 +337,21 @@ def write_data_monthly_report(data, month):
     except Exception as e:
         print(e)
     hoja.insert_cols(7, amount=3)
-    book.save("ACTA ODCA_" + str(month) + '.xlsx')
+    report_name = f'ACTA ODCA_{ months[ month - 1]}_{year}.xlsx'
+    book.save(f"../ReportesMensuales/Actas/{ report_name }")
     return filas_cabecera, filas_empresas, filas_operaciones
 
-def generar_acta_ODCA(mes):
+def generate_report_ODCA(data, month, year):
     """
     Generar el acta con todos los datos requeridos y el estilo requerido
     """
+    report_name = f'ACTA ODCA_{ months[ month - 1]}_{year}.xlsx'
     # Cargar los datos desde el balance y dar formato a las fechas
-    df = pd.read_csv('data/consolidated_data/balance.csv')
-    df['fecha'] = pd.to_datetime(df['fecha'], format='%d-%m-%Y')
+    data['fecha'] = pd.to_datetime(data['fecha'], format='%d-%m-%Y')
     # Escribir los datos en un documento .xlsx
-    filas_cabecera, filas_empresas, filas_operaciones = write_data_monthly_report(df, mes)
+    filas_cabecera, filas_empresas, filas_operaciones = write_data_monthly_report(data, month, year)
     # Cargar el documento generado anteriormente y seleccionar la hoja activa
-    wb = load_workbook('ACTA ODCA_' + str(mes) + '.xlsx')
+    wb = load_workbook(f'../ReportesMensuales/Actas/{ report_name }')
     ws = wb.active
     # Agregar estilos al acta
     agregar_estilos(ws, filas_cabecera, 6, "000000", "FFFFFF")
@@ -356,4 +361,7 @@ def generar_acta_ODCA(mes):
     for i in range(10, 17):
         letter = get_column_letter(i)
         ws.column_dimensions[letter].width = 15
-    wb.save('ACTA ODCA_' + str(mes) +'.xlsx')
+
+    if callback_context.triggered[0]['prop_id'] == "descargar-acta.n_clicks":
+        wb.save(f'../ReportesMensuales/Actas/{ report_name }')
+        return html.P(f'Se ha descargado el archivo: { report_name }')

@@ -1,4 +1,4 @@
-from dash.dependencies import Input, Output, State
+from dash import Input, Output, State, callback_context
 import plotly.graph_objs as go
 from dash import html
 
@@ -9,7 +9,8 @@ from openpyxl import load_workbook
 from pages.balance.balance_data import (
             agregar_estilos, 
             calculate_inventory_oil_type, 
-            calculate_total_inventory, 
+            calculate_total_inventory,
+            generate_report_ODCA, 
             get_cumulated,
             remove_entries_balance, 
             total_oil_detailed)
@@ -26,8 +27,9 @@ from pages.balance.balance_data import (get_cumulated,
                                         clean_balance_data,
                                         oil_sender_operation,
                                         write_data_monthly_report)
+
 from utils.functions import load_data, filter_data_by_date, log_processed, parse_contents, verify_processed, write_data
-from utils.constants import balance_data, daily_reports_processed
+from utils.constants import balance_data, daily_reports_processed, months
 
 data = load_data(balance_data)
 
@@ -113,8 +115,8 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
         return children
 
 # Callback for downloading button
-@app.callback(Output("descargar-acta", "data"),
-            [Input("descargar-acta-button", "n_clicks"),
+@app.callback(Output("downloaded-report", "children"),
+            [Input("descargar-acta", "n_clicks"),
             Input('balance-period-analysis', 'start_date'),
             Input('balance-period-analysis', 'end_date')],
 )
@@ -122,24 +124,12 @@ def download_balance_report(n_clicks, start_date, end_date):
     # Cargar los datos desde el balance y dar formato a las fechas
     filtered_data = filter_data_by_date(data, start_date, end_date)
     try:
-        month = filtered_data['fecha'].dt.month
+        month = filtered_data['fecha'].dt.month.unique()[0]
+        year = filtered_data['fecha'].dt.year.unique()[0]
     except:
         month = 0
-    # Escribir los datos en un documento .xlsx
-    filas_cabecera, filas_empresas, filas_operaciones = write_data_monthly_report(filtered_data, month)
-    # Cargar el documento generado anteriormente y seleccionar la hoja activa
-    wb = load_workbook('ACTA ODCA_' + str(month) + '.xlsx')
-    ws = wb.active
-    # Agregar estilos al acta
-    agregar_estilos(ws, filas_cabecera, 6, "000000", "FFFFFF")
-    agregar_estilos(ws, filas_operaciones, 6, "FF0000", "FFFFFF", False)
-    agregar_estilos(ws, filas_empresas, 6,"FFFFFF", "000000", False)
-    # Cambiar el ancho de las columnas de los datos
-    for i in range(10, 17):
-        letter = get_column_letter(i)
-        ws.column_dimensions[letter].width = 15
-    
-    return wb.save('ACTA ODCA_' + str(month) +'.xlsx')
+        year = 0
+    return generate_report_ODCA(data, month, year)
 
 # Callback para actualizar la producción del último día reportado de GOV
 # para Geopark

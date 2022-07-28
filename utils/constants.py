@@ -17,3 +17,17 @@ companies = "data/consolidated_data/companies.csv"
 oils = "data/consolidated_data/oils.csv"
 daily_reports_processed = "data/log_data/daily_reports_processed.csv"
 nominations_processed = "data/log_data/nominations_processed.csv"
+
+# Months
+months = ['Enero', 
+        'Febrero',
+        'Marzo',
+        'Abril', 
+        'Mayo', 
+        'Junio', 
+        'Julio', 
+        'Agosto', 
+        'Septiembre', 
+        'Octubre',
+        'Noviembre',
+        'Diciembre']

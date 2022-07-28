@@ -32,7 +32,10 @@ layout = html.Div([
         make_dash_button("Descargar Acta", type_button="download"),
     ], className='button-container'),
     html.Div([
-        html.P(id="files-to-process")
+        html.Div([
+             html.P(id="files-to-process"),
+             html.P(id='downloaded-report'),
+        ], className='create_container twelve columns'),
     ], className='row flex-container'),
 
     # Contenedor para la participación de Geopark, le operación del día y la producción

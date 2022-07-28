@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 from utils.functions import filter_data_by_date
 
@@ -18,14 +17,13 @@ def daily_transported_oil_type(data, start_date, end_date):
     filtered_data = filter_data_by_date(data, start_date, end_date)
 
     # Get just the transported oil of NSV
-    transported = filtered_data[filtered_data['operacion'] == "DESPACHO POR REMITENTE"][['fecha', 'empresa', 'campo', 'NSV']]
+    transported = filtered_data[filtered_data['operacion'] == "DESPACHO POR REMITENTE"][['fecha', 'empresa', 'tipo crudo', 'NSV']]
     transported_oil_type = transported.pivot_table(values="NSV", 
                                                 index=data["fecha"], 
-                                                columns=["empresa", "campo"]
+                                                columns=["empresa", "tipo crudo"]
                                                 ).reset_index()
     #transported_oil_type.reset_index(inplace=True)
-    transported_oil_type["fecha"] = pd.to_datetime(transported_oil_type['fecha'], 
-                                                infer_datetime_format=True)
+    transported_oil_type["fecha"] = transported_oil_type['fecha'].dt.date
     transported_oil_type.set_index("fecha", inplace=True)
     transported_oil_type.fillna(0, inplace=True)
     return transported_oil_type

@@ -98,27 +98,6 @@ def escribir_datos(datos, mes):
     libro.save("ACTA ODCA_" + str(mes) + '.xlsx')
     return filas_cabecera, filas_empresas, filas_operaciones
 
-def generar_acta_ODCA(mes):
-    """
-    Generar el acta con todos los datos requeridos y el estilo requerido
-    """
-    # Cargar los datos desde el balance y dar formato a las fechas
-    df = pd.read_csv('data/consolidated_data/balance.csv')
-    df['fecha'] = pd.to_datetime(df['fecha'], format='%d-%m-%Y')
-    # Escribir los datos en un documento .xlsx
-    filas_cabecera, filas_empresas, filas_operaciones = escribir_datos(df, mes)
-    # Cargar el documento generado anteriormente y seleccionar la hoja activa
-    wb = load_workbook('ACTA ODCA_' + str(mes) + '.xlsx')
-    ws = wb.active
-    # Agregar estilos al acta
-    agregar_estilos(ws, filas_cabecera, 6, "000000", "FFFFFF")
-    agregar_estilos(ws, filas_operaciones, 6, "FF0000", "FFFFFF", False)
-    agregar_estilos(ws, filas_empresas, 6,"FFFFFF", "000000", False)
-    # Cambiar el ancho de las columnas de los datos
-    for i in range(10, 17):
-        letter = get_column_letter(i)
-        ws.column_dimensions[letter].width = 15
-    wb.save('ACTA ODCA_' + str(mes) +'.xlsx')
 
 if __name__ == "__main__":
     generar_acta_ODCA(6)

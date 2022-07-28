@@ -1,5 +1,5 @@
-from dash import dcc
-from dash.dependencies import Input, Output
+from dash import dcc, callback_context, Input, Output
+from matplotlib.cbook import report_memory
 import plotly.graph_objs as go
 
 # Librerías para el tratamiento de datos
@@ -17,6 +17,9 @@ from app import app
 from components.nominations_graph import graph_production_factor
 
 from pages.nominations.nominations_data import daily_transported_oil_type
+
+from utils.constants import balance_data
+from utils.functions import load_data
 
 @app.callback(Output("graph-nominations-results", component_property="figure"),
         Input("tabs-nominations", "value"))
@@ -47,16 +50,16 @@ def actualizar_factor_servicio(start_date, end_date, remitente):
 
 # Callback to download nominations report
 # Callback for downloading button
-@app.callback(Output("descargar-info-nominaciones", "data"),
-            [Input("descargar-info-nominaciones-button", "n_clicks"),
+@app.callback(Output("downloaded-report-nomination", "children"),
+            [Input("descargar-info-nominaciones", "n_clicks"),
             Input("nomination-period", "start_date"),
-            Input("nomination-period", "end_date")],
-            prevent_initial_call=True,)
-def descargar_informe(n_clicks, start_date, end_date):
-    df = pd.read_csv("data/consolidated_data/balance.csv")
-    transported = daily_transported_oil_type(df, start_date, end_date)
-    if n_clicks > 0:
-        return dcc.send_data_frame(transported.to_excel, f"nominaciones.xlsx", 
-                                sheet_name="Consolidado Nominaciones")  
+            Input("nomination-period", "end_date")])
+def download_report_nomination(n_clicks, start_date, end_date):
+        df = load_data(balance_data)
+        transported = daily_transported_oil_type(df, start_date, end_date)
 
-    
+        report_name = "kjkh"
+
+        if callback_context.triggered[0]['prop_id'] == "descargar-info-nominaciones.n_clicks":
+                transported.to_excel("../ReportesMensuales/Nominaciones/nominacion.xlsx")
+                return html.P(f'Se ha descargado el archivo: { report_name }')
