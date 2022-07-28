@@ -3,8 +3,6 @@ conditions = ['GOV', 'GSV', 'NSV']
 operations = ['DESPACHO POR REMITENTE', 'RECIBO POR REMITENTE JACANA',
                 'RECIBO POR REMITENTE TIGANA', 'ENTREGA POR REMITENTE']
 
-conditions = ['GOV', 'GSV', 'NSV']
-
 # Location of pages
 balance_page_location = "/"
 nominations_page_location = "/nominations"
