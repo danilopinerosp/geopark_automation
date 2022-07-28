@@ -1,4 +1,4 @@
-from dash import dcc, callback_context, Input, Output
+from dash import dcc, callback_context, Input, Output, State
 from matplotlib.cbook import report_memory
 import plotly.graph_objs as go
 
@@ -9,6 +9,7 @@ import pandas as pd
 from dash import html
 
 from components.nominations_graph import graph_nominations_results
+from pages.balance.balance_data import remove_entries_balance
 from pages.nominations.tabs.tigana import tigana_nominations
 from pages.nominations.tabs.livianos import livianos_nominations
 
@@ -16,10 +17,10 @@ from app import app
 
 from components.nominations_graph import graph_production_factor
 
-from pages.nominations.nominations_data import daily_transported_oil_type
+from pages.nominations.nominations_data import daily_transported_oil_type, parse_contents
 
-from utils.constants import balance_data
-from utils.functions import load_data
+from utils.constants import balance_data, header_nominations, nominations_processed
+from utils.functions import load_data, log_processed, verify_processed
 
 @app.callback(Output("graph-nominations-results", component_property="figure"),
         Input("tabs-nominations", "value"))
@@ -47,6 +48,33 @@ def actualizar_factor_servicio(start_date, end_date, remitente):
     """
 
     return graph_production_factor(type_oils, colors, title_graph)
+
+@app.callback(Output("files-to-process-nominations", "children"),
+            [Input("subir-nominaciones", 'contents')],
+            [State('subir-nominaciones', 'filename'),
+            State('subir-nominaciones', 'last_modified')])
+def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:
+        children = list()
+        # Nombres de los valores a guardar en el balance
+        header = header_nominations
+        for c, n, d in zip(list_of_contents, list_of_names, list_of_dates):
+                df = parse_contents(c, n, d, header)
+                print(df)
+                try:
+                        if verify_processed(n, nominations_processed):
+                                new_data = remove_entries_balance(balance_data, n)
+                                new_data.to_csv(balance_data, index=False)
+                        else:
+                                log_processed(n, nominations_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
+
+                        children.append(html.P(n))
+                except Exception as e:
+                        children.append(html.Div(['There was an error processing this file.']))
+
+        return children
+
+
 
 # Callback to download nominations report
 # Callback for downloading button

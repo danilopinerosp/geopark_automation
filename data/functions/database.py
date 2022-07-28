@@ -5,7 +5,8 @@ from utils.constants import (daily_reports_processed,
                             balance_data, 
                             companies,
                             oils,
-                            nominations_data)
+                            nominations_data,
+                            header_nominations)
 
 def create_csv_file(filepath, header):
     with open(filepath, "w") as f:
@@ -21,7 +22,7 @@ def init_database():
     if not os.path.exists(balance_data):
         create_csv_file(balance_data, ["fecha", "empresa", "operacion" , "tipo crudo", "GOV", "GSV", "NSV"])
     if not os.path.exists(nominations_data):
-        create_csv_file(nominations_data, ['fecha', 'nominado jacana geopark', 'nominado tigana geopark', 'nominado livianos geopark', 'nominado cabrestero verano', 'nominado jacana verano', 'nominado tigana verano', 'nominado livianos verano'])
+        create_csv_file(nominations_data, header_nominations)
     if not os.path.exists(companies):
         create_csv_file(companies, ["Nombre"])
     if not os.path.exists(oils):

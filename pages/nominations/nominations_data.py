@@ -1,4 +1,7 @@
+import base64
+import io
 import pandas as pd
+from dash import html
 
 from utils.functions import filter_data_by_date
 
@@ -31,8 +34,16 @@ def daily_transported_oil_type(data, start_date, end_date):
 
     return transported_oil_type
 
-def load_nominations_data(s):
-    pass
+def parse_contents(contents, filename, date, header):
+    content_type, content_string = contents.split(',')
+
+    decoded = base64.b64decode(content_string)
+    if 'xls' in filename:
+        return pd.read_excel(io.BytesIO(decoded), 
+                            names=header, 
+                            skiprows=4,
+                            nrows=31)
+    return -1
 
 def clean_nominations_data(s):
     pass

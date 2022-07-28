@@ -30,3 +30,14 @@ months = ['Enero',
         'Octubre',
         'Noviembre',
         'Diciembre']
+
+
+# Header
+header_nominations = ['fecha', 
+                'nominado jacana geopark',
+                'nominado tigana geopark', 
+                'nominado livianos geopark', 
+                'nominado cabrestero verano', 
+                'nominado jacana verano', 
+                'nominado tigana verano', 
+                'nominado livianos verano']
