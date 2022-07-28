@@ -14,6 +14,7 @@ def daily_transported_oil_type(data, start_date, end_date):
     -------
     dataframe -> NSV transported daily by each oil type
     """
+
     filtered_data = filter_data_by_date(data, start_date, end_date)
 
     # Get just the transported oil of NSV
@@ -26,6 +27,8 @@ def daily_transported_oil_type(data, start_date, end_date):
     transported_oil_type["fecha"] = transported_oil_type['fecha'].dt.date
     transported_oil_type.set_index("fecha", inplace=True)
     transported_oil_type.fillna(0, inplace=True)
+    print(transported_oil_type['GEOPARK'].columns)
+
     return transported_oil_type
 
 def load_nominations_data(s):

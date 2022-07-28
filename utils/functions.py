@@ -1,3 +1,4 @@
+from distutils.command.build_scripts import first_line_re
 from openpyxl import load_workbook
 import pandas as pd
 import io
@@ -6,6 +7,7 @@ import datetime
 from dash import html
 import os
 import csv
+from utils.constants import companies, oils
 
 def load_data(filename):
     """
@@ -13,6 +15,25 @@ def load_data(filename):
     """
     df = pd.read_csv(filename)
     df['fecha'] = pd.to_datetime(df['fecha'], format='%d-%m-%Y')
+    return df
+
+def load_companies():
+    """
+    Load the companies data from companies.csv file
+    """
+    df = pd.read_csv(companies)
+    return list(df['Nombre'])
+
+def load_oil_types_names():
+    """
+    Load the oil types names data from oils.csv file
+    """
+    df = pd.read_csv(oils)
+    print(list(df['Crudo']))
+    return list(df['Crudo'])
+
+def load_oil_types():
+    df = pd.read_csv(oils)
     return df
 
 def filter_data_by_date(data, start_date, end_date):

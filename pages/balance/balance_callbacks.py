@@ -31,8 +31,6 @@ from pages.balance.balance_data import (get_cumulated,
 from utils.functions import load_data, filter_data_by_date, log_processed, parse_contents, verify_processed, write_data
 from utils.constants import balance_data, daily_reports_processed, months
 
-data = load_data(balance_data)
-
 inputs_cumulated = [Input('balance-period-analysis', 'start_date'),
             Input('balance-period-analysis', 'end_date'),
             Input('tipo-operacion', 'value')]
@@ -43,6 +41,7 @@ def update_gov_cumulated_geopark(start_date, end_date, operation_type):
     """
     Actualiza el GOV acumulado para Geopark en el periodo indicado
     """
+    data = load_data(balance_data)
     return get_cumulated(data, start_date, end_date, operation_type, 'GOV', 'GEOPARK')
 
 # Callback para actualizar el GSV acumulado para geopark
@@ -51,6 +50,7 @@ def update_gsv_cumulated_geopark(start_date, end_date, operation_type):
     """
     Actualiza el total de GSV producido por Geopark en periodo de tiempo indicado
     """
+    data = load_data(balance_data)
     return get_cumulated(data, start_date, end_date, operation_type, 'GSV', 'GEOPARK')
 
 # Callback para actualizar el NSV acumulado para Geopark
@@ -59,6 +59,7 @@ def update_nsv_cumulated_geopark(start_date, end_date, operation_type):
     """
     Actualiza en acumulado de NSV producido por Geopark en el periodo de tiempo indicado
     """
+    data = load_data(balance_data)
     return get_cumulated(data, start_date, end_date, operation_type, 'NSV', 'GEOPARK')
 
 # Callback para actualizar el NSV acumulado para Parex
@@ -67,6 +68,7 @@ def update_gov_cumulated_parex(start_date, end_date, operation_type):
     """
     Actualiza el GOV acumulado en el periodo indicado para Parex
     """
+    data = load_data(balance_data)
     return get_cumulated(data, start_date, end_date, operation_type, 'GOV', 'PAREX')
 
 # Callback para actualizar el GSV acumulado para Parex
@@ -75,6 +77,7 @@ def update_gsv_cumulated_parex(start_date, end_date, operation_type):
     """
     Actualiza el GSV acumulado producido por Parex en el periodo de tiempo indicado
     """
+    data = load_data(balance_data)
     return get_cumulated(data, start_date, end_date, operation_type, 'GSV', 'PAREX')
 
 # Callback para actualizar el NSV acumulado para Parex
@@ -83,6 +86,7 @@ def update_nsv_cumulated_parex(start_date, end_date, operation_type):
     """
     Actualiza el total de NSV acumulado para Parex en el periodo de tiempo indicado
     """
+    data = load_data(balance_data)
     return get_cumulated(data, start_date, end_date, operation_type, 'NSV', 'PAREX')
 
 # Callback for uploading reports
@@ -122,6 +126,7 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
 )
 def download_balance_report(n_clicks, start_date, end_date):
     # Cargar los datos desde el balance y dar formato a las fechas
+    data = load_data(balance_data)
     filtered_data = filter_data_by_date(data, start_date, end_date)
     try:
         month = filtered_data['fecha'].dt.month.unique()[0]
@@ -140,6 +145,7 @@ def update_gov_geopark(operation_type):
     Actualiza los datos de GOV de la producción del último día reportado
     para Geopark
     """
+    data = load_data(balance_data)
     (last_gov, previous_gov) = update_indicators(data, operation_type, "GOV")
     return graph_indicator(last_gov, previous_gov, "orange", "GOV")
     
@@ -151,6 +157,7 @@ def update_gsv_geopark(operation_type):
     Actualiza la producción de GSV producida por Geopark en el último día reportado
     de producción
     """
+    data = load_data(balance_data)
     (last_gsv, previous_gsv) = update_indicators(data, operation_type, "GSV")
     return graph_indicator(last_gsv, previous_gsv, "#dd1e35", "GSV")
 
@@ -161,6 +168,7 @@ def update_nsv_geopark(operation_type):
     """
     Actualiza el NSV producido por Geopark en el último día reportado de operación
     """
+    data = load_data(balance_data)
     (last_nsv, previous_nsv) = update_indicators(data, operation_type, "GSV")
     return graph_indicator(last_nsv, previous_nsv, "green", "NSV")
 
@@ -182,6 +190,7 @@ def update_participation(start_date, end_date, value):
     Actualizar el pie que contiene la participación de la empresa por tipo de operación
     en la producción de NSV
     """
+    data = load_data(balance_data)
     filtered_data = filter_data_by_date(data, start_date, end_date)
     # datos_filtrados = datos_filtrados[datos_filtrados['operacion'] == value]
     colors = ['red', 'grey']
@@ -287,6 +296,7 @@ def update_company_results(start_date, end_date, operation_type, oil_condition):
     """
     Actualiza la gráfica de barras sobre la producción por campo para determinado tipo de crudo
     """
+    data = load_data(balance_data)
     # Filtrar los datos para el período indicado, el tipo de operación de interés y el tipo de crudo
     filtered_data = filter_data_by_date(data, start_date, end_date)
     traces = []
@@ -329,6 +339,7 @@ def update_inventory(start_date, end_date, company, tipo_crudo):
     """
     Actualiza la gráfica del inventario por empresa y por tipo de crudo
     """
+    data = load_data(balance_data)
     filtered_data = filter_data_by_date(data, start_date, end_date)
     trace = []
     if filtered_data.shape != (0,0):
@@ -356,6 +367,7 @@ def update_total_inventory(start_date, end_date, company, operation_condition):
     Actualiza el inventario total por empresa y tipo de crudo para el
     periodo de tiempo indicado
     """
+    data = load_data(balance_data)
     filtered_data = filter_data_by_date(data, start_date, end_date)
     total_inventory = 0
     if filtered_data.shape != (0,0):

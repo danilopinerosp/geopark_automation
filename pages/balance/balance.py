@@ -7,11 +7,12 @@ from components.button import make_dash_button
 from components.cumulated_card import make_cumulated_card
 from pages.balance.balance_data import get_date_last_report
 
-from utils.constants import EMPRESAS, CONDICIONES, balance_data
-from utils.functions import load_data
+from utils.constants import conditions, balance_data
+from utils.functions import load_companies, load_data
 
 init_database()
 
+companies = load_companies()
 data = load_data(balance_data)
 
 layout = html.Div([
@@ -92,7 +93,7 @@ layout = html.Div([
                     className='create_container_inv_total',
                     style={'color':'white','text-align':'center'}),
             html.Div([
-                dcc.RadioItems(options=EMPRESAS,
+                dcc.RadioItems(options=companies,
                     value='GEOPARK',
                     id='empresa',
                     inline=True)
@@ -102,7 +103,7 @@ layout = html.Div([
     ], className='row flex-display'),
     # Contenedor para generar el filtro sobre el tipo de crudo
     html.Div([
-        dcc.RadioItems(options=CONDICIONES,
+        dcc.RadioItems(options=conditions,
             value='NSV',
             id='condiciones-operacion',
             inline=True)

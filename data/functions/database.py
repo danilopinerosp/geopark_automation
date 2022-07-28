@@ -23,6 +23,6 @@ def init_database():
     if not os.path.exists(nominations_data):
         create_csv_file(nominations_data, ["fecha", "nominados geopark"])
     if not os.path.exists(companies):
-        create_csv_file(companies, ["nombre"])
+        create_csv_file(companies, ["Nombre"])
     if not os.path.exists(oils):
-        create_csv_file(oils, ["Crudo", "Segmento"])
+        create_csv_file(oils, ["Crudo", "Livianos"])

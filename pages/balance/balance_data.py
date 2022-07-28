@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import numpy as np
 
-from utils.functions import filter_data_by_date, load_data
+from utils.functions import filter_data_by_date, load_companies, load_data, load_oil_types_names
 
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -13,16 +13,8 @@ import pandas as pd
 import os
 import csv
 
-from utils.constants import months
+from utils.constants import months, conditions, operations
 from dash import callback_context, html
-
-EMPRESAS = ['GEOPARK', 'PAREX']
-CAMPOS = ['CHIRICOCA', 'INDICO-2', 'INDICO-1X', 'AZOGUE', 'GUACO', 'ADALIA',
-            'AKIRA', 'MARACAS', 'CARMENTEA', 'CALONA', 'CAPACHOS', 'JACANA ESTACION',
-            'TIGANA ESTACION', 'CABRESTERO - BACANO JACANA ESTACION']
-OPERACIONES = ['DESPACHO POR REMITENTE', 'RECIBO POR REMITENTE JACANA',
-                'RECIBO POR REMITENTE TIGANA', 'ENTREGA POR REMITENTE']
-CONDICIONES = ['GOV', 'GSV', 'NSV']
 
 def get_date_last_report(data):
     try:
@@ -66,6 +58,8 @@ def read_data_daily_reports(book, filename, start_cell=1, end_cell=270):
     ------
     list -> Retorna una lista de diccionarios con los datos del documento.
     """
+    companies = load_companies()
+    oil_types_names = load_oil_types_names()
     sheet =  book.active #Por defecto toma como activa la primera hoja
 
     #Extraer le fecha del reporte del nombre del documento
@@ -78,13 +72,13 @@ def read_data_daily_reports(book, filename, start_cell=1, end_cell=270):
         column_b = 'B' + str(i) # ayuda a recorrer la columna B
         value_cell = sheet[column_b].value
         datos = dict()     # Almacena los datos por cada entrada
-        if value_cell in EMPRESAS:
+        if value_cell in companies:
             company = value_cell
             continue
-        if value_cell in OPERACIONES:
+        if value_cell in operations:
             operation = value_cell
             continue
-        if value_cell in CAMPOS:
+        if value_cell in oil_types_names:
             # si valor se encuentra en la constante CAMPO guarda todos los datos
             # en el diccionario datos
             datos['fecha'] = file_date
@@ -178,7 +172,7 @@ def calculate_inventory_oil_type(data, company, operation_condition, initial_inv
 
     Parámetros:
     -----------
-    Datos -> DataFrame - Contiene los datos de la operación diaria de las empresas
+    Datos -> DataFrame - Contiene los datos de la operación diaria de las companies
     empresa -> str - Nombre de la empresa a la que le calculamos el inventario
     tipo_crudo -> str - Cadena de caracteres con el tipo de crudo a analizar
     inventario_inicial_campo -> dict - Diccionario con el inventario inicial para cada campo
