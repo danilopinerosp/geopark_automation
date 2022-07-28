@@ -10,8 +10,10 @@ from datetime import datetime as dt
 
 from components.button import make_dash_button
 from components.date_picker_range import make_date_picker_range
+from utils.functions import load_data
+from utils.constants import nominations_data, balance_data
 
-from data.server import datos
+data = load_data(balance_data)
 
 layout = html.Div([
     html.Div([
@@ -20,8 +22,14 @@ layout = html.Div([
     ], className='button-container'),
     html.Div([
         html.Div([
+             html.P(id="files-to-process-nominations"),
+             html.P(id='downloaded-report-nomination'),
+        ], className='create_container twelve columns'),
+    ], className='row flex-container'),
+    html.Div([
+        html.Div([
             html.H2("Periodo de Análisis"),
-            make_date_picker_range("nomination-period", datos),
+            make_date_picker_range("nomination-period", data),
             html.H2("Remitente"),
             dcc.Dropdown(options=['GEOPARK', 'VERANO'],
                         value='GEOPARK', 
@@ -38,7 +46,7 @@ layout = html.Div([
         dcc.Graph(id="graph-nominations-results")
         ], className="create_container nine columns"),
     ], className="row flex-display"),
-        # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
+        # Filtrar data según el tipo de operación (entrega, recibo, despacho)
     html.Div([
             dcc.Graph(id="production-factor"),
         ], className="create_container twelve columns"),

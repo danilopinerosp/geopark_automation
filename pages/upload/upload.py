@@ -15,7 +15,6 @@ from utils.constants import (daily_reports_processed,
 
 from components.table import make_dash_table
 
-balance_processed = pd.read_csv(daily_reports_processed)
 data_nominations_processed = pd.read_csv(nominations_processed)
 
 layout = html.Div([
@@ -38,7 +37,7 @@ layout = html.Div([
             html.H2("Tipos de Crudo"),
             html.Div(id="table-oil-types"),
             dcc.Input(id="add-oil-input", type="text", placeholder="Nombre Crudo"), 
-            dcc.Input(id="add-segment-input", type="text", placeholder="Número Segmento"), 
+            dcc.Input(id="add-livianos-input", type="text", placeholder="Número Segmento"), 
             html.Div([
                 html.Button('Agregar', id='add-oil', n_clicks=0, className="button add-button"),
                 html.Button('Borrar', id='delete-oil', n_clicks=0, className="button delete-button"),
@@ -52,12 +51,12 @@ layout = html.Div([
         html.Div([
             # Seleccionar datos
             html.H2('Reportes Diarios Procesados'),
-            make_dash_table(balance_processed),
+            make_dash_table(daily_reports_processed),
         ], className='create_container five columns'),
         # Contenedor para graficar la participación en la producción por empresa
         html.Div([
             html.H2('Nominaciones Procesadas'),
-            make_dash_table(data_nominations_processed)
+            make_dash_table(nominations_processed)
         ], className='create_container seven columns'),
     ], className='row flex-display'),
     

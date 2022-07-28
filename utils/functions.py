@@ -1,10 +1,40 @@
+from distutils.command.build_scripts import first_line_re
+from openpyxl import load_workbook
 import pandas as pd
+import io
+import base64
+import datetime
+from dash import html
+import os
+import csv
+from utils.constants import companies, oils
 
-def load_balance_data(filename):
+def load_data(filename):
     """
     Load the balance data from the balance.csv file
     """
-    return pd.read_csv(filename)
+    df = pd.read_csv(filename)
+    df['fecha'] = pd.to_datetime(df['fecha'], format='%d-%m-%Y')
+    return df
+
+def load_companies():
+    """
+    Load the companies data from companies.csv file
+    """
+    df = pd.read_csv(companies)
+    return list(df['Nombre'])
+
+def load_oil_types_names():
+    """
+    Load the oil types names data from oils.csv file
+    """
+    df = pd.read_csv(oils)
+    print(list(df['Crudo']))
+    return list(df['Crudo'])
+
+def load_oil_types():
+    df = pd.read_csv(oils)
+    return df
 
 def filter_data_by_date(data, start_date, end_date):
     """
@@ -20,6 +50,80 @@ def filter_data_by_date(data, start_date, end_date):
     Retorna:
     DataFrame - Datos filtrados según el período dato entre inicio y fin
     """
-    filtered_data = data[(data['fecha'] >= start_date) & (data['fecha'] <= end_date)]
-    filtered_data['fecha'] = pd.to_datetime(filtered_data['fecha'])
+    try:
+        filtered_data = data[(data['fecha'] >= start_date) & (data['fecha'] <= end_date)]
+    except:
+        filtered_data = pd.DataFrame()
+    # filtered_data['fecha'] = pd.to_datetime(filtered_data['fecha'])
     return filtered_data
+
+def parse_contents(contents, filename, date):
+    """
+    Return workbook
+    """
+    content_type, content_string = contents.split(',')
+
+    decoded = base64.b64decode(content_string)
+    if 'xls' in filename:
+        # Assume that the user uploaded an excel file
+        return load_workbook(io.BytesIO(decoded), data_only=True)
+    return -1
+
+def write_data(filename, header, data):
+    """
+    Crea un documento .csv con el nombre_documento indicado en el parámetro que recibe.
+
+    Parámetros:
+    ----------
+    nombre_documento -> str - Cadena de caracteres con el nombre del documento a crear
+    cabecera   -> str - Cadena de caracteres con los nombres de las columnas
+    datos  -> dict - Diccionario con los datos a almacenar en el documento
+    """
+    # Verificar si el documento existe
+    if os.path.exists(filename):
+        # Si nombre_documento existe se abre en modo append ('agregar informacion')
+        with open(filename, 'a',  newline='') as csv_document:
+            writer = csv.DictWriter(csv_document, fieldnames=header)
+            writer.writerows(data)
+    else:
+        with open(filename, 'w', newline='') as csv_document:
+            # Si el documento no existe se abre en modo escritura
+            writer = csv.DictWriter(csv_document, fieldnames=header)
+            writer.writeheader() # escribir la cabecera
+            writer.writerows(data)
+
+def log_processed(report, filepath, header, type_processed):
+    """
+    Agregar el reporte al documento de reportes procesados, en caso de que el documento
+    no exista, lo creará y luego agregará el reporte. El documento reportes_procesados
+    continene la fecha en la que se procesó el reporte y el nombre del reporte procesado.
+
+    Parámetros:
+    -----------
+    reporte -> str - Cadena de caracteres con el nombre del reporte procesado
+    """
+    data = [{'fecha actualizacion': datetime.date.today(), f'fecha {type_processed}': report}]
+    write_data(filepath, header, data)
+
+def verify_processed(report, filepath):
+    """
+    Retorna verdadero si encuentra el reporte en el documento reportes procesados,
+    retorna false si el documento no existe o si no ha encontrado el reporte en él.
+
+    Parámetros:
+    -----------
+    reporte -> str - Cadena de caracteres con el nombre del reporte a verificar
+
+    Retorna:
+    --------
+    found -> bool - Verdadero si encontró el reporte, falso en otro caso
+    """
+    found = False
+    if os.path.exists(filepath):
+        with open(filepath, 'r') as reports:
+            reader = csv.DictReader(reports)
+            for processed in reader:
+                if processed['fecha reporte'] == report:
+                    found = True
+    return found
+    

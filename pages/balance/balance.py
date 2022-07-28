@@ -2,59 +2,42 @@
 from datetime import datetime as dt
 from dash import dcc, html
 from components.date_picker_range import make_date_picker_range
-from data.server import datos
+from data.functions.database import init_database
 from components.button import make_dash_button
+from components.cumulated_card import make_cumulated_card
+from pages.balance.balance_data import get_date_last_report
 
-from utils.constants import EMPRESAS, CONDICIONES
+from utils.constants import conditions, balance_data
+from utils.functions import load_companies, load_data
+
+init_database()
+
+companies = load_companies()
+data = load_data(balance_data)
 
 layout = html.Div([
-    # Contenedor donde se ubicaran los 6 acumulados por tipo de crudo para las dos empresas
+    # Container for cumulates by company and operation conditions
     html.Div([
-        # Contenedor GOV cumulado por tipo de operación en el periodo indicado de Geopark
-        html.Div([
-            html.H6(children='Geopark GOV (bbls)'),
-            html.P(id='GOV-acumulado-geopark'
-                   )], className="card_container two columns acumulado-geopark",
-        ),
-        # Contenedor GSV cumulado por tipo de operación en el periodo indicado de Geopark
-        html.Div([
-            html.H6(children='Geopark GSV (bbls)'),
-
-            html.P(id='GSV-acumulado-geopark'
-                   )], className="card_container two columns acumulado-geopark",
-        ),
-        # Contenedor NSV cumulado por tipo de operación en el periodo indicado de Geopark
-        html.Div([
-            html.H6(children='Geopark NSV (bbls)'),
-
-            html.P(id='NSV-acumulado-geopark'
-                   )], className="card_container two columns acumulado-geopark",
-        ),
-        # Contenedor GOV cumulado por tipo de operación en el periodo indicado de Parex
-        html.Div([
-            html.H6(children='Parex GOV (bbls)'),
-
-            html.P(id='GOV-acumulado-parex'
-                   )], className="card_container two columns acumulado-parex"),
-        # Contenedor GSV cumulado por tipo de operación en el periodo indicado de Parex
-        html.Div([
-            html.H6(children='Parex GSV (bbls)'),
-
-            html.P(id='GSV-acumulado-parex'
-                   )], className="card_container two columns acumulado-parex"),
-        # Contenedor NSV cumulado por tipo de operación en el periodo indicado de Parex
-        html.Div([
-            html.H6(children='Parex NSV (bbls)'),
-
-            html.P(id='NSV-acumulado-parex'
-                   )], className="card_container two columns acumulado-parex")
-
+        # Containers for Geopark's cumulated in specified period of time
+        make_cumulated_card("geopark", "GOV"),
+        make_cumulated_card("geopark", "GSV"),
+        make_cumulated_card("geopark", "NSV"),  
+        # Containers for Parex's cumulated in specified period of time
+        make_cumulated_card("parex", "GOV"),
+        make_cumulated_card("parex", "GSV"),
+        make_cumulated_card("parex", "NSV"),
     ], className="row flex-display"),
     # Container for the buttons to download daily reports and upload balance reports
     html.Div([
         make_dash_button("Subir reporte diario", type_button="upload"),
-        make_dash_button("Descargar Acta", type_button="download")
+        make_dash_button("Descargar Acta", type_button="download"),
     ], className='button-container'),
+    html.Div([
+        html.Div([
+             html.P(id="files-to-process"),
+             html.P(id='downloaded-report'),
+        ], className='create_container twelve columns'),
+    ], className='row flex-container'),
 
     # Contenedor para la participación de Geopark, le operación del día y la producción
     # histórica
@@ -64,16 +47,16 @@ layout = html.Div([
         html.Div([
             html.H3('Periodo de Análisis'),
             # Permite seleccionar las fechas en las que se quiere realizar el análisis
-            make_date_picker_range("balance-period-analysis", datos),
-            # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
+            make_date_picker_range("balance-period-analysis", data),
+            # Filtrar data según el tipo de operación (entrega, recibo, despacho)
             html.H3('Tipo de Operación a analizar'),
-            dcc.Dropdown(options=datos['operacion'].unique(),
+            dcc.Dropdown(options=data['operacion'].unique(),
                         value='RECIBO POR REMITENTE TIGANA',
                         clearable=False,
                         id='tipo-operacion',
                         multi=False),
             html.H3(f"Operación Geopark"),
-            html.H4(f"{datos['fecha'].max().strftime('%d/%m/%Y')}"),
+            html.H4(f"{get_date_last_report(data)}"),
             dcc.Graph(id='GOV-geopark', config={'displayModeBar':False}, className='dcc_compon',
                     style={'margin-top':'20px'}),
             dcc.Graph(id='GSV-geopark', config={'displayModeBar':False}, className='dcc_compon',
@@ -85,8 +68,8 @@ layout = html.Div([
         # Contenedor para graficar la participación en la producción por empresa
         # (según la operación elegida)
         html.Div([
-            html.H3(id="title-participaction-company"),
-            dcc.Graph(id='participacion-empresa',
+            html.H3(id="title-participation-company"),
+            dcc.Graph(id='participation-company',
                     config={'displayModeBar':'hover'})
         ], className='create_container four columns'),
 
@@ -110,17 +93,17 @@ layout = html.Div([
                     className='create_container_inv_total',
                     style={'color':'white','text-align':'center'}),
             html.Div([
-                dcc.RadioItems(options=EMPRESAS,
+                dcc.RadioItems(options=companies,
                     value='GEOPARK',
                     id='empresa',
                     inline=True)
             ], style={'text-align':'center'})
         ], className='create_container six columns'),
-        # Filtrar datos según el tipo de operación (entrega, recibo, despacho)
+        # Filtrar data según el tipo de operación (entrega, recibo, despacho)
     ], className='row flex-display'),
     # Contenedor para generar el filtro sobre el tipo de crudo
     html.Div([
-        dcc.RadioItems(options=CONDICIONES,
+        dcc.RadioItems(options=conditions,
             value='NSV',
             id='condiciones-operacion',
             inline=True)

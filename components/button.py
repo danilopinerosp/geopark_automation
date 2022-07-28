@@ -13,11 +13,10 @@ def make_dash_button(text, type_button):
     # Return a button according to the type of it
     if type_button == "upload":
         return html.Div(
-                    dcc.Upload(html.Button(text, id=id, className=classname, n_clicks=0))
+                    dcc.Upload(html.Button(text, className=classname, n_clicks=0), id=id, multiple=True)
                 )
     if type_button == "download":
         return html.Div(
                 [
-                html.Button(text, id=id+"-button", className=classname),
-                dcc.Download(id=id)
+                html.Button(text, id=id, className=classname),
                 ])

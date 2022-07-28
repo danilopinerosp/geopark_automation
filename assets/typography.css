@@ -87,3 +87,8 @@ Style for cumulated values
     color: #525c71;
     font-size: 35px;
 }
+
+#files-to-process {
+  font-size: 15px;
+  text-align: left;
+}
