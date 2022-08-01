@@ -34,6 +34,14 @@ def daily_transported_oil_type(data, start_date, end_date):
 
     return transported_oil_type
 
+def get_date_nomination(filename):
+    month = filename.split('_')[1].split('.')[0]
+    year = filename.split('_')[1].split('.')[1]
+    return (month, year)
+
+def remove_entries_nominations(filepath, filename):
+    get_date_nomination(filename)
+
 def parse_contents(contents, filename, date, header):
     content_type, content_string = contents.split(',')
 
