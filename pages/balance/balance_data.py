@@ -237,7 +237,6 @@ def monthly_cumulated_oil_type(data, month, operation, company):
     return cumulated_month.round(2).reset_index()
 
 def get_date_report(filename):
-    print(filename.split('Reportes')[-1].split()[2].split('.')[0])
     return filename.split('Reportes')[-1].split()[2].split('.')[0]
 
 def remove_entries_balance(filepath, filename):
