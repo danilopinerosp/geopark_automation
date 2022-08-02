@@ -316,7 +316,7 @@ def write_data_monthly_report(data, month, year):
                 hoja.append({c + 6: value for c, value in enumerate(header)})
                 rows += 1
                 filas_cabecera.append(rows)
-                acumulado = monthly_cumulated_oil_type(data, month, operation, 'GEOPARK')
+                acumulado = monthly_cumulated_oil_type(data, month, operation, empresa)
                 acumulado['tipo crudo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['tipo crudo']]
                 for r in dataframe_to_rows(acumulado, index=False, header=False):
                     hoja.append({c + 6: value for c, value in enumerate(r)})

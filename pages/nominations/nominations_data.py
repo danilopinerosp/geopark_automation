@@ -1,9 +1,11 @@
 import base64
+from datetime import datetime
 import io
 import pandas as pd
 from dash import html
 
 from utils.functions import filter_data_by_date
+from utils.constants import months
 
 def daily_transported_oil_type(data, start_date, end_date):
     """
@@ -35,12 +37,22 @@ def daily_transported_oil_type(data, start_date, end_date):
     return transported_oil_type
 
 def get_date_nomination(filename):
-    month = filename.split('_')[1].split('.')[0]
+    month_name = filename.split('_')[1].split('.')[0]
+    month = months.index(month_name) + 1
     year = filename.split('_')[1].split('.')[1]
-    return (month, year)
+    start_date = datetime.strptime(f"{year}-{month}-01", "%Y-%m-%d")
+    if month == 12:
+        end_date = datetime.strptime(f"{year + 1}-01-01", "%Y-%m-%d")
+    else:
+        end_date = datetime.strptime(f"{year}-{month}-01", "%Y-%m-%d")
+    print(start_date, end_date)
+    return (start_date, end_date)
 
 def remove_entries_nominations(filepath, filename):
-    get_date_nomination(filename)
+    (start_date, end_date) = get_date_nomination(filename)
+    df = pd.read_csv(filepath)
+    filtered = df[(df['fecha'] < start_date) | (df[df['fecha'] >= end_date])]
+    print(filtered)
 
 def parse_contents(contents, filename, date, header):
     content_type, content_string = contents.split(',')
