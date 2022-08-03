@@ -60,16 +60,19 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
         header = header_nominations
         for c, n, d in zip(list_of_contents, list_of_names, list_of_dates):
                 df = parse_contents(c, n, d, header)
-                # print(df)
                 try:
 
                         if verify_processed(n, nominations_processed):
-                                new_data = remove_entries_nominations(nominations_data, n)
-                                new_data.to_csv(nominations_data, index=False)
+                                #new_data = remove_entries_nominations(nominations_data, n)
+                                #new_data.to_csv(nominations_data, index=False)
+                                print(df)
+                                print('was already processed')
                         else:
-                                log_processed(n, nominations_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
+                                #log_processed(n, nominations_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
+                                print(df)
+                                print("was not processed before")
 
-                        df.to_csv(nominations_data, "a", header=False, index=False)
+                        # df.to_csv(nominations_data, "a", header=False, index=False)
                         children.append(html.P(n))
                 except Exception as e:
                         children.append(html.Div(['There was an error processing this file.']))
