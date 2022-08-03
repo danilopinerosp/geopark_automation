@@ -32,8 +32,6 @@ def daily_transported_oil_type(data, start_date, end_date):
     transported_oil_type["fecha"] = transported_oil_type['fecha'].dt.date
     transported_oil_type.set_index("fecha", inplace=True)
     transported_oil_type.fillna(0, inplace=True)
-    print(transported_oil_type['GEOPARK'].columns)
-
     return transported_oil_type
 
 def get_date_nomination(filename):
@@ -45,13 +43,13 @@ def get_date_nomination(filename):
         end_date = datetime.strptime(f"{year + 1}-01-01", "%Y-%m-%d")
     else:
         end_date = datetime.strptime(f"{year}-{month}-01", "%Y-%m-%d")
-    print(start_date, end_date)
     return (start_date, end_date)
 
 def remove_entries_nominations(filepath, filename):
     (start_date, end_date) = get_date_nomination(filename)
     df = load_data(filepath)
     filtered = df[(df['fecha'] < start_date) | (df[df['fecha'] >= end_date])]
+    return filtered
     
 
 def parse_contents(contents, filename, date, header):
