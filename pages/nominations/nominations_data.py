@@ -4,7 +4,7 @@ import io
 import pandas as pd
 from dash import html
 
-from utils.functions import filter_data_by_date
+from utils.functions import filter_data_by_date, load_data
 from utils.constants import months
 
 def daily_transported_oil_type(data, start_date, end_date):
@@ -50,20 +50,21 @@ def get_date_nomination(filename):
 
 def remove_entries_nominations(filepath, filename):
     (start_date, end_date) = get_date_nomination(filename)
-    df = pd.read_csv(filepath)
+    df = load_data(filepath)
     filtered = df[(df['fecha'] < start_date) | (df[df['fecha'] >= end_date])]
-    print(filtered)
+    
 
 def parse_contents(contents, filename, date, header):
     content_type, content_string = contents.split(',')
 
     decoded = base64.b64decode(content_string)
     if 'xls' in filename:
-        return pd.read_excel(io.BytesIO(decoded), 
+        df = pd.read_excel(io.BytesIO(decoded), 
                             names=header, 
                             skiprows=4,
-                            nrows=31)
-    return -1
+                            nrows=31).reset_index(drop=True)
+        return df.dropna(how='all').fillna(0)
+    return pd.DataFrame()
 
 def clean_nominations_data(s):
     pass
