@@ -59,27 +59,23 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
         # Nombres de los valores a guardar en el balance
         header = header_nominations
         for c, n, d in zip(list_of_contents, list_of_names, list_of_dates):
-                df = parse_contents(c, n, d, header)
-                try:
+            df = parse_contents(c, n, d, header)
+            try:
 
-                        if verify_processed(n, nominations_processed):
-                                #new_data = remove_entries_nominations(nominations_data, n)
-                                #new_data.to_csv(nominations_data, index=False)
-                                print(df)
-                                print('was already processed')
-                        else:
-                                #log_processed(n, nominations_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
-                                print(df)
-                                print("was not processed before")
+                if verify_processed(n, nominations_processed):
+                    #new_data = remove_entries_nominations(nominations_data, n)
+                   #new_data.to_csv(nominations_data, index=False)
+                    print('was already processed')
+                else:
+                    log_processed(n, nominations_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
+                    print("was not processed before")
 
                         # df.to_csv(nominations_data, "a", header=False, index=False)
-                        children.append(html.P(n))
-                except Exception as e:
-                        children.append(html.Div(['There was an error processing this file.']))
+                    children.append(html.P(n))
+            except Exception as e:
+                children.append(html.Div(['There was an error processing this file.']))
 
         return children
-
-
 
 # Callback to download nominations report
 # Callback for downloading button
@@ -88,11 +84,11 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
             Input("nomination-period", "start_date"),
             Input("nomination-period", "end_date")])
 def download_report_nomination(n_clicks, start_date, end_date):
-        df = load_data(balance_data)
-        transported = daily_transported_oil_type(df, start_date, end_date)
+    df = load_data(balance_data)
+    transported = daily_transported_oil_type(df, start_date, end_date)
 
-        report_name = "kjkh"
+    report_name = "kjkh"
 
-        if callback_context.triggered[0]['prop_id'] == "descargar-info-nominaciones.n_clicks":
-                transported.to_excel("../ReportesMensuales/Nominaciones/nominacion.xlsx")
-                return html.P(f'Se ha descargado el archivo: { report_name }')
+    if callback_context.triggered[0]['prop_id'] == "descargar-info-nominaciones.n_clicks":
+        transported.to_excel("../ReportesMensuales/Nominaciones/nominacion.xlsx")
+        return html.P(f'Se ha descargado el archivo: { report_name }')
