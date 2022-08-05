@@ -94,11 +94,11 @@ def actualizar_factor_servicio(start_date, end_date, remitente):
     type_oils = ["Jacana", "Tigana", "Livianos", "Cabrestero"]
     # Generación colores dummi
     colors = {"Jacana":"orange", "Tigana": "blue", "Livianos": "grey", "Cabrestero": "green"}
-    month_number = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d").month
+    date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
     title_graph = f"""
     Factor de Cumplimiento<br>
-    Mes: {months[ month_number - 1]}<br>
-    Remitente: {remitente}
+    Mes: {months[ date_nominations.month - 1]}.{date_nominations.year}<br>
+    Remitente: {remitente.capitalize()}
     """
     return graph_production_factor(type_oils, colors, title_graph, filtered)
 
