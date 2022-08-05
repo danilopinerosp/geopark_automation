@@ -19,35 +19,13 @@ from components.nominations_graph import graph_production_factor
 
 from pages.nominations.nominations_data import daily_transported_oil_type, parse_contents, remove_entries_nominations
 
-from utils.constants import balance_data, header_nominations, nominations_processed, nominations_data
-from utils.functions import load_data, log_processed, verify_processed
-
-@app.callback(Output("graph-nominations-results", component_property="figure"),
-        Input("tabs-nominations", "value"))
-def render_tabs_nominations(tab):
-        if tab == "tigana":
-                return tigana_nominations()
-        elif tab == "livianos":
-                return livianos_nominations()
-
-@app.callback(Output("production-factor", component_property="figure"),
-            [Input("nomination-period", "start_date"),
-            Input("nomination-period", "end_date"),
-            Input("remitente-nominacion", "value")])
-def actualizar_factor_servicio(start_date, end_date, remitente):
-
-    # Generación datos Dummi
-    type_oils = ["Jacana", "Tigana", "Livianos", "Cabrestero"]
-    # Generación colores dummi
-    colors = {"Jacana":"orange", "Tigana": "blue", "Livianos": "grey", "Cabrestero": "green"}
-
-    title_graph = f"""
-    Factor de Cumplimiento<br>
-    Mes: {start_date}<br>
-    Remitente: {remitente}
-    """
-
-    return graph_production_factor(type_oils, colors, title_graph)
+from utils.constants import (balance_data, 
+                            header_nominations, 
+                            nominations_processed, 
+                            nominations_data,
+                            months)
+from utils.functions import filter_data_by_date, load_data, log_processed, verify_processed
+from datetime import datetime
 
 @app.callback(Output("files-to-process-nominations", "children"),
             [Input("subir-nominaciones", 'contents')],
@@ -59,20 +37,21 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
         # Nombres de los valores a guardar en el balance
         header = header_nominations
         for c, n, d in zip(list_of_contents, list_of_names, list_of_dates):
-            df = parse_contents(c, n, d, header)
             try:
-
-                if verify_processed(n, nominations_processed):
-                    #new_data = remove_entries_nominations(nominations_data, n)
-                   #new_data.to_csv(nominations_data, index=False)
-                    print('was already processed')
-                else:
-                    log_processed(n, nominations_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
-                    print("was not processed before")
-
-                        # df.to_csv(nominations_data, "a", header=False, index=False)
+                df = parse_contents(c, n, d, header)
+                if df['fecha'].dtypes == "datetime64[ns]": 
+                    if verify_processed(n, nominations_processed):
+                        new_data = remove_entries_nominations(nominations_data, n)
+                        new_data.to_csv(nominations_data, index=False)
+                    else:
+                        log_processed(n, nominations_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
                     children.append(html.P(n))
+                    df.to_csv(nominations_data, mode="a", header=False, index=False)
+                else:
+                    children.append(html.Div(['There was an error processing this file.']))
+                    
             except Exception as e:
+                print(e)
                 children.append(html.Div(['There was an error processing this file.']))
 
         return children
@@ -92,3 +71,36 @@ def download_report_nomination(n_clicks, start_date, end_date):
     if callback_context.triggered[0]['prop_id'] == "descargar-info-nominaciones.n_clicks":
         transported.to_excel("../ReportesMensuales/Nominaciones/nominacion.xlsx")
         return html.P(f'Se ha descargado el archivo: { report_name }')
+
+
+@app.callback(Output("graph-nominations-results", component_property="figure"),
+        Input("tabs-nominations", "value"))
+def render_tabs_nominations(tab):
+        if tab == "tigana":
+                return tigana_nominations()
+        elif tab == "livianos":
+                return livianos_nominations()
+
+@app.callback(Output("production-factor", component_property="figure"),
+            [Input("nomination-period", "start_date"),
+            Input("nomination-period", "end_date"),
+            Input("remitente-nominacion", "value")])
+def actualizar_factor_servicio(start_date, end_date, remitente):
+     # Load nominations data
+    data = pd.read_csv(nominations_data)
+    data['fecha'] = pd.to_datetime(data['fecha'], yearfirst=True)
+    filtered = filter_data_by_date(data, start_date, end_date)
+    # Generación datos Dummi
+    type_oils = ["Jacana", "Tigana", "Livianos", "Cabrestero"]
+    # Generación colores dummi
+    colors = {"Jacana":"orange", "Tigana": "blue", "Livianos": "grey", "Cabrestero": "green"}
+    month_number = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d").month
+    title_graph = f"""
+    Factor de Cumplimiento<br>
+    Mes: {months[ month_number - 1]}<br>
+    Remitente: {remitente}
+    """
+    return graph_production_factor(type_oils, colors, title_graph, filtered)
+
+
+

@@ -38,23 +38,23 @@ def get_date_nomination(filename):
     month_name = filename.split('_')[1].split('.')[0]
     month = months.index(month_name) + 1
     year = filename.split('_')[1].split('.')[1]
-    start_date = datetime.strptime(f"{year}-{month}-01", "%Y-%m-%d")
+    start_date = datetime.strptime(f"01-{month}-{year}", "%d-%m-%Y")
     if month == 12:
-        end_date = datetime.strptime(f"{year + 1}-01-01", "%Y-%m-%d")
+        end_date = datetime.strptime(f"01-01-{year + 1}", "%d-%m-%Y")
     else:
-        end_date = datetime.strptime(f"{year}-{month}-01", "%Y-%m-%d")
+        end_date = datetime.strptime(f"01-{month + 1}-{year}", "%d-%m-%Y")
     return (start_date, end_date)
 
 def remove_entries_nominations(filepath, filename):
     (start_date, end_date) = get_date_nomination(filename)
-    df = load_data(filepath)
-    filtered = df[(df['fecha'] < start_date) | (df[df['fecha'] >= end_date])]
+    df = pd.read_csv(filepath)
+    df['fecha'] = pd.to_datetime(df['fecha'], yearfirst=True)
+    mask = (df['fecha'] < start_date) | (df['fecha'] >= end_date)
+    filtered = df[mask]
     return filtered
     
-
 def parse_contents(contents, filename, date, header):
     content_type, content_string = contents.split(',')
-
     decoded = base64.b64decode(content_string)
     if 'xls' in filename:
         df = pd.read_excel(io.BytesIO(decoded), 
@@ -63,6 +63,3 @@ def parse_contents(contents, filename, date, header):
                             nrows=31).reset_index(drop=True)
         return df.dropna(how='all').fillna(0)
     return pd.DataFrame()
-
-def clean_nominations_data(s):
-    pass
