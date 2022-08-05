@@ -59,20 +59,21 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
         # Nombres de los valores a guardar en el balance
         header = header_nominations
         for c, n, d in zip(list_of_contents, list_of_names, list_of_dates):
-            df = parse_contents(c, n, d, header)
             try:
-
-                if verify_processed(n, nominations_processed):
-                    #new_data = remove_entries_nominations(nominations_data, n)
-                   #new_data.to_csv(nominations_data, index=False)
-                    print('was already processed')
-                else:
-                    log_processed(n, nominations_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
-                    print("was not processed before")
-
-                        # df.to_csv(nominations_data, "a", header=False, index=False)
+                df = parse_contents(c, n, d, header)
+                if df['fecha'].dtypes == "datetime64[ns]": 
+                    if verify_processed(n, nominations_processed):
+                        new_data = remove_entries_nominations(nominations_data, n)
+                        new_data.to_csv(nominations_data, index=False)
+                    else:
+                        log_processed(n, nominations_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
                     children.append(html.P(n))
+                    df.to_csv(nominations_data, mode="a", header=False, index=False)
+                else:
+                    children.append(html.Div(['There was an error processing this file.']))
+                    
             except Exception as e:
+                print(e)
                 children.append(html.Div(['There was an error processing this file.']))
 
         return children
