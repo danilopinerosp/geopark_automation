@@ -93,7 +93,7 @@ def actualizar_factor_servicio(start_date, end_date, remitente):
     # Generación datos Dummi
     type_oils = ["Jacana", "Tigana", "Livianos", "Cabrestero"]
     # Generación colores dummi
-    colors = {"Jacana":"orange", "Tigana": "blue", "Livianos": "grey", "Cabrestero": "green"}
+    colors = {"Jacana":"#FC7637", "Tigana": "#137ED2", "Livianos": "#A5A5A5", "Cabrestero": "#0A2A58"}
     date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
     title_graph = f"""
     Factor de Cumplimiento<br>

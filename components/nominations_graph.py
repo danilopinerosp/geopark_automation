@@ -39,6 +39,7 @@ def graph_nominations_results(data, colors, title, type_graph="Tigana"):
 
 
 def graph_production_factor(type_oils, colors, title_graph, data):
+    print(data)
     trace = list()
     for t in type_oils:
         y_simulado = np.random.rand(30)* 100
