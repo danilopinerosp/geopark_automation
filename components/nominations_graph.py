@@ -1,5 +1,6 @@
 import plotly.graph_objs as go
 import numpy as np
+from utils.constants import nominations_data
 
 def graph_nominations_results(data, colors, title, type_graph="Tigana"):
 
@@ -37,8 +38,7 @@ def graph_nominations_results(data, colors, title, type_graph="Tigana"):
     return {'data':trace, 'layout':layout}
 
 
-def graph_production_factor(type_oils, colors, title_graph):
-
+def graph_production_factor(type_oils, colors, title_graph, data):
     trace = list()
     for t in type_oils:
         y_simulado = np.random.rand(30)* 100
