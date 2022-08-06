@@ -17,7 +17,7 @@ from app import app
 
 from components.nominations_graph import graph_accomplishment_factor
 
-from pages.nominations.nominations_data import daily_transported_oil_type, filter_data_nominations, parse_contents, remove_entries_nominations
+from pages.nominations.nominations_data import daily_transported_oil_type, filter_data_nominations, filter_data_transported, parse_contents, remove_entries_nominations
 
 from utils.constants import (balance_data, 
                             header_nominations, 
@@ -87,11 +87,13 @@ def render_tabs_nominations(tab):
             Input("remitente-nominacion", "value")])
 def actualizar_factor_servicio(start_date, end_date, company):
      # Load nominations data
-    data = pd.read_csv(nominations_data)
-    data['fecha'] = pd.to_datetime(data['fecha'], yearfirst=True)
-    filtered = filter_data_nominations(data, start_date, end_date, company)
+    data_nominated = pd.read_csv(nominations_data)
+    data_balance = load_data(balance_data)
+    data_nominated['fecha'] = pd.to_datetime(data_nominated['fecha'], yearfirst=True)
+    data_nominations = filter_data_nominations(data_nominated, start_date, end_date, company)
+    data_transported = filter_data_transported(data_balance, start_date, end_date, company)
     # Generación datos Dummi
-    type_oils = ["Jacana", "Tigana", "Livianos", "Cabrestero"]
+    type_oils_nominations = ["Jacana", "Tigana", "Livianos", "Cabrestero"]
     # Generación colores dummi
     colors = {"Jacana":"#FC7637", "Tigana": "#137ED2", "Livianos": "#A5A5A5", "Cabrestero": "#0A2A58"}
     date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
@@ -100,7 +102,11 @@ def actualizar_factor_servicio(start_date, end_date, company):
     Mes: {months[ date_nominations.month - 1]}.{date_nominations.year}<br>
     Remitente: {company.capitalize()}
     """
-    return graph_accomplishment_factor(type_oils, colors, title_graph, filtered)
+    return graph_accomplishment_factor(type_oils_nominations, 
+                                    colors, 
+                                    title_graph, 
+                                    data_nominations, 
+                                    data_transported)
 
 
 

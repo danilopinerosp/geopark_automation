@@ -1,6 +1,4 @@
 import plotly.graph_objs as go
-import numpy as np
-from utils.constants import nominations_data
 
 def graph_nominations_results(data, colors, title, type_graph="Tigana"):
 
@@ -38,21 +36,21 @@ def graph_nominations_results(data, colors, title, type_graph="Tigana"):
     return {'data':trace, 'layout':layout}
 
 
-def graph_accomplishment_factor(type_oils, colors, title_graph, data):
-    print(data)
+def graph_accomplishment_factor(type_oils, colors, title_graph, data_nominated, data_transported):
     trace = list()
-    for t in type_oils:
-        y_simulado = np.random.rand(30)* 100
-        trace.append(go.Bar(x=np.arange(0, 30),
-                                y=y_simulado,
-                                textposition='auto',
-                                name=f"{t} Transportado",
-                                marker={"color":colors[t]}))
-        trace.append(go.Scatter(x=np.arange(0, 30),
-                                y=y_simulado, 
-                                name=f"{t} Transportado",
-                                line={'width':3, 'color':colors[t]}),
-                    )
+    for oil_type, column_name in zip(type_oils, data_nominated.columns):
+        trace.append(go.Bar(x=data_nominated['fecha'],
+                                    y=data_nominated[column_name],
+                                    textposition='auto',
+                                    name=f"{oil_type} Nominado",
+                                    marker={"color":colors[oil_type]}))
+        
+    for oil_type, column_name in zip(type_oils, data_transported.columns):
+        trace.append(go.Scatter(x=data_transported['fecha'],
+                                    y=data_transported[column_name], 
+                                    name=f"{oil_type} Transportado",
+                                    line={'width':3, 'color':colors[oil_type]}),
+                        )
 
     layout = go.Layout(title={'text': title_graph,
                                 'y':0.93,

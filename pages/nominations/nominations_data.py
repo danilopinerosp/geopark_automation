@@ -4,7 +4,7 @@ import io
 import pandas as pd
 from dash import html
 
-from utils.functions import filter_data_by_date, load_data
+from utils.functions import filter_data_by_date, load_data, load_oil_types
 from utils.constants import months
 
 def daily_transported_oil_type(data, start_date, end_date):
@@ -31,7 +31,6 @@ def daily_transported_oil_type(data, start_date, end_date):
     transported_oil_type["fecha"] = transported_oil_type['fecha'].dt.date
     transported_oil_type.set_index("fecha", inplace=True)
     transported_oil_type.fillna(0, inplace=True)
-    print(transported_oil_type)
     return transported_oil_type
 
 def get_date_nomination(filename):
@@ -76,8 +75,23 @@ def filter_data_transported(data, start_date, end_date, company):
     company_keys = {'geopark': 'geopark', 'verano': 'parex'}
     # filter_columns = data[company.upper()]
     transported_by_company = transported[company_keys[company.lower()].upper()]
-    print(transported_by_company)
-    return transported_by_company
+    transported_light_oil = calculate_light_oil(transported_by_company)
+    # print(transported_light_oil)
+    return transported_light_oil
 
 def calculate_light_oil(transported_data):
-    pass
+    oil_types = load_oil_types()
+    light_oils = list(oil_types[oil_types['Livianos'] == 'SI']['Crudo'])
+    light_months = [column for column in transported_data.columns if column in light_oils]
+    data_light_oil = transported_data[light_months].sum(axis=1)
+    data_light_oil = data_light_oil.reset_index()
+    data_light_oil['fecha'] = pd.to_datetime(data_light_oil['fecha'], yearfirst=True)
+    data_light_oil.columns = ['fecha', 'livianos']
+
+    normal_oils = list(oil_types[oil_types['Livianos'] == 'NO']['Crudo'])
+    normal_months = [column for column in transported_data.columns if column in normal_oils]
+    data_normal_oils = transported_data[normal_months].reset_index()
+    data_normal_oils['fecha'] = pd.to_datetime(data_normal_oils['fecha'], yearfirst=True)
+    result = pd.concat([data_normal_oils, data_light_oil], axis = 1)
+    
+    return result.loc[:,~result.columns.duplicated()].copy()
