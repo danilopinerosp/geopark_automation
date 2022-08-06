@@ -17,7 +17,7 @@ from app import app
 
 from components.nominations_graph import graph_accomplishment_factor
 
-from pages.nominations.nominations_data import daily_transported_oil_type, parse_contents, remove_entries_nominations
+from pages.nominations.nominations_data import daily_transported_oil_type, filter_data_nominations, parse_contents, remove_entries_nominations
 
 from utils.constants import (balance_data, 
                             header_nominations, 
@@ -85,11 +85,11 @@ def render_tabs_nominations(tab):
             [Input("nomination-period", "start_date"),
             Input("nomination-period", "end_date"),
             Input("remitente-nominacion", "value")])
-def actualizar_factor_servicio(start_date, end_date, remitente):
+def actualizar_factor_servicio(start_date, end_date, company):
      # Load nominations data
     data = pd.read_csv(nominations_data)
     data['fecha'] = pd.to_datetime(data['fecha'], yearfirst=True)
-    filtered = filter_data_by_date(data, start_date, end_date)
+    filtered = filter_data_nominations(data, start_date, end_date, company)
     # Generación datos Dummi
     type_oils = ["Jacana", "Tigana", "Livianos", "Cabrestero"]
     # Generación colores dummi
@@ -98,7 +98,7 @@ def actualizar_factor_servicio(start_date, end_date, remitente):
     title_graph = f"""
     Factor de Cumplimiento<br>
     Mes: {months[ date_nominations.month - 1]}.{date_nominations.year}<br>
-    Remitente: {remitente.capitalize()}
+    Remitente: {company.capitalize()}
     """
     return graph_accomplishment_factor(type_oils, colors, title_graph, filtered)
 

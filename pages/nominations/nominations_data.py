@@ -63,3 +63,11 @@ def parse_contents(contents, filename, date, header):
                             nrows=31).reset_index(drop=True)
         return df.dropna(how='all').fillna(0)
     return pd.DataFrame()
+
+def filter_data_nominations(data, start_date, end_date, company):
+    """Return a Dataframe filtered by period time and company"""
+    filtered_by_date = filter_data_by_date(data, start_date, end_date)
+    filter_columns = [column for column in filtered_by_date.columns if company.lower() in column.lower()]
+    filtered_by_company = filtered_by_date[filter_columns]
+    print(filtered_by_company)
+    return filtered_by_company
