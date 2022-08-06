@@ -66,11 +66,11 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
 def download_report_nomination(n_clicks, start_date, end_date):
     df = load_data(balance_data)
     transported = daily_transported_oil_type(df, start_date, end_date)
-
-    report_name = "kjkh"
+    date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
+    report_name = f'Nominaciones {months[ date_nominations.month - 1]}-{date_nominations.year}.xlsx'
 
     if callback_context.triggered[0]['prop_id'] == "descargar-info-nominaciones.n_clicks":
-        transported.to_excel("../ReportesMensuales/Nominaciones/nominacion.xlsx")
+        transported.to_excel(f"../ReportesMensuales/Nominaciones/{report_name}")
         return html.P(f'Se ha descargado el archivo: { report_name }')
 
 
@@ -89,7 +89,7 @@ def render_tabs_nominations(tab, start_date, end_date):
             [Input("nomination-period", "start_date"),
             Input("nomination-period", "end_date"),
             Input("remitente-nominacion", "value")])
-def actualizar_factor_servicio(start_date, end_date, company):
+def update_production_factor(start_date, end_date, company):
      # Load nominations data
     data_nominations, data_transported = data_transported_nominated(start_date, end_date, company)
     
