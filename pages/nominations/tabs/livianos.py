@@ -3,28 +3,29 @@ import numpy as np
 import plotly.graph_objs as go
 from dash import dcc
 
-def livianos_nominations():
-    # Generación datos Dummi
-    y_geopark = np.random.rand(30)* 100
-    y_verano = 100 - y_geopark
+from pages.nominations.nominations_data import get_data_percentage_nominations
 
-    data = [
-        {
-                "companie": "Geopark",
-                "transported": y_geopark,
-                "nominated": y_geopark,
-                "dates": np.arange(0, 30)
+def livianos_nominations(data, start_date, end_date):
+    data_livianos = get_data_percentage_nominations(start_date, end_date, 'Livianos')
 
-        },
-        {
-                "companie": "Verano",
-                "transported": y_verano,
-                "nominated": y_verano,
-                "dates": np.arange(0, 30)
+    total_transported = 0
+    total_nominated = 0
 
-        }
-    ]
+    for name_company in data_livianos:
+        total_transported += data_livianos[name_company][1].iloc[:, 1]
+        total_nominated += data_livianos[name_company][0].iloc[:, 1]
+
+    data = list()
+    for name_company in data_livianos:
+        data.append({
+            'companie': name_company.capitalize(),
+            'transported': (data_livianos[name_company][1].iloc[:, 1]) / total_transported,
+            'nominated': (data_livianos[name_company][0].iloc[:, 1]) / total_nominated,
+            'dates': data_livianos[name_company][0]['fecha']
+        })
+
     # Generación colores dummi
-    colors = ["blue", "orange"]
+    colors = {'geopark': '#FC7637', 'parex': '#137ED2'}
+    print(data)
 
     return graph_nominations_results(data, colors, "% Livianos", type_graph="Livianos")

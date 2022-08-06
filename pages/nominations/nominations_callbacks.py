@@ -83,7 +83,7 @@ def render_tabs_nominations(tab, start_date, end_date):
     if tab == "tigana":
         return tigana_nominations(data, start_date, end_date)
     elif tab == "livianos":
-        return livianos_nominations()
+        return livianos_nominations(data, start_date, end_date)
 
 @app.callback(Output("production-factor", component_property="figure"),
             [Input("nomination-period", "start_date"),
