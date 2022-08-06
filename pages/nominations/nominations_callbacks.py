@@ -106,7 +106,7 @@ def actualizar_factor_servicio(start_date, end_date, company):
     colors = {"Jacana":"#FC7637", "Tigana": "#137ED2", "Livianos": "#A5A5A5", "Cabrestero": "#0A2A58"}
     date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
     title_graph = f"""
-    Factor de Cumplimiento<br>
+    Cumplimiento Nominación<br>
     Mes: {months[ date_nominations.month - 1]}.{date_nominations.year}<br>
     Remitente: {company.capitalize()}
     """
