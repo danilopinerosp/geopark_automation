@@ -86,12 +86,11 @@ def calculate_light_oil(transported_data):
     data_light_oil = transported_data[light_months].sum(axis=1)
     data_light_oil = data_light_oil.reset_index()
     data_light_oil['fecha'] = pd.to_datetime(data_light_oil['fecha'], yearfirst=True)
-    data_light_oil.columns = ['fecha', 'livianos']
+    data_light_oil.columns = ['fecha', 'Livianos']
 
     normal_oils = list(oil_types[oil_types['Livianos'] == 'NO']['Crudo'])
     normal_months = [column for column in transported_data.columns if column in normal_oils]
     data_normal_oils = transported_data[normal_months].reset_index()
     data_normal_oils['fecha'] = pd.to_datetime(data_normal_oils['fecha'], yearfirst=True)
     result = pd.concat([data_normal_oils, data_light_oil], axis = 1)
-    
     return result.loc[:,~result.columns.duplicated()].copy()

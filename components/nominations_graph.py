@@ -36,20 +36,20 @@ def graph_nominations_results(data, colors, title, type_graph="Tigana"):
     return {'data':trace, 'layout':layout}
 
 
-def graph_accomplishment_factor(type_oils, colors, title_graph, data_nominated, data_transported):
+def graph_accomplishment_factor(type_oils_nominations, type_oils_transported, colors, title_graph, data_nominated, data_transported):
     trace = list()
-    for oil_type, column_name in zip(type_oils, data_nominated.columns):
-        trace.append(go.Bar(x=data_nominated['fecha'],
-                                    y=data_nominated[column_name],
+    for column_name in data_transported.columns[1:]:
+        trace.append(go.Bar(x=data_transported['fecha'],
+                                    y=data_transported[column_name],
                                     textposition='auto',
-                                    name=f"{oil_type} Nominado",
-                                    marker={"color":colors[oil_type]}))
+                                    name=f"{type_oils_transported[column_name]} Transportado",
+                                    marker={"color":colors[type_oils_transported[column_name]]}))
         
-    for oil_type, column_name in zip(type_oils, data_transported.columns):
-        trace.append(go.Scatter(x=data_transported['fecha'],
-                                    y=data_transported[column_name], 
-                                    name=f"{oil_type} Transportado",
-                                    line={'width':3, 'color':colors[oil_type]}),
+    for column_name in data_nominated.columns[1:]:
+        trace.append(go.Scatter(x=data_nominated['fecha'],
+                                    y=data_nominated[column_name], 
+                                    name=f"{type_oils_nominations[column_name]} Nominado",
+                                    line={'width':3, 'color':colors[type_oils_nominations[column_name]]}),
                         )
 
     layout = go.Layout(title={'text': title_graph,
@@ -63,6 +63,9 @@ def graph_accomplishment_factor(type_oils, colors, title_graph, data_nominated, 
                         plot_bgcolor='#f3f3f3',
                         legend=dict(orientation="h",
                                     yanchor="bottom",
-                                    xanchor='center', x= 0.5, y= -0.5   )
+                                    xanchor='center', x= 0.5, y= -0.1),
+                        height=600
+
                         )
+
     return {'data':trace, 'layout':layout}

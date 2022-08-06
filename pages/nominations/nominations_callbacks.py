@@ -93,7 +93,15 @@ def actualizar_factor_servicio(start_date, end_date, company):
     data_nominations = filter_data_nominations(data_nominated, start_date, end_date, company)
     data_transported = filter_data_transported(data_balance, start_date, end_date, company)
     # Generación datos Dummi
-    type_oils_nominations = ["Jacana", "Tigana", "Livianos", "Cabrestero"]
+    type_oils_nominations = {f"nominado jacana {company.lower()}": "Jacana", 
+                            f"nominado tigana {company.lower()}": "Tigana", 
+                            f"nominado livianos {company.lower()}": "Livianos", 
+                            f"nominado cabrestero {company.lower()}":"Cabrestero"}
+
+    type_oils_transported = {f"JACANA ESTACION": "Jacana", 
+                            f"TIGANA ESTACION": "Tigana", 
+                            f"CABRESTERO - BACANO JACANA ESTACION": "Cabrestero", 
+                            f"Livianos":"Livianos"}
     # Generación colores dummi
     colors = {"Jacana":"#FC7637", "Tigana": "#137ED2", "Livianos": "#A5A5A5", "Cabrestero": "#0A2A58"}
     date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
@@ -102,7 +110,8 @@ def actualizar_factor_servicio(start_date, end_date, company):
     Mes: {months[ date_nominations.month - 1]}.{date_nominations.year}<br>
     Remitente: {company.capitalize()}
     """
-    return graph_accomplishment_factor(type_oils_nominations, 
+    return graph_accomplishment_factor(type_oils_nominations,
+                                    type_oils_transported, 
                                     colors, 
                                     title_graph, 
                                     data_nominations, 
