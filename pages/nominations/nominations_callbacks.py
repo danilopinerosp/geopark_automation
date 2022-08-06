@@ -18,7 +18,7 @@ from app import app
 
 from components.nominations_graph import graph_accomplishment_factor
 
-from pages.nominations.nominations_data import daily_transported_oil_type, data_transported_nominated, filter_data_nominations, filter_data_transported, parse_contents, remove_entries_nominations
+from pages.nominations.nominations_data import daily_transported_oil_type, data_transported_nominated, filter_data_nominations, filter_data_transported, get_data_nominations_report, parse_contents, remove_entries_nominations
 
 from utils.constants import (balance_data, 
                             header_nominations, 
@@ -65,14 +65,18 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
             Input("nomination-period", "end_date")])
 def download_report_nomination(n_clicks, start_date, end_date):
     df = load_data(balance_data)
-    transported = daily_transported_oil_type(df, start_date, end_date)
+    # transported = daily_transported_oil_type(df, start_date, end_date)
     date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
     report_name = f'Nominaciones {months[ date_nominations.month - 1]}-{date_nominations.year}.xlsx'
-
+    data_nominations_report = get_data_nominations_report(start_date, end_date)
+    data_nominations_report['fecha'] = data_nominations_report['fecha'].dt.date
     if callback_context.triggered[0]['prop_id'] == "descargar-info-nominaciones.n_clicks":
-        transported.to_excel(f"../ReportesMensuales/Nominaciones/{report_name}")
+        with pd.ExcelWriter(f"../ReportesMensuales/Nominaciones/{report_name}") as writer:
+            data_nominations_report.to_excel(writer, index=False,
+                                        sheet_name='Nominaciones')
+            data_nominations_report.to_excel(writer, index=False,
+                                        sheet_name='Nominaciones 2')
         return html.P(f'Se ha descargado el archivo: { report_name }')
-
 
 @app.callback(Output("graph-nominations-results", component_property="figure"),
             [Input("tabs-nominations", "value"),

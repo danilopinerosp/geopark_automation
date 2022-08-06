@@ -116,3 +116,24 @@ def data_transported_nominated(start_date, end_date, company):
     data_nominations = filter_data_nominations(data_nominated, start_date, end_date, company)
     data_transported = filter_data_transported(data_balance, start_date, end_date, company)
     return data_nominations, data_transported
+
+def get_data_nominations_report(start_date, end_date):
+    name_companies = load_companies()
+    company_keys = {'geopark': 'geopark', 'parex': 'verano', 'verano': 'verano'}
+    data = list()
+    for name_company in name_companies:
+        nominations, transported  = data_transported_nominated(start_date, end_date, company_keys[name_company.lower()])
+        transported.columns = [column if company_keys[name_company.lower()] in column or column == 'fecha' else f"{column.lower()} {company_keys[name_company.lower()]}" for column in transported.columns]
+        nominations.columns = [column if company_keys[name_company.lower()] in column or column == 'fecha' else f"{column.lower()} {company_keys[name_company.lower()]}" for column in nominations.columns]
+        data.append(nominations)
+        data.append(transported)
+    df = pd.concat(data, axis=1)
+    df = df.loc[:,~df.columns.duplicated()].copy()
+    df = df[['fecha', 'nominado jacana geopark', 'jacana estacion geopark',
+            'nominado tigana geopark', 'tigana estacion geopark',
+            'nominado livianos geopark','livianos geopark',
+            'nominado jacana verano', 'jacana estacion verano',
+           'nominado tigana verano',  'tigana estacion verano',
+           'nominado cabrestero verano', 'cabrestero - bacano jacana estacion verano',
+           'nominado livianos verano', 'livianos verano']]
+    return df
