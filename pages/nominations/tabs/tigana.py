@@ -27,4 +27,4 @@ def tigana_nominations():
     # Generación colores dummi
     colors = ["blue", "orange"]
 
-    return graph_nominations_results(data, colors, "% Tigana", type_graph="Livianos")
+    return graph_nominations_results(data, colors, "% Tigana", type_graph="Tigana")
