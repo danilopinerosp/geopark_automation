@@ -8,8 +8,6 @@ from dash import (Dash,
 import pandas as pd
 
 from utils.constants import (daily_reports_processed, 
-                            companies,
-                            oils,
                             nominations_processed
                             )
 
@@ -37,7 +35,7 @@ layout = html.Div([
             html.H2("Tipos de Crudo"),
             html.Div(id="table-oil-types"),
             dcc.Input(id="add-oil-input", type="text", placeholder="Nombre Crudo"), 
-            dcc.Input(id="add-livianos-input", type="text", placeholder="Número Segmento"), 
+            dcc.Input(id="add-livianos-input", type="text", placeholder="Livianos (Si/No)?"), 
             html.Div([
                 html.Button('Agregar', id='add-oil', n_clicks=0, className="button add-button"),
                 html.Button('Borrar', id='delete-oil', n_clicks=0, className="button delete-button"),
