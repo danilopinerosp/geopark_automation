@@ -75,18 +75,13 @@ def filter_data_transported(data, start_date, end_date, company):
     company_keys = {'geopark': 'geopark', 'verano': 'parex'}
     # filter_columns = data[company.upper()]
     transported_by_company = transported[company_keys[company.lower()].upper()]
-    transported_light_oil = calculate_light_oil(transported_by_company)
+    transported_light_oil = calculate_transported_light_oil(transported_by_company)
     # print(transported_light_oil)
     return transported_light_oil
 
-def calculate_light_oil(transported_data):
+def calculate_transported_light_oil(transported_data):
     oil_types = load_oil_types()
-    light_oils = list(oil_types[oil_types['Livianos'] == 'SI']['Crudo'])
-    light_months = [column for column in transported_data.columns if column in light_oils]
-    data_light_oil = transported_data[light_months].sum(axis=1)
-    data_light_oil = data_light_oil.reset_index()
-    data_light_oil['fecha'] = pd.to_datetime(data_light_oil['fecha'], yearfirst=True)
-    data_light_oil.columns = ['fecha', 'Livianos']
+    data_light_oil = get_light_oil(transported_data)
 
     normal_oils = list(oil_types[oil_types['Livianos'] == 'NO']['Crudo'])
     normal_months = [column for column in transported_data.columns if column in normal_oils]
@@ -94,3 +89,13 @@ def calculate_light_oil(transported_data):
     data_normal_oils['fecha'] = pd.to_datetime(data_normal_oils['fecha'], yearfirst=True)
     result = pd.concat([data_normal_oils, data_light_oil], axis = 1)
     return result.loc[:,~result.columns.duplicated()].copy()
+
+def get_light_oil(transported_data):
+    oil_types = load_oil_types()
+    light_oils = list(oil_types[oil_types['Livianos'] == 'SI']['Crudo'])
+    light_months = [column for column in transported_data.columns if column in light_oils]
+    data_light_oil = transported_data[light_months].sum(axis=1)
+    data_light_oil = data_light_oil.reset_index()
+    data_light_oil['fecha'] = pd.to_datetime(data_light_oil['fecha'], yearfirst=True)
+    data_light_oil.columns = ['fecha', 'Livianos']
+    return data_light_oil
