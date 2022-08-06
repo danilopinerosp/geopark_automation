@@ -106,13 +106,11 @@ def get_data_percentage_nominations(start_date, end_date, type_graph = 'Tigana')
     data = dict()
     for name_company in name_companies:
         aux = data_transported_nominated(start_date, end_date, company_keys[name_company.lower()])
-        columns_nominations = [column for column in aux[0].columns if type_graph.lower() in column.lower()]
-        columns_transported = [column for column in aux[1].columns if type_graph.lower() in column.lower()]
+        columns_nominations = ['fecha'] +  [column for column in aux[0].columns if type_graph.lower() in column.lower()]
+        columns_transported = ['fecha'] + [column for column in aux[1].columns if type_graph.lower() in column.lower()]
         data[name_company] = (aux[0][columns_nominations], aux[1][columns_transported])
     return data
     
-    
-
 def data_transported_nominated(start_date, end_date, company):
     data_nominated = pd.read_csv(nominations_data)
     data_balance = load_data(balance_data)

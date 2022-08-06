@@ -11,13 +11,13 @@ def graph_nominations_results(data, colors, title, type_graph="Tigana"):
                     y=i['transported'],
                     textposition='auto',
                     name=f"% Transportado { i['companie'] }",
-                    marker={"color": colors[idx]}),
+                    marker={"color": colors[i['companie'].lower()]}),
         )
         trace.append(
             go.Scatter(x=dates,
                     y=i['nominated'], 
                     name=f"% Nominado { i['companie'] }",
-                    line={'width': 3, 'color':colors[idx]}),
+                    line={'width': 3, 'color':colors[i['companie'].lower()]}),
         )
 
     layout = go.Layout(title={'text': title,
