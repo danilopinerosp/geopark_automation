@@ -73,10 +73,8 @@ def filter_data_nominations(data, start_date, end_date, company):
 def filter_data_transported(data, start_date, end_date, company):
     transported = daily_transported_oil_type(data, start_date, end_date)
     company_keys = {'geopark': 'geopark', 'verano': 'parex', 'parex': 'parex'}
-    # filter_columns = data[company.upper()]
     transported_by_company = transported[company_keys[company.lower()].upper()]
     transported_light_oil = calculate_transported_light_oil(transported_by_company)
-    # print(transported_light_oil)
     return transported_light_oil
 
 def calculate_transported_light_oil(transported_data):
