@@ -4,8 +4,8 @@ import io
 import pandas as pd
 from dash import html
 
-from utils.functions import filter_data_by_date, load_data, load_oil_types
-from utils.constants import months
+from utils.functions import filter_data_by_date, load_companies, load_data, load_oil_types
+from utils.constants import months, companies, nominations_data, balance_data
 
 def daily_transported_oil_type(data, start_date, end_date):
     """
@@ -72,21 +72,14 @@ def filter_data_nominations(data, start_date, end_date, company):
 
 def filter_data_transported(data, start_date, end_date, company):
     transported = daily_transported_oil_type(data, start_date, end_date)
-    company_keys = {'geopark': 'geopark', 'verano': 'parex'}
-    # filter_columns = data[company.upper()]
+    company_keys = {'geopark': 'geopark', 'verano': 'parex', 'parex': 'parex'}
     transported_by_company = transported[company_keys[company.lower()].upper()]
-    transported_light_oil = calculate_light_oil(transported_by_company)
-    # print(transported_light_oil)
+    transported_light_oil = calculate_transported_light_oil(transported_by_company)
     return transported_light_oil
 
-def calculate_light_oil(transported_data):
+def calculate_transported_light_oil(transported_data):
     oil_types = load_oil_types()
-    light_oils = list(oil_types[oil_types['Livianos'] == 'SI']['Crudo'])
-    light_months = [column for column in transported_data.columns if column in light_oils]
-    data_light_oil = transported_data[light_months].sum(axis=1)
-    data_light_oil = data_light_oil.reset_index()
-    data_light_oil['fecha'] = pd.to_datetime(data_light_oil['fecha'], yearfirst=True)
-    data_light_oil.columns = ['fecha', 'Livianos']
+    data_light_oil = get_light_oil(transported_data)
 
     normal_oils = list(oil_types[oil_types['Livianos'] == 'NO']['Crudo'])
     normal_months = [column for column in transported_data.columns if column in normal_oils]
@@ -94,3 +87,32 @@ def calculate_light_oil(transported_data):
     data_normal_oils['fecha'] = pd.to_datetime(data_normal_oils['fecha'], yearfirst=True)
     result = pd.concat([data_normal_oils, data_light_oil], axis = 1)
     return result.loc[:,~result.columns.duplicated()].copy()
+
+def get_light_oil(transported_data):
+    oil_types = load_oil_types()
+    light_oils = list(oil_types[oil_types['Livianos'] == 'SI']['Crudo'])
+    light_months = [column for column in transported_data.columns if column in light_oils]
+    data_light_oil = transported_data[light_months].sum(axis=1)
+    data_light_oil = data_light_oil.reset_index()
+    data_light_oil['fecha'] = pd.to_datetime(data_light_oil['fecha'], yearfirst=True)
+    data_light_oil.columns = ['fecha', 'Livianos']
+    return data_light_oil
+
+def get_data_percentage_nominations(start_date, end_date, type_graph = 'Tigana'):
+    name_companies = load_companies()
+    company_keys = {'geopark': 'geopark', 'parex': 'verano', 'verano': 'verano'}
+    data = dict()
+    for name_company in name_companies:
+        aux = data_transported_nominated(start_date, end_date, company_keys[name_company.lower()])
+        columns_nominations = ['fecha'] +  [column for column in aux[0].columns if type_graph.lower() in column.lower()]
+        columns_transported = ['fecha'] + [column for column in aux[1].columns if type_graph.lower() in column.lower()]
+        data[name_company] = (aux[0][columns_nominations], aux[1][columns_transported])
+    return data
+    
+def data_transported_nominated(start_date, end_date, company):
+    data_nominated = pd.read_csv(nominations_data)
+    data_balance = load_data(balance_data)
+    data_nominated['fecha'] = pd.to_datetime(data_nominated['fecha'], yearfirst=True)
+    data_nominations = filter_data_nominations(data_nominated, start_date, end_date, company)
+    data_transported = filter_data_transported(data_balance, start_date, end_date, company)
+    return data_nominations, data_transported

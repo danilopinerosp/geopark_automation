@@ -1,3 +1,4 @@
+from json import load
 from dash import dcc, callback_context, Input, Output, State
 from matplotlib.cbook import report_memory
 import plotly.graph_objs as go
@@ -17,7 +18,7 @@ from app import app
 
 from components.nominations_graph import graph_accomplishment_factor
 
-from pages.nominations.nominations_data import daily_transported_oil_type, filter_data_nominations, filter_data_transported, parse_contents, remove_entries_nominations
+from pages.nominations.nominations_data import daily_transported_oil_type, data_transported_nominated, filter_data_nominations, filter_data_transported, parse_contents, remove_entries_nominations
 
 from utils.constants import (balance_data, 
                             header_nominations, 
@@ -74,12 +75,15 @@ def download_report_nomination(n_clicks, start_date, end_date):
 
 
 @app.callback(Output("graph-nominations-results", component_property="figure"),
-        Input("tabs-nominations", "value"))
-def render_tabs_nominations(tab):
-        if tab == "tigana":
-                return tigana_nominations()
-        elif tab == "livianos":
-                return livianos_nominations()
+            [Input("tabs-nominations", "value"),
+            Input("nomination-period", "start_date"),
+            Input("nomination-period", "end_date")])
+def render_tabs_nominations(tab, start_date, end_date):
+    data = load_data(balance_data)
+    if tab == "tigana":
+        return tigana_nominations(data, start_date, end_date)
+    elif tab == "livianos":
+        return livianos_nominations(data, start_date, end_date)
 
 @app.callback(Output("production-factor", component_property="figure"),
             [Input("nomination-period", "start_date"),
@@ -87,12 +91,8 @@ def render_tabs_nominations(tab):
             Input("remitente-nominacion", "value")])
 def actualizar_factor_servicio(start_date, end_date, company):
      # Load nominations data
-    data_nominated = pd.read_csv(nominations_data)
-    data_balance = load_data(balance_data)
-    data_nominated['fecha'] = pd.to_datetime(data_nominated['fecha'], yearfirst=True)
-    data_nominations = filter_data_nominations(data_nominated, start_date, end_date, company)
-    data_transported = filter_data_transported(data_balance, start_date, end_date, company)
-    # Generación datos Dummi
+    data_nominations, data_transported = data_transported_nominated(start_date, end_date, company)
+    
     type_oils_nominations = {f"nominado jacana {company.lower()}": "Jacana", 
                             f"nominado tigana {company.lower()}": "Tigana", 
                             f"nominado livianos {company.lower()}": "Livianos", 
