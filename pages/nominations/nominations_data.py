@@ -21,7 +21,6 @@ def daily_transported_oil_type(data, start_date, end_date):
     """
 
     filtered_data = filter_data_by_date(data, start_date, end_date)
-
     # Get just the transported oil of NSV
     transported = filtered_data[filtered_data['operacion'] == "DESPACHO POR REMITENTE"][['fecha', 'empresa', 'tipo crudo', 'NSV']]
     transported_oil_type = transported.pivot_table(values="NSV", 
@@ -32,6 +31,7 @@ def daily_transported_oil_type(data, start_date, end_date):
     transported_oil_type["fecha"] = transported_oil_type['fecha'].dt.date
     transported_oil_type.set_index("fecha", inplace=True)
     transported_oil_type.fillna(0, inplace=True)
+    print(transported_oil_type)
     return transported_oil_type
 
 def get_date_nomination(filename):
@@ -67,7 +67,17 @@ def parse_contents(contents, filename, date, header):
 def filter_data_nominations(data, start_date, end_date, company):
     """Return a Dataframe filtered by period time and company"""
     filtered_by_date = filter_data_by_date(data, start_date, end_date)
-    filter_columns = [column for column in filtered_by_date.columns if company.lower() in column.lower()]
+    filter_columns = ['fecha'] + [column for column in filtered_by_date.columns if company.lower() in column.lower()]
     filtered_by_company = filtered_by_date[filter_columns]
-    print(filtered_by_company)
     return filtered_by_company
+
+def filter_data_transported(data, start_date, end_date, company):
+    transported = daily_transported_oil_type(data, start_date, end_date)
+    company_keys = {'geopark': 'geopark', 'verano': 'parex'}
+    # filter_columns = data[company.upper()]
+    transported_by_company = transported[company_keys[company.lower()].upper()]
+    print(transported_by_company)
+    return transported_by_company
+
+def calculate_light_oil(transported_data):
+    pass
