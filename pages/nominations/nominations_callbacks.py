@@ -15,7 +15,7 @@ from pages.nominations.tabs.livianos import livianos_nominations
 
 from app import app
 
-from components.nominations_graph import graph_production_factor
+from components.nominations_graph import graph_accomplishment_factor
 
 from pages.nominations.nominations_data import daily_transported_oil_type, parse_contents, remove_entries_nominations
 
@@ -100,7 +100,7 @@ def actualizar_factor_servicio(start_date, end_date, remitente):
     Mes: {months[ date_nominations.month - 1]}.{date_nominations.year}<br>
     Remitente: {remitente.capitalize()}
     """
-    return graph_production_factor(type_oils, colors, title_graph, filtered)
+    return graph_accomplishment_factor(type_oils, colors, title_graph, filtered)
 
 
 

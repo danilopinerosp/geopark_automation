@@ -38,7 +38,7 @@ def graph_nominations_results(data, colors, title, type_graph="Tigana"):
     return {'data':trace, 'layout':layout}
 
 
-def graph_production_factor(type_oils, colors, title_graph, data):
+def graph_accomplishment_factor(type_oils, colors, title_graph, data):
     print(data)
     trace = list()
     for t in type_oils:
