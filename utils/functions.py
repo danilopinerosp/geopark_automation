@@ -29,7 +29,6 @@ def load_oil_types_names():
     Load the oil types names data from oils.csv file
     """
     df = pd.read_csv(oils)
-    print(list(df['Crudo']))
     return list(df['Crudo'])
 
 def load_oil_types():
