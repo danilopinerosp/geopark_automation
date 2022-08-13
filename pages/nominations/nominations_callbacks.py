@@ -109,10 +109,15 @@ def update_production_factor(start_date, end_date, company):
     # Generación colores dummi
     colors = {"Jacana":"#FC7637", "Tigana": "#137ED2", "Livianos": "#A5A5A5", "Cabrestero": "#0A2A58"}
     date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
+
+    new_name = company.capitalize()
+    if new_name == "Verano":
+        new_name = "Verano/Parex"
+
     title_graph = f"""
     Cumplimiento Nominación<br>
     Mes: {months[ date_nominations.month - 1]}.{date_nominations.year}<br>
-    Remitente: {company.capitalize()}
+    Remitente: {new_name}
     """
     return graph_accomplishment_factor(type_oils_nominations,
                                     type_oils_transported, 
