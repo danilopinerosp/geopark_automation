@@ -18,7 +18,7 @@ from app import app
 
 from components.nominations_graph import graph_accomplishment_factor
 
-from pages.nominations.nominations_data import daily_transported_oil_type, data_transported_nominated, filter_data_nominations, filter_data_transported, get_data_nominations_report, parse_contents, remove_entries_nominations
+from pages.nominations.nominations_data import add_styles_nominations, daily_transported_oil_type, data_transported_nominated, filter_data_nominations, filter_data_transported, get_data_nominations_report, parse_contents, remove_entries_nominations
 
 from utils.constants import (balance_data, 
                             header_nominations, 
@@ -29,6 +29,7 @@ from utils.functions import filter_data_by_date, load_data, log_processed, verif
 from datetime import datetime
 
 import os
+from openpyxl import load_workbook
 
 @app.callback(Output("files-to-process-nominations", "children"),
             [Input("subir-nominaciones", 'contents')],
@@ -82,6 +83,12 @@ def download_report_nomination(n_clicks, start_date, end_date):
                                         sheet_name='Nominaciones')
             data_nominations_report.to_excel(writer, index=False,
                                         sheet_name='Nominaciones 2')
+
+         # Cargar el documento generado anteriormente y seleccionar la hoja activa
+        wb = load_workbook(f'../ReportesMensuales/Nominaciones/{ report_name }')
+        ws = wb.active
+        add_styles_nominations(ws, "FF0000", "000000")
+        wb.save(f'../ReportesMensuales/Actas/{ report_name }')
         return html.P(f'Se ha descargado el archivo: { report_name }')
 
 @app.callback(Output("graph-nominations-results", component_property="figure"),
