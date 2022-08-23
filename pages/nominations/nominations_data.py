@@ -7,6 +7,11 @@ from dash import html
 from utils.functions import filter_data_by_date, load_companies, load_data, load_oil_types
 from utils.constants import months, companies, nominations_data, balance_data
 
+from openpyxl import Workbook, load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+
 def daily_transported_oil_type(data, start_date, end_date):
     """
     Return a DataFrame with the oils transported daily by oil type
@@ -139,5 +144,20 @@ def get_data_nominations_report(start_date, end_date):
     df['fecha'] = df['fecha'].dt.date
     return df
 
-def generate_nominations_report():
-    pass
+def styles_cell(cell, background_color, font_color):
+    """
+    Add style to indicated cell: background_color and font_color
+    """
+    cell.fill = PatternFill('solid', fgColor=background_color)
+    cell.alignment = Alignment(horizontal="center", vertical="center")
+    thin = Side(border_style="thin", color="00000000")
+    cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
+    cell.font = Font(color=font_color, bold=True)
+
+def add_styles_nominations(worksheet, background_color, font_color):
+    for column in range(1, 16):
+        for row in range(1, 32):
+            cell = worksheet.cell(row=row, column=column)
+            styles_cell(cell, background_color, font_color)
+        letter = get_column_letter(column)
+        worksheet.column_dimensions[letter].width = 15
