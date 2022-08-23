@@ -146,7 +146,7 @@ def get_data_nominations_report(start_date, end_date):
 
 def styles_cell(cell, background_color, font_color):
     """
-    Add style to indicated cell: background_color and font_color
+    Add style to indicated cell: background_color and font_color.
     """
     cell.fill = PatternFill('solid', fgColor=background_color)
     cell.alignment = Alignment(horizontal="center", vertical="center")
