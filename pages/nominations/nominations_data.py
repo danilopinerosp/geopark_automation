@@ -125,10 +125,11 @@ def get_data_nominations_report(start_date, end_date):
         nominations, transported  = data_transported_nominated(start_date, end_date, company_keys[name_company.lower()])
         transported.columns = [column if company_keys[name_company.lower()] in column or column == 'fecha' else f"{column.lower()} {company_keys[name_company.lower()]}" for column in transported.columns]
         nominations.columns = [column if company_keys[name_company.lower()] in column or column == 'fecha' else f"{column.lower()} {company_keys[name_company.lower()]}" for column in nominations.columns]
-        data.append(nominations)
-        data.append(transported)
+        data.append(nominations.set_index('fecha'))
+        data.append(transported.set_index('fecha'))
     df = pd.concat(data, axis=1)
-    df = df.loc[:,~df.columns.duplicated()].copy()
+    df = df.loc[:,~df.columns.duplicated()].copy().reset_index()
+    print(data)
     df = df[['fecha', 'nominado jacana geopark', 'jacana estacion geopark',
             'nominado tigana geopark', 'tigana estacion geopark',
             'nominado livianos geopark','livianos geopark',
