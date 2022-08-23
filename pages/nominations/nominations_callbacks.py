@@ -28,6 +28,8 @@ from utils.constants import (balance_data,
 from utils.functions import filter_data_by_date, load_data, log_processed, verify_processed
 from datetime import datetime
 
+import os
+
 @app.callback(Output("files-to-process-nominations", "children"),
             [Input("subir-nominaciones", 'contents')],
             [State('subir-nominaciones', 'filename'),
@@ -70,6 +72,10 @@ def download_report_nomination(n_clicks, start_date, end_date):
     report_name = f'Nominaciones {months[ date_nominations.month - 1]}-{date_nominations.year}.xlsx'
     data_nominations_report = get_data_nominations_report(start_date, end_date)
     data_nominations_report['fecha'] = data_nominations_report['fecha'].dt.date
+
+    if not os.path.exists("../ReportesMensuales/Nominaciones/"):
+        os.mkdir("../ReportesMensuales/Nominaciones/")
+
     if callback_context.triggered[0]['prop_id'] == "descargar-info-nominaciones.n_clicks":
         with pd.ExcelWriter(f"../ReportesMensuales/Nominaciones/{report_name}") as writer:
             data_nominations_report.to_excel(writer, index=False,
