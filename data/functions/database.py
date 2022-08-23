@@ -20,6 +20,8 @@ def init_database():
         os.mkdir("data/consolidated_data")
     if not os.path.exists("data/log_data"):
         os.mkdir("data/log_data")
+    if not os.path.exists("../ReportesMensuales"):
+        os.mkdir("../ReportesMensuales")
 
     # Create .csv files to save data if they do not exist
     if not os.path.exists(daily_reports_processed):
