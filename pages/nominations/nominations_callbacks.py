@@ -67,14 +67,15 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
             Input("nomination-period", "end_date")])
 def download_report_nomination(n_clicks, start_date, end_date):
     df = load_data(balance_data)
+
+    if not os.path.exists("../ReportesMensuales/Nominaciones/"):
+        os.mkdir("../ReportesMensuales/Nominaciones/")
+
     # transported = daily_transported_oil_type(df, start_date, end_date)
     date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
     report_name = f'Nominaciones {months[ date_nominations.month - 1]}-{date_nominations.year}.xlsx'
     data_nominations_report = get_data_nominations_report(start_date, end_date)
     data_nominations_report['fecha'] = data_nominations_report['fecha'].dt.date
-
-    if not os.path.exists("../ReportesMensuales/Nominaciones/"):
-        os.mkdir("../ReportesMensuales/Nominaciones/")
 
     if callback_context.triggered[0]['prop_id'] == "descargar-info-nominaciones.n_clicks":
         with pd.ExcelWriter(f"../ReportesMensuales/Nominaciones/{report_name}") as writer:
