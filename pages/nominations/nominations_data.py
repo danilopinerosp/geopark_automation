@@ -129,7 +129,6 @@ def get_data_nominations_report(start_date, end_date):
         data.append(transported.set_index('fecha'))
     df = pd.concat(data, axis=1)
     df = df.loc[:,~df.columns.duplicated()].copy().reset_index()
-    print(data)
     df = df[['fecha', 'nominado jacana geopark', 'jacana estacion geopark',
             'nominado tigana geopark', 'tigana estacion geopark',
             'nominado livianos geopark','livianos geopark',
@@ -137,4 +136,8 @@ def get_data_nominations_report(start_date, end_date):
            'nominado tigana verano',  'tigana estacion verano',
            'nominado cabrestero verano', 'cabrestero - bacano jacana estacion verano',
            'nominado livianos verano', 'livianos verano']]
+    df['fecha'] = df['fecha'].dt.date
     return df
+
+def generate_nominations_report():
+    pass
