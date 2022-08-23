@@ -12,6 +12,8 @@ import pandas as pd
 from utils.constants import months, conditions, operations
 from dash import callback_context, html
 
+import os
+
 def get_date_last_report(data):
     try:
         return data['fecha'].max().strftime('%d/%m/%Y')
@@ -325,6 +327,10 @@ def write_data_monthly_report(data, month, year):
                 rows += 1
     except Exception as e:
         print(e)
+
+    if not os.path.exists("../ReportesMensuales/Actas/"):
+        os.mkdir("../ReportesMensuales/Actas/")
+
     hoja.insert_cols(7, amount=3)
     report_name = f'ACTA ODCA_{ months[ month - 1]}_{year}.xlsx'
     book.save(f"../ReportesMensuales/Actas/{ report_name }")

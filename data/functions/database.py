@@ -15,6 +15,15 @@ def create_csv_file(filepath, header):
         writer.writerow(header)
 
 def init_database():
+    # Create data directories if they do not exist
+    if not os.path.exists("data/consolidated_data"):
+        os.mkdir("data/consolidated_data")
+    if not os.path.exists("data/log_data"):
+        os.mkdir("data/log_data")
+    if not os.path.exists("../ReportesMensuales"):
+        os.mkdir("../ReportesMensuales")
+
+    # Create .csv files to save data if they do not exist
     if not os.path.exists(daily_reports_processed):
         create_csv_file(daily_reports_processed, ["fecha actualizacion", "fecha reporte"])
     if not os.path.exists(nominations_processed):

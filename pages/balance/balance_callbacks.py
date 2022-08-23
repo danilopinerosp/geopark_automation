@@ -109,7 +109,6 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
                 else:
                     log_processed(n, daily_reports_processed, ["fecha actualizacion", "fecha reporte"], "reporte")
                 data_cleaned = clean_balance_data(list_data)
-                #print(data_cleaned)
                 write_data(balance_data, header, data_cleaned)
 
                 children.append(html.P(n))

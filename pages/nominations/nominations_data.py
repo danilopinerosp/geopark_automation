@@ -7,6 +7,11 @@ from dash import html
 from utils.functions import filter_data_by_date, load_companies, load_data, load_oil_types
 from utils.constants import months, companies, nominations_data, balance_data
 
+from openpyxl import Workbook, load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+
 def daily_transported_oil_type(data, start_date, end_date):
     """
     Return a DataFrame with the oils transported daily by oil type
@@ -116,3 +121,43 @@ def data_transported_nominated(start_date, end_date, company):
     data_nominations = filter_data_nominations(data_nominated, start_date, end_date, company)
     data_transported = filter_data_transported(data_balance, start_date, end_date, company)
     return data_nominations, data_transported
+
+def get_data_nominations_report(start_date, end_date):
+    name_companies = load_companies()
+    company_keys = {'geopark': 'geopark', 'parex': 'verano', 'verano': 'verano'}
+    data = list()
+    for name_company in name_companies:
+        nominations, transported  = data_transported_nominated(start_date, end_date, company_keys[name_company.lower()])
+        transported.columns = [column if company_keys[name_company.lower()] in column or column == 'fecha' else f"{column.lower()} {company_keys[name_company.lower()]}" for column in transported.columns]
+        nominations.columns = [column if company_keys[name_company.lower()] in column or column == 'fecha' else f"{column.lower()} {company_keys[name_company.lower()]}" for column in nominations.columns]
+        data.append(nominations.set_index('fecha'))
+        data.append(transported.set_index('fecha'))
+    df = pd.concat(data, axis=1)
+    df = df.loc[:,~df.columns.duplicated()].copy().reset_index()
+    df = df[['fecha', 'nominado jacana geopark', 'jacana estacion geopark',
+            'nominado tigana geopark', 'tigana estacion geopark',
+            'nominado livianos geopark','livianos geopark',
+            'nominado jacana verano', 'jacana estacion verano',
+           'nominado tigana verano',  'tigana estacion verano',
+           'nominado cabrestero verano', 'cabrestero - bacano jacana estacion verano',
+           'nominado livianos verano', 'livianos verano']]
+    df['fecha'] = df['fecha'].dt.date
+    return df
+
+def styles_cell(cell, background_color, font_color):
+    """
+    Add style to indicated cell: background_color and font_color.
+    """
+    cell.fill = PatternFill('solid', fgColor=background_color)
+    cell.alignment = Alignment(horizontal="center", vertical="center")
+    thin = Side(border_style="thin", color="00000000")
+    cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
+    cell.font = Font(color=font_color, bold=True)
+
+def add_styles_nominations(worksheet, background_color, font_color):
+    for column in range(1, 16):
+        for row in range(1, 32):
+            cell = worksheet.cell(row=row, column=column)
+            styles_cell(cell, background_color, font_color)
+        letter = get_column_letter(column)
+        worksheet.column_dimensions[letter].width = 15

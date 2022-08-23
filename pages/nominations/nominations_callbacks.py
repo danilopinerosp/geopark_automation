@@ -18,7 +18,7 @@ from app import app
 
 from components.nominations_graph import graph_accomplishment_factor
 
-from pages.nominations.nominations_data import daily_transported_oil_type, data_transported_nominated, filter_data_nominations, filter_data_transported, parse_contents, remove_entries_nominations
+from pages.nominations.nominations_data import add_styles_nominations, daily_transported_oil_type, data_transported_nominated, filter_data_nominations, filter_data_transported, get_data_nominations_report, parse_contents, remove_entries_nominations
 
 from utils.constants import (balance_data, 
                             header_nominations, 
@@ -27,6 +27,9 @@ from utils.constants import (balance_data,
                             months)
 from utils.functions import filter_data_by_date, load_data, log_processed, verify_processed
 from datetime import datetime
+
+import os
+from openpyxl import load_workbook
 
 @app.callback(Output("files-to-process-nominations", "children"),
             [Input("subir-nominaciones", 'contents')],
@@ -65,14 +68,28 @@ def update_daily_reports(list_of_contents, list_of_names, list_of_dates):
             Input("nomination-period", "end_date")])
 def download_report_nomination(n_clicks, start_date, end_date):
     df = load_data(balance_data)
-    transported = daily_transported_oil_type(df, start_date, end_date)
 
-    report_name = "kjkh"
+    if not os.path.exists("../ReportesMensuales/Nominaciones/"):
+        os.mkdir("../ReportesMensuales/Nominaciones/")
 
+    # transported = daily_transported_oil_type(df, start_date, end_date)
+    date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
+    report_name = f'Nominaciones {months[ date_nominations.month - 1]}-{date_nominations.year}.xlsx'
+    data_nominations_report = get_data_nominations_report(start_date, end_date)
+    
     if callback_context.triggered[0]['prop_id'] == "descargar-info-nominaciones.n_clicks":
-        transported.to_excel("../ReportesMensuales/Nominaciones/nominacion.xlsx")
-        return html.P(f'Se ha descargado el archivo: { report_name }')
+        with pd.ExcelWriter(f"../ReportesMensuales/Nominaciones/{report_name}") as writer:
+            data_nominations_report.to_excel(writer, index=False,
+                                        sheet_name='Nominaciones')
+            data_nominations_report.to_excel(writer, index=False,
+                                        sheet_name='Nominaciones 2')
 
+         # Cargar el documento generado anteriormente y seleccionar la hoja activa
+        wb = load_workbook(f'../ReportesMensuales/Nominaciones/{ report_name }')
+        ws = wb.active
+        add_styles_nominations(ws, "FF0000", "000000")
+        wb.save(f'../ReportesMensuales/Actas/{ report_name }')
+        return html.P(f'Se ha descargado el archivo: { report_name }')
 
 @app.callback(Output("graph-nominations-results", component_property="figure"),
             [Input("tabs-nominations", "value"),
@@ -89,7 +106,7 @@ def render_tabs_nominations(tab, start_date, end_date):
             [Input("nomination-period", "start_date"),
             Input("nomination-period", "end_date"),
             Input("remitente-nominacion", "value")])
-def actualizar_factor_servicio(start_date, end_date, company):
+def update_production_factor(start_date, end_date, company):
      # Load nominations data
     data_nominations, data_transported = data_transported_nominated(start_date, end_date, company)
     
@@ -105,10 +122,15 @@ def actualizar_factor_servicio(start_date, end_date, company):
     # Generación colores dummi
     colors = {"Jacana":"#FC7637", "Tigana": "#137ED2", "Livianos": "#A5A5A5", "Cabrestero": "#0A2A58"}
     date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
+
+    new_name = company.capitalize()
+    if new_name == "Verano":
+        new_name = "Verano/Parex"
+
     title_graph = f"""
     Cumplimiento Nominación<br>
     Mes: {months[ date_nominations.month - 1]}.{date_nominations.year}<br>
-    Remitente: {company.capitalize()}
+    Remitente: {new_name}
     """
     return graph_accomplishment_factor(type_oils_nominations,
                                     type_oils_transported, 
