@@ -18,7 +18,6 @@ def init_database():
     # Create data directories if they do not exist
     if not os.path.exists("data/consolidated_data"):
         os.mkdir("data/consolidated_data")
-        print("consolidated_data does not exist")
     if not os.path.exists("data/log_data"):
         os.mkdir("data/log_data")
 
