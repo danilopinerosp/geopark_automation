@@ -76,6 +76,11 @@ def download_report_nomination(n_clicks, start_date, end_date):
     date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
     report_name = f'Nominaciones {months[ date_nominations.month - 1]}-{date_nominations.year}.xlsx'
     data_nominations_report = get_data_nominations_report(start_date, end_date)
+    averages = data_nominations_report.mean(axis=0, numeric_only=True)
+    days = data_nominations_report.shape[0]
+    data_nominations_report.loc[data_nominations_report.shape[0]] = ["Promedio"] + [round(v, 2) for v in averages.values]
+    data_nominations_report.loc[data_nominations_report.shape[0]] = ["Días"] + [days] * 14
+
     
     if callback_context.triggered[0]['prop_id'] == "descargar-info-nominaciones.n_clicks":
         with pd.ExcelWriter(f"../ReportesMensuales/Nominaciones/{report_name}") as writer:
@@ -86,8 +91,8 @@ def download_report_nomination(n_clicks, start_date, end_date):
 
          # Cargar el documento generado anteriormente y seleccionar la hoja activa
         wb = load_workbook(f'../ReportesMensuales/Nominaciones/{ report_name }')
-        ws = wb.active
-        add_styles_nominations(ws, "FF0000", "000000")
+        ws = wb["Nominaciones"]
+        #add_styles_nominations(ws, "FF0000", "000000")
         wb.save(f'../ReportesMensuales/Actas/{ report_name }')
         return html.P(f'Se ha descargado el archivo: { report_name }')
 
