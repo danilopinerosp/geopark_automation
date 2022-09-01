@@ -18,7 +18,7 @@ from app import app
 
 from components.nominations_graph import graph_accomplishment_factor
 
-from pages.nominations.nominations_data import add_styles_nominations, daily_transported_oil_type, data_transported_nominated, filter_data_nominations, filter_data_transported, get_data_nominations_report, parse_contents, remove_entries_nominations
+from pages.nominations.nominations_data import add_styles_nominations, daily_transported_oil_type, data_transported_nominated, filter_data_nominations, filter_data_transported, get_data_nominations_report, parse_contents, remove_entries_nominations, results_per_company
 
 from utils.constants import (balance_data, 
                             header_nominations, 
@@ -72,27 +72,31 @@ def download_report_nomination(n_clicks, start_date, end_date):
     if not os.path.exists("../ReportesMensuales/Nominaciones/"):
         os.mkdir("../ReportesMensuales/Nominaciones/")
 
-    # transported = daily_transported_oil_type(df, start_date, end_date)
     date_nominations = datetime.strptime(start_date.split('T')[0], "%Y-%m-%d")
     report_name = f'Nominaciones {months[ date_nominations.month - 1]}-{date_nominations.year}.xlsx'
     data_nominations_report = get_data_nominations_report(start_date, end_date)
     averages = data_nominations_report.mean(axis=0, numeric_only=True)
     days = data_nominations_report.shape[0]
+
+    r_geopark = results_per_company(data_nominations_report, "geopark", ["Jacana", "Tigana", "Livianos"])
+    r_verano = results_per_company(data_nominations_report, "verano", ["Jacana", "Tigana", "Cabrestero", "Livianos"])
+
     data_nominations_report.loc[data_nominations_report.shape[0]] = ["Promedio"] + [round(v, 2) for v in averages.values]
     data_nominations_report.loc[data_nominations_report.shape[0]] = ["Días"] + [days] * 14
-
     
     if callback_context.triggered[0]['prop_id'] == "descargar-info-nominaciones.n_clicks":
         with pd.ExcelWriter(f"../ReportesMensuales/Nominaciones/{report_name}") as writer:
             data_nominations_report.to_excel(writer, index=False,
                                         sheet_name='Nominaciones')
-            data_nominations_report.to_excel(writer, index=False,
-                                        sheet_name='Nominaciones 2')
+            r_geopark.to_excel(writer, index=False,
+                                        sheet_name='Resultados Geopark')
+            r_verano.to_excel(writer, index=False,
+                                        sheet_name='Resultados Verano')
 
          # Cargar el documento generado anteriormente y seleccionar la hoja activa
         wb = load_workbook(f'../ReportesMensuales/Nominaciones/{ report_name }')
         ws = wb["Nominaciones"]
-        #add_styles_nominations(ws, "FF0000", "000000")
+        add_styles_nominations(ws, "FF0000", "000000")
         wb.save(f'../ReportesMensuales/Actas/{ report_name }')
         return html.P(f'Se ha descargado el archivo: { report_name }')
 

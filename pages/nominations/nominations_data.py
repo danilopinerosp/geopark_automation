@@ -161,3 +161,20 @@ def add_styles_nominations(worksheet, background_color, font_color):
             styles_cell(cell, background_color, font_color)
         letter = get_column_letter(column)
         worksheet.column_dimensions[letter].width = 15
+
+def results_per_company(data_nominations_report, company_name, oils_company):
+    columns_company = [column for column in data_nominations_report.columns if company_name.lower() in column]
+    company_results = data_nominations_report[columns_company]
+    columns_nominados_company = [column for column in company_results.columns if "nominado" in column]
+    nominados_company_result = company_results[columns_nominados_company]
+    columns_transported_company = [column for column in company_results.columns if "nominado" not in column]
+    transported_company_result = company_results[columns_transported_company]
+
+    result = pd.DataFrame()
+    result["Remitente"] = [company_name]*len(oils_company)
+    result["Crudos"] = oils_company
+    result["Nominado Barriles NSV/Día promedio"] = [round(c, 2) for c in nominados_company_result.mean(axis=0, numeric_only=True).values]
+    result["Transportado Barriles NSV/Día promedio"] = [round(c, 2) for c in transported_company_result.mean(axis=0, numeric_only=True).values]
+    result["Notas"] = ""
+    result["Factor de Servicio ODCA"] = ""
+    return result

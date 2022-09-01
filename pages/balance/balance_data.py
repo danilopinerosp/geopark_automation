@@ -6,6 +6,7 @@ from utils.functions import filter_data_by_date, load_companies, load_data, load
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 import pandas as pd
 
@@ -296,7 +297,8 @@ def write_data_monthly_report(data, month, year):
                 'PAREX': 'VERANO',
                 'DESPACHO POR REMITENTE': 'DESPACHO POR REMITENTE',
                 'ENTREGA POR REMITENTE': 'ENTREGA POR REMITENTE',
-                'GEOPARK': 'GEOPARK'}
+                'GEOPARK': 'GEOPARK',
+                'RECIBO POR REMITENTE JACANA': 'RECIBO POR REMITENTE EN TANQUE 303'}
     # Declarar el objeto workbook
     book = Workbook()
     # Trabajar con la hoja activa.
@@ -323,8 +325,29 @@ def write_data_monthly_report(data, month, year):
                 for r in dataframe_to_rows(acumulado, index=False, header=False):
                     hoja.append({c + 6: value for c, value in enumerate(r)})
                     rows += 1
+
+                if "DESPACHO" in operation:
+                    hoja.append({6: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I")})
+                    hoja.append({6: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II")})
+                    hoja.append({6: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
+                    hoja.append({6: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
+                    rows+=4
+
                 hoja.append(())
                 rows += 1
+            
+
+        hoja.insert_rows(rows + 5)
+        hoja.merge_cells(start_row=rows + 5, start_column=6, end_row=rows + 5, end_column=16)
+        hoja["F" + str(rows + 5)] = "Gladys Maritza Fuentes Arciniegas"
+        hoja["F" + str(rows + 5)].alignment = Alignment(horizontal="center", vertical="center")
+        hoja["F" + str(rows + 5)].font = Font(bold=True)
+
+        hoja.insert_rows(rows + 6)
+        hoja.merge_cells(start_row=rows + 6, start_column=6, end_row=rows + 6, end_column=16)
+        hoja["F" + str(rows + 6)].alignment = Alignment(horizontal="center", vertical="center")
+        hoja["F" + str(rows + 6)] = "Coordinadora de Operaciones ODCA"
+
     except Exception as e:
         print(e)
 
@@ -352,6 +375,27 @@ def generate_report_ODCA(data, month, year):
     agregar_estilos(ws, filas_cabecera, 6, "000000", "FFFFFF")
     agregar_estilos(ws, filas_operaciones, 6, "FF0000", "FFFFFF", False)
     agregar_estilos(ws, filas_empresas, 6,"FFFFFF", "000000", False)
+
+    # Add geopark logo
+    img = Image("assets/logo_geopark.png")
+    ws.add_image(img, 'A1')
+
+    #Add title to the worksheet
+    ws.merge_cells(start_row=2, start_column=6, end_row=6, end_column=16)
+    ws["F2"] = """OLEODUCTO DEL CASANARE  (ODCA)
+REPORTE DE OPERACIÓN MENSUAL"""
+    ws["F2"].alignment = Alignment(horizontal="center", vertical="center")
+    thin = Side(border_style="thin", color="00000000")
+    ws["F2"].border = Border(top=thin, left=thin, right=thin, bottom=thin)
+    ws["F2"].font = Font(bold=True)
+
+    # Add date to worksheet
+    ws.merge_cells(start_row=7, start_column=6, end_row=7, end_column=16)
+    cell_date = ws['F7']
+    cell_date.value = f"mes {months[ month - 1]}.{year}"
+    cell_date.alignment = Alignment(horizontal="center", vertical="center")
+    cell_date.font = Font(bold=True)
+
     # Cambiar el ancho de las columnas de los datos
     for i in range(10, 17):
         letter = get_column_letter(i)
