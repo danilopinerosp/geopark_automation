@@ -197,8 +197,8 @@ def update_participation(start_date, end_date, value):
     # Calcular total de producción diaria para NSV para determinado tipo de operación por empresa
     filtered_data = oil_sender_operation(filtered_data, 'NSV', value)
     if filtered_data.shape != (0,0):
-        labels = data.columns.values
-        values = [np.sum(filtered_data[empresa]) for empresa in filtered_data.columns]
+        labels = filtered_data.columns.values
+        values = [round(np.sum(filtered_data[empresa]), 2) for empresa in filtered_data.columns]
     else:
         labels = ["Aún no hay datos"]
         values = [0]
@@ -210,7 +210,9 @@ def update_participation(start_date, end_date, value):
                     hole=.5,
                     rotation=45,
                     textposition='outside',
-                    marker=dict(colors=colors))]
+                    marker=dict(colors=colors)
+                )
+            ]
     layout = go.Layout(
         plot_bgcolor='#f3f3f3',
             paper_bgcolor='#f3f3f3',
