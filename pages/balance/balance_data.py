@@ -303,8 +303,8 @@ def write_data_monthly_report(data, month, year):
     book = Workbook()
     # Trabajar con la hoja activa.
     hoja = book.active
-    hoja.insert_rows(1, amount=7)
-    rows = 8
+    hoja.insert_rows(1, amount=10)
+    rows = 11
     filas_empresas = []
     filas_operaciones = []
     filas_cabecera = []
@@ -386,7 +386,7 @@ def generate_report_ODCA(data, month, year):
     ws.add_image(img, 'B2')
 
     #Add title to the worksheet
-    ws.merge_cells(start_row=2, start_column=start_column, end_row=6, end_column=start_column + 10)
+    ws.merge_cells(start_row=2, start_column=start_column, end_row=9, end_column=start_column + 10)
     ws["B2"] = """OLEODUCTO DEL CASANARE  (ODCA)
 REPORTE DE OPERACIÓN MENSUAL"""
     ws["B2"].alignment = Alignment(horizontal="center", vertical="center")
@@ -395,11 +395,10 @@ REPORTE DE OPERACIÓN MENSUAL"""
     ws["B2"].font = Font(bold=True)
 
     # Add date to worksheet
-    ws.merge_cells(start_row=7, start_column=start_column, end_row=7, end_column=start_column + 10)
-    cell_date = ws['B7']
-    cell_date.value = f"mes {months[ month - 1]}.{year}"
-    cell_date.alignment = Alignment(horizontal="center", vertical="center")
-    cell_date.font = Font(bold=True)
+    ws.merge_cells(start_row=10, start_column=start_column, end_row=10, end_column=start_column + 10)
+    ws['B10'] = f"mes {months[ month - 1]}.{year}"
+    ws['B10'].alignment = Alignment(horizontal="center", vertical="center")
+    ws['B10'].font = Font(bold=True)
 
     # Cambiar el ancho de las columnas de los datos
     for i in range(10, 17):
