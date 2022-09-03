@@ -401,10 +401,11 @@ REPORTE DE OPERACIÓN MENSUAL"""
     ws['B10'].font = Font(bold=True)
 
     # Cambiar el ancho de las columnas de los datos
-    for i in range(10, 17):
+    for i in range(start_column, start_column + 11):
         letter = get_column_letter(i)
         ws.column_dimensions[letter].width = 15
 
     if callback_context.triggered[0]['prop_id'] == "descargar-acta.n_clicks":
         wb.save(f'../ReportesMensuales/Actas/{ report_name }')
+        wb.close()
         return html.P(f'Se ha descargado el archivo: { report_name }')
