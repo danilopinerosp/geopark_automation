@@ -340,16 +340,16 @@ def write_data_monthly_report(data, month, year):
                 rows += 1
             
 
-        hoja.insert_rows(rows + 5)
-        hoja.merge_cells(start_row=rows + 5, start_column=start_column, end_row=rows + 5, end_column=start_column + 14)
-        hoja["F" + str(rows + 5)] = "Gladys Maritza Fuentes Arciniegas"
-        hoja["F" + str(rows + 5)].alignment = Alignment(horizontal="center", vertical="center")
-        hoja["F" + str(rows + 5)].font = Font(bold=True)
+        hoja.insert_rows(rows + 4)
+        hoja.merge_cells(start_row=rows + 4, start_column=start_column, end_row=rows + 4, end_column=start_column + 10)
+        hoja["B" + str(rows + 4)] = "Gladys Maritza Fuentes Arciniegas"
+        hoja["B" + str(rows + 4)].alignment = Alignment(horizontal="center", vertical="center")
+        hoja["B" + str(rows + 4)].font = Font(bold=True)
 
-        hoja.insert_rows(rows + 6)
-        hoja.merge_cells(start_row=rows + 6, start_column=start_column, end_row=rows + 6, end_column=start_column + 14)
-        hoja["F" + str(rows + 6)].alignment = Alignment(horizontal="center", vertical="center")
-        hoja["F" + str(rows + 6)] = "Coordinadora de Operaciones ODCA"
+        hoja.insert_rows(rows + 5)
+        hoja.merge_cells(start_row=rows + 5, start_column=start_column, end_row=rows + 5, end_column=start_column + 10)
+        hoja["B" + str(rows + 5)].alignment = Alignment(horizontal="center", vertical="center")
+        hoja["B" + str(rows + 5)] = "Coordinadora de Operaciones ODCA"
 
     except Exception as e:
         print(e)
@@ -360,6 +360,7 @@ def write_data_monthly_report(data, month, year):
     hoja.insert_cols(start_column + 1, amount=3)
     report_name = f'ACTA ODCA_{ months[ month - 1]}_{year}.xlsx'
     book.save(f"../ReportesMensuales/Actas/{ report_name }")
+    book.close()
     return filas_cabecera, filas_empresas, filas_operaciones
 
 def generate_report_ODCA(data, month, year):
