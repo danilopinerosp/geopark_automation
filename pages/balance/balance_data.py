@@ -10,7 +10,7 @@ from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 import pandas as pd
 
-from utils.constants import months, conditions, operations
+from utils.constants import months, conditions, operations, parex
 from dash import callback_context, html
 
 import os
@@ -317,27 +317,44 @@ def write_data_monthly_report(data, month, year):
             rows += 1
             filas_operaciones.append(rows)
             for empresa in data['empresa'].unique():
-                hoja.append({start_column: names[empresa]})
-                rows += 1
-                filas_empresas.append(rows)
-                hoja.append({c + start_column: value for c, value in enumerate(header)})
-                rows += 1
-                filas_cabecera.append(rows)
                 acumulado = monthly_cumulated_oil_type(data, month, operation, empresa)
                 acumulado['tipo crudo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['tipo crudo']]
-                for r in dataframe_to_rows(acumulado, index=False, header=False):
-                    hoja.append({c + start_column: value for c, value in enumerate(r)})
+            
+                if  "DESPACHO" in operation and "PAREX" in empresa:
+                    mask = acumulado['tipo crudo'].isin(parex)
+                    print(mask)
+                    hoja.append({start_column: "PAREX"})
                     rows += 1
+                    filas_empresas.append(rows)
+                    hoja.append({c + start_column: value for c, value in enumerate(header)})
+                    rows += 1
+                    filas_cabecera.append(rows)
 
-                if "DESPACHO" in operation:
-                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I")})
-                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II")})
-                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
-                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
-                    rows+=4
+                    for r in dataframe_to_rows(acumulado[mask], index=False, header=False):
+                        hoja.append({c + start_column: value for c, value in enumerate(r)})
+                        rows += 1
+                    
+                else:
+                    hoja.append({start_column: names[empresa]})
+                    rows += 1
+                    filas_empresas.append(rows)
+                    hoja.append({c + start_column: value for c, value in enumerate(header)})
+                    rows += 1
+                    filas_cabecera.append(rows)
 
-                hoja.append(())
-                rows += 1
+                    for r in dataframe_to_rows(acumulado, index=False, header=False):
+                        hoja.append({c + start_column: value for c, value in enumerate(r)})
+                        rows += 1
+
+                    if "DESPACHO" in operation:
+                        hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I")})
+                        hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II")})
+                        hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
+                        hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
+                        rows+=4
+
+                    hoja.append(())
+                    rows += 1
             
 
         hoja.insert_rows(rows + 4)
