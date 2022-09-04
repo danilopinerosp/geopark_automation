@@ -294,7 +294,7 @@ def write_data_monthly_report(data, month, year):
                 '% Azufre','VISC 30 °C. /cSt']
     # Generar constante para cambiar los nombre de algunos valores
     names = {'RECIBO POR REMITENTE TIGANA': 'RECIBO POR REMITENTE EN TANQUE TK-780A',
-                'PAREX': 'VERANO',
+                'PAREX': 'VERANO/PAREX',
                 'DESPACHO POR REMITENTE': 'DESPACHO POR REMITENTE',
                 'ENTREGA POR REMITENTE': 'ENTREGA POR REMITENTE',
                 'GEOPARK': 'GEOPARK',
