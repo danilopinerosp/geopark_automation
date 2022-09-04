@@ -316,13 +316,15 @@ def write_data_monthly_report(data, month, year):
             hoja.append({start_column: names[operation]})
             rows += 1
             filas_operaciones.append(rows)
+
             for empresa in data['empresa'].unique():
                 acumulado = monthly_cumulated_oil_type(data, month, operation, empresa)
                 acumulado['tipo crudo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['tipo crudo']]
             
                 if  "DESPACHO" in operation and "PAREX" in empresa:
                     mask = acumulado['tipo crudo'].isin(parex)
-                    print(mask)
+
+                    #Add Parex
                     hoja.append({start_column: "PAREX"})
                     rows += 1
                     filas_empresas.append(rows)
@@ -333,6 +335,36 @@ def write_data_monthly_report(data, month, year):
                     for r in dataframe_to_rows(acumulado[mask], index=False, header=False):
                         hoja.append({c + start_column: value for c, value in enumerate(r)})
                         rows += 1
+                    
+                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I")})
+                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II")})
+                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
+                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
+                    rows+=4
+
+                    hoja.append(())
+                    rows += 1
+
+                    # Add Verano
+                    hoja.append({start_column: "VERANO"})
+                    rows += 1
+                    filas_empresas.append(rows)
+                    hoja.append({c + start_column: value for c, value in enumerate(header)})
+                    rows += 1
+                    filas_cabecera.append(rows)
+
+                    for r in dataframe_to_rows(acumulado[~mask], index=False, header=False):
+                        hoja.append({c + start_column: value for c, value in enumerate(r)})
+                        rows += 1
+
+                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I")})
+                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II")})
+                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
+                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
+                    rows+=4
+
+                    hoja.append(())
+                    rows += 1
                     
                 else:
                     hoja.append({start_column: names[empresa]})
