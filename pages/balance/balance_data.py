@@ -400,8 +400,12 @@ REPORTE DE OPERACIÓN MENSUAL"""
     ws['B10'].alignment = Alignment(horizontal="center", vertical="center")
     ws['B10'].font = Font(bold=True)
 
+    for i in range(start_column, start_column + 4):
+        letter = get_column_letter(i)
+        ws.column_dimensions[letter].width = 14
+
     # Cambiar el ancho de las columnas de los datos
-    for i in range(start_column, start_column + 11):
+    for i in range(start_column + 4, start_column + 11):
         letter = get_column_letter(i)
         ws.column_dimensions[letter].width = 15
 
