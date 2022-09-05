@@ -379,6 +379,7 @@ def write_data_monthly_report(data, month, year):
                         [
                             "ACUMULADO MENSUAL AZOGUE",
                             "ACUMULADO MENSUAL INDICO 1",
+                            "ACUMULADO MENSUAL INDICO 2",
                             "ACUMULADO MENSUAL CARMENTEA",
                         ], 
                         operation
@@ -387,6 +388,7 @@ def write_data_monthly_report(data, month, year):
                     segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
                         [
                             "ACUMULADO MENSUAL CHIRICOCA",
+                            "ACUMULADO MENSUAL GUACO",
                         ], 
                         [
                             "ACUMULADO MENSUAL JACANA ESTACION"
@@ -432,6 +434,7 @@ def write_data_monthly_report(data, month, year):
                             "ACUMULADO MENSUAL INDICO 1",
                             "ACUMULADO MENSUAL INDICO 2",
                             "ACUMULADO MENSUAL CAPACHOS",
+                            "ACUMULADO MENSUAL ADALIA",
                         ], 
                         [
                             "ACUMULADO MENSUAL CABRESTERO - BACANO JACANA ESTACION"
