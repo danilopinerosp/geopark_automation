@@ -149,18 +149,28 @@ def styles_cell(cell, background_color, font_color):
     Add style to indicated cell: background_color and font_color.
     """
     cell.fill = PatternFill('solid', fgColor=background_color)
-    cell.alignment = Alignment(horizontal="center", vertical="center")
+    cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     thin = Side(border_style="thin", color="00000000")
     cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
     cell.font = Font(color=font_color, bold=True)
 
 def add_styles_nominations(worksheet, background_color, font_color):
     for column in range(1, 16):
-        for row in range(1, 32):
+        for row in range(1, 35):
             cell = worksheet.cell(row=row, column=column)
-            styles_cell(cell, background_color, font_color)
+            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            if row == 1 or row > 32:
+                thin = Side(border_style="thin", color="00000000")
+                cell.font = Font(color=font_color, bold=True)
+                worksheet.row_dimensions[row].height = 15
+            else:
+                cell.font = Font(color=font_color, bold=False)
+            cell.border = Border(top=thin, left=thin, right=thin, bottom=thin)
         letter = get_column_letter(column)
-        worksheet.column_dimensions[letter].width = 15
+        if column == 1:
+            worksheet.column_dimensions[letter].width = 15
+        else:
+            worksheet.column_dimensions[letter].width = 13
 
 def results_per_company(data_nominations_report, company_name, oils_company):
     columns_company = [column for column in data_nominations_report.columns if company_name.lower() in column]
