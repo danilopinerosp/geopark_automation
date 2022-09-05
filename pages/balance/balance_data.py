@@ -10,7 +10,7 @@ from openpyxl.drawing.image import Image
 from openpyxl.utils import get_column_letter
 import pandas as pd
 
-from utils.constants import months, conditions, operations
+from utils.constants import months, conditions, operations, parex
 from dash import callback_context, html
 
 import os
@@ -294,7 +294,7 @@ def write_data_monthly_report(data, month, year):
                 '% Azufre','VISC 30 °C. /cSt']
     # Generar constante para cambiar los nombre de algunos valores
     names = {'RECIBO POR REMITENTE TIGANA': 'RECIBO POR REMITENTE EN TANQUE TK-780A',
-                'PAREX': 'VERANO',
+                'PAREX': 'VERANO/PAREX',
                 'DESPACHO POR REMITENTE': 'DESPACHO POR REMITENTE',
                 'ENTREGA POR REMITENTE': 'ENTREGA POR REMITENTE',
                 'GEOPARK': 'GEOPARK',
@@ -303,50 +303,287 @@ def write_data_monthly_report(data, month, year):
     book = Workbook()
     # Trabajar con la hoja activa.
     hoja = book.active
-    hoja.insert_rows(1, amount=7)
-    rows = 8
+    hoja.insert_rows(1, amount=10)
+    rows = 11
     filas_empresas = []
     filas_operaciones = []
     filas_cabecera = []
+
+    start_column = 2
+
+    segments_by_company = {
+        'GEOPARK': {
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II": [0.0, 0.0, 0.0],
+        },
+        'PAREX': {
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II": [0.0, 0.0, 0.0],
+        },
+        'VERANO': {
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II": [0.0, 0.0, 0.0],
+        }
+    }
+
     try:
+        
         for operation in data['operacion'].unique():
-            hoja.append({6: names[operation]})
+            hoja.append({start_column: names[operation]})
             rows += 1
             filas_operaciones.append(rows)
+
             for empresa in data['empresa'].unique():
-                hoja.append({6: names[empresa]})
-                rows += 1
-                filas_empresas.append(rows)
-                hoja.append({c + 6: value for c, value in enumerate(header)})
-                rows += 1
-                filas_cabecera.append(rows)
                 acumulado = monthly_cumulated_oil_type(data, month, operation, empresa)
-                acumulado['tipo crudo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['tipo crudo']]
-                for r in dataframe_to_rows(acumulado, index=False, header=False):
-                    hoja.append({c + 6: value for c, value in enumerate(r)})
+                acumulado['tipo crudo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['tipo crudo']]   
+
+                if "GEOPARK" in empresa:
+                    segments_by_company[empresa]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
+                        [
+                            "ACUMULADO MENSUAL CHIRICOCA",
+                            "ACUMULADO MENSUAL GUACO",
+                        ], 
+                        [
+                            "ACUMULADO MENSUAL JACANA ESTACION"
+                        ], 
+                        operation
+                    )
+                    segments_by_company[empresa]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
+                        [
+                            "ACUMULADO MENSUAL AZOGUE",
+                            "ACUMULADO MENSUAL INDICO 1",
+                            "ACUMULADO MENSUAL INDICO 2"
+                        ], 
+                        [], 
+                        operation
+                    )
+                    segments_by_company[empresa]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II"] += get_segment_values(acumulado, 
+                        [], 
+                        [
+                            "ACUMULADO MENSUAL CHIRICOCA",
+                            "ACUMULADO MENSUAL GUACO",
+                            "ACUMULADO MENSUAL TIGANA ESTACION",
+                            "ACUMULADO MENSUAL JACANA ESTACION"
+                        ], 
+                        operation
+                    )
+
+                    segments_by_company[empresa]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"] += get_segment_values(acumulado, 
+                        [], 
+                        [
+                            "ACUMULADO MENSUAL AZOGUE",
+                            "ACUMULADO MENSUAL INDICO 1",
+                            "ACUMULADO MENSUAL INDICO 2",
+                            "ACUMULADO MENSUAL CARMENTEA",
+                        ], 
+                        operation
+                    )
+                elif "PAREX" in empresa:
+                    segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
+                        [
+                            "ACUMULADO MENSUAL CHIRICOCA",
+                            "ACUMULADO MENSUAL GUACO",
+                        ], 
+                        [
+                            "ACUMULADO MENSUAL JACANA ESTACION"
+                        ], 
+                        operation
+                    )
+                    segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
+                        [
+                            "ACUMULADO MENSUAL AZOGUE",
+                            "ACUMULADO MENSUAL CARMENTEA"
+                        ], 
+                        [], 
+                        operation
+                    )
+                    segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II"] += get_segment_values(acumulado, 
+                        [], 
+                        [
+                            "ACUMULADO MENSUAL CHIRICOCA",
+                            "ACUMULADO MENSUAL GUACO",
+                            "ACUMULADO MENSUAL TIGANA ESTACION",
+                            "ACUMULADO MENSUAL JACANA ESTACION"
+                        ], 
+                        operation
+                    )
+
+                    segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"] += get_segment_values(acumulado, 
+                        [], 
+                        [
+                            "ACUMULADO MENSUAL AZOGUE",
+                            "ACUMULADO MENSUAL CARMENTEA",
+                        ], 
+                        operation
+                    )
+                    segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
+                        [], 
+                        [], 
+                        operation
+                    )
+                    segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
+                        [
+                            "ACUMULADO MENSUAL AKIRA",
+                            "ACUMULADO MENSUAL MARACAS",
+                            "ACUMULADO MENSUAL INDICO 1",
+                            "ACUMULADO MENSUAL INDICO 2",
+                            "ACUMULADO MENSUAL CAPACHOS",
+                            "ACUMULADO MENSUAL ADALIA",
+                        ], 
+                        [
+                            "ACUMULADO MENSUAL CABRESTERO - BACANO JACANA ESTACION"
+                        ], 
+                        operation
+                    )
+                    segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II"] += get_segment_values(acumulado, 
+                        [], 
+                        [], 
+                        operation
+                    )
+
+                    segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"] += get_segment_values(acumulado, 
+                        [], 
+                        [
+                            "ACUMULADO MENSUAL CABRESTERO - BACANO JACANA ESTACION",
+                            "ACUMULADO MENSUAL CAPACHOS",
+                        ], 
+                        operation
+                    )
+            
+                if  "DESPACHO" in operation and "PAREX" in empresa:
+                    mask = acumulado['tipo crudo'].isin(parex)
+
+                    # Add Parex
+                    hoja.append({start_column: "PAREX"})
+                    rows += 1
+                    filas_empresas.append(rows)
+                    hoja.append({c + start_column: value for c, value in enumerate(header)})
+                    rows += 1
+                    filas_cabecera.append(rows)
+
+                    for r in dataframe_to_rows(acumulado[mask], index=False, header=False):
+                        hoja.append({c + start_column: value for c, value in enumerate(r)})
+                        rows += 1
+                    
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I", ] +
+                            list(segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I", ] +
+                            list(segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II", ] +
+                            list(segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II", ] +
+                            list(segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL", ] +
+                            list(acumulado[mask][["GOV", "GSV", "NSV"]].sum(axis=0)))
+                    })
+                    rows+=5     
+
+                    hoja.append(())
                     rows += 1
 
-                if "DESPACHO" in operation:
-                    hoja.append({6: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I")})
-                    hoja.append({6: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II")})
-                    hoja.append({6: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
-                    hoja.append({6: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
-                    rows+=4
+                    # Add Verano
+                    hoja.append({start_column: "VERANO"})           
+                    rows += 1
+                    filas_empresas.append(rows)
+                    hoja.append({c + start_column: value for c, value in enumerate(header)})
+                    rows += 1
+                    filas_cabecera.append(rows)
 
-                hoja.append(())
-                rows += 1
+                    for r in dataframe_to_rows(acumulado[~mask], index=False, header=False):
+                        hoja.append({c + start_column: value for c, value in enumerate(r)})
+                        rows += 1
+
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I", ] +
+                            list(segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I", ] +
+                            list(segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II", ] +
+                            list(segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II", ] +
+                            list(segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL", ] +
+                            list(acumulado[~mask][["GOV", "GSV", "NSV"]].sum(axis=0)))
+                    })
+                    rows+=5
+
+                    hoja.append(())
+                    rows += 1
+                    
+                else:
+                    hoja.append({start_column: names[empresa]})
+                    rows += 1
+                    filas_empresas.append(rows)
+                    hoja.append({c + start_column: value for c, value in enumerate(header)})
+                    rows += 1
+                    filas_cabecera.append(rows)
+
+                    for r in dataframe_to_rows(acumulado, index=False, header=False):
+                        hoja.append({c + start_column: value for c, value in enumerate(r)})
+                        rows += 1
+
+                    if "DESPACHO" in operation:
+                        hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I", ] +
+                            list(segments_by_company["GEOPARK"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"]))
+                        })
+                        hoja.append({c + start_column: value 
+                            for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I", ] +
+                                list(segments_by_company["GEOPARK"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I"]))
+                        })
+                        hoja.append({c + start_column: value 
+                            for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II", ] +
+                                list(segments_by_company["GEOPARK"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II"]))
+                        })
+                        hoja.append({c + start_column: value 
+                            for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II", ] +
+                                list(segments_by_company["GEOPARK"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"]))
+                        })
+                        rows+=4
+                    
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL", ] +
+                            list(acumulado[["GOV", "GSV", "NSV"]].sum(axis=0)))
+                    })
+                    rows+=1
+
+                    hoja.append(())
+                    rows += 1
             
 
-        hoja.insert_rows(rows + 5)
-        hoja.merge_cells(start_row=rows + 5, start_column=6, end_row=rows + 5, end_column=16)
-        hoja["F" + str(rows + 5)] = "Gladys Maritza Fuentes Arciniegas"
-        hoja["F" + str(rows + 5)].alignment = Alignment(horizontal="center", vertical="center")
-        hoja["F" + str(rows + 5)].font = Font(bold=True)
+        hoja.insert_rows(rows + 4)
+        hoja.merge_cells(start_row=rows + 4, start_column=start_column, end_row=rows + 4, end_column=start_column + 10)
+        hoja["B" + str(rows + 4)] = "Gladys Maritza Fuentes Arciniegas"
+        hoja["B" + str(rows + 4)].alignment = Alignment(horizontal="center", vertical="center")
+        hoja["B" + str(rows + 4)].font = Font(bold=True)
 
-        hoja.insert_rows(rows + 6)
-        hoja.merge_cells(start_row=rows + 6, start_column=6, end_row=rows + 6, end_column=16)
-        hoja["F" + str(rows + 6)].alignment = Alignment(horizontal="center", vertical="center")
-        hoja["F" + str(rows + 6)] = "Coordinadora de Operaciones ODCA"
+        hoja.insert_rows(rows + 5)
+        hoja.merge_cells(start_row=rows + 5, start_column=start_column, end_row=rows + 5, end_column=start_column + 10)
+        hoja["B" + str(rows + 5)].alignment = Alignment(horizontal="center", vertical="center")
+        hoja["B" + str(rows + 5)] = "Coordinadora de Operaciones ODCA"
 
     except Exception as e:
         print(e)
@@ -354,9 +591,10 @@ def write_data_monthly_report(data, month, year):
     if not os.path.exists("../ReportesMensuales/Actas/"):
         os.mkdir("../ReportesMensuales/Actas/")
 
-    hoja.insert_cols(7, amount=3)
+    hoja.insert_cols(start_column + 1, amount=3)
     report_name = f'ACTA ODCA_{ months[ month - 1]}_{year}.xlsx'
     book.save(f"../ReportesMensuales/Actas/{ report_name }")
+    book.close()
     return filas_cabecera, filas_empresas, filas_operaciones
 
 def generate_report_ODCA(data, month, year):
@@ -371,36 +609,60 @@ def generate_report_ODCA(data, month, year):
     # Cargar el documento generado anteriormente y seleccionar la hoja activa
     wb = load_workbook(f'../ReportesMensuales/Actas/{ report_name }')
     ws = wb.active
+
+    start_column = 2
     # Agregar estilos al acta
-    agregar_estilos(ws, filas_cabecera, 6, "000000", "FFFFFF")
-    agregar_estilos(ws, filas_operaciones, 6, "FF0000", "FFFFFF", False)
-    agregar_estilos(ws, filas_empresas, 6,"FFFFFF", "000000", False)
+    agregar_estilos(ws, filas_cabecera, start_column, "000000", "FFFFFF")
+    agregar_estilos(ws, filas_operaciones, start_column, "FF0000", "FFFFFF", False)
+    agregar_estilos(ws, filas_empresas, start_column,"FFFFFF", "000000", False)
 
     # Add geopark logo
     img = Image("assets/logo_geopark.png")
-    ws.add_image(img, 'A1')
+    ws.add_image(img, 'B2')
 
     #Add title to the worksheet
-    ws.merge_cells(start_row=2, start_column=6, end_row=6, end_column=16)
-    ws["F2"] = """OLEODUCTO DEL CASANARE  (ODCA)
+    ws.merge_cells(start_row=2, start_column=start_column, end_row=9, end_column=start_column + 10)
+    ws["B2"] = """OLEODUCTO DEL CASANARE  (ODCA)
 REPORTE DE OPERACIÓN MENSUAL"""
-    ws["F2"].alignment = Alignment(horizontal="center", vertical="center")
+    ws["B2"].alignment = Alignment(horizontal="center", vertical="center")
     thin = Side(border_style="thin", color="00000000")
-    ws["F2"].border = Border(top=thin, left=thin, right=thin, bottom=thin)
-    ws["F2"].font = Font(bold=True)
+    ws["B2"].border = Border(top=thin, left=thin, right=thin, bottom=thin)
+    ws["B2"].font = Font(bold=True)
 
     # Add date to worksheet
-    ws.merge_cells(start_row=7, start_column=6, end_row=7, end_column=16)
-    cell_date = ws['F7']
-    cell_date.value = f"mes {months[ month - 1]}.{year}"
-    cell_date.alignment = Alignment(horizontal="center", vertical="center")
-    cell_date.font = Font(bold=True)
+    ws.merge_cells(start_row=10, start_column=start_column, end_row=10, end_column=start_column + 10)
+    ws['B10'] = f"mes {months[ month - 1]}.{year}"
+    ws['B10'].alignment = Alignment(horizontal="center", vertical="center")
+    ws['B10'].font = Font(bold=True)
+
+    for i in range(start_column, start_column + 4):
+        letter = get_column_letter(i)
+        ws.column_dimensions[letter].width = 14
 
     # Cambiar el ancho de las columnas de los datos
-    for i in range(10, 17):
+    for i in range(start_column + 4, start_column + 11):
         letter = get_column_letter(i)
         ws.column_dimensions[letter].width = 15
 
     if callback_context.triggered[0]['prop_id'] == "descargar-acta.n_clicks":
         wb.save(f'../ReportesMensuales/Actas/{ report_name }')
+        wb.close()
         return html.P(f'Se ha descargado el archivo: { report_name }')
+
+def get_segment_values(
+    data: pd.DataFrame, 
+    filter_received: list, 
+    filter_delivered: list,
+    operation: str
+):
+    if "RECIBO POR REMITENTE JACANA" in operation:
+        result = data[data['tipo crudo'].isin(filter_received)]
+        return result[["GOV", "GSV", "NSV"]].sum(axis=0)
+
+    elif "DESPACHO" in operation:
+        result = data[data['tipo crudo'].isin(filter_delivered)]
+        return result[["GOV", "GSV", "NSV"]].sum(axis=0)
+
+    return np.array([0, 0, 0])
+
+    

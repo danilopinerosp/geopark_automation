@@ -97,7 +97,8 @@ def download_report_nomination(n_clicks, start_date, end_date):
         wb = load_workbook(f'../ReportesMensuales/Nominaciones/{ report_name }')
         ws = wb["Nominaciones"]
         add_styles_nominations(ws, "FF0000", "000000")
-        wb.save(f'../ReportesMensuales/Actas/{ report_name }')
+        wb.save(f'../ReportesMensuales/Nominaciones/{ report_name }')
+        wb.close()
         return html.P(f'Se ha descargado el archivo: { report_name }')
 
 @app.callback(Output("graph-nominations-results", component_property="figure"),

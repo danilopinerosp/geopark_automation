@@ -41,3 +41,12 @@ header_nominations = ['fecha',
                 'nominado jacana verano', 
                 'nominado tigana verano', 
                 'nominado livianos verano']
+
+parex = [
+    "ACUMULADO MENSUAL CABRESTERO - BACANO JACANA ESTACION",
+    "ACUMULADO MENSUAL MARACAS",
+    "ACUMULADO MENSUAL INDICO 1",
+    "ACUMULADO MENSUAL INDICO 2",
+    "ACUMULADO MENSUAL ADALIA",
+    "ACUMULADO MENSUAL CAPACHOS",
+]
