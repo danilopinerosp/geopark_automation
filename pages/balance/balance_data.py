@@ -313,22 +313,22 @@ def write_data_monthly_report(data, month, year):
 
     segments_by_company = {
         'GEOPARK': {
-            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I": [0, 0, 0],
-            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II": [0, 0, 0],
-            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I": [0, 0, 0],
-            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II": [0, 0, 0],
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II": [0.0, 0.0, 0.0],
         },
         'PAREX': {
-            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I": [0, 0, 0],
-            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II": [0, 0, 0],
-            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I": [0, 0, 0],
-            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II": [0, 0, 0],
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II": [0.0, 0.0, 0.0],
         },
         'VERANO': {
-            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I": [0, 0, 0],
-            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II": [0, 0, 0],
-            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I": [0, 0, 0],
-            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II": [0, 0, 0],
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I": [0.0, 0.0, 0.0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II": [0.0, 0.0, 0.0],
         }
     }
 
@@ -484,7 +484,11 @@ def write_data_monthly_report(data, month, year):
                         for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II", ] +
                             list(segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"]))
                     })
-                    rows+=4     
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL", ] +
+                            list(acumulado[mask][["GOV", "GSV", "NSV"]].sum(axis=0)))
+                    })
+                    rows+=5     
 
                     hoja.append(())
                     rows += 1
@@ -517,7 +521,11 @@ def write_data_monthly_report(data, month, year):
                         for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II", ] +
                             list(segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"]))
                     })
-                    rows+=4
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL", ] +
+                            list(acumulado[~mask][["GOV", "GSV", "NSV"]].sum(axis=0)))
+                    })
+                    rows+=5
 
                     hoja.append(())
                     rows += 1
@@ -552,6 +560,12 @@ def write_data_monthly_report(data, month, year):
                                 list(segments_by_company["GEOPARK"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"]))
                         })
                         rows+=4
+                    
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL", ] +
+                            list(acumulado[["GOV", "GSV", "NSV"]].sum(axis=0)))
+                    })
+                    rows+=1
 
                     hoja.append(())
                     rows += 1
