@@ -8,6 +8,6 @@ if __name__ == "__main__":
     app.run_server(
         #host=APP_HOST,
         #port=APP_PORT,
-        debug=True,
-        dev_tools_props_check=True,
+        debug=False,
+        dev_tools_props_check=False,
     )
