@@ -311,7 +311,29 @@ def write_data_monthly_report(data, month, year):
 
     start_column = 2
 
+    segments_by_company = {
+        'GEOPARK': {
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I": [0, 0, 0],
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II": [0, 0, 0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I": [0, 0, 0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II": [0, 0, 0],
+        },
+        'PAREX': {
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I": [0, 0, 0],
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II": [0, 0, 0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I": [0, 0, 0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II": [0, 0, 0],
+        },
+        'VERANO': {
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I": [0, 0, 0],
+            "ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II": [0, 0, 0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I": [0, 0, 0],
+            "ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II": [0, 0, 0],
+        }
+    }
+
     try:
+        
         for operation in data['operacion'].unique():
             hoja.append({start_column: names[operation]})
             rows += 1
@@ -319,12 +341,122 @@ def write_data_monthly_report(data, month, year):
 
             for empresa in data['empresa'].unique():
                 acumulado = monthly_cumulated_oil_type(data, month, operation, empresa)
-                acumulado['tipo crudo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['tipo crudo']]
+                acumulado['tipo crudo'] = [f'ACUMULADO MENSUAL {campo}' for campo in acumulado['tipo crudo']]   
+
+                if "GEOPARK" in empresa:
+                    segments_by_company[empresa]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
+                        [
+                            "ACUMULADO MENSUAL CHIRICOCA",
+                            "ACUMULADO MENSUAL GUACO",
+                        ], 
+                        [
+                            "ACUMULADO MENSUAL JACANA ESTACION"
+                        ], 
+                        operation
+                    )
+                    segments_by_company[empresa]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
+                        [
+                            "ACUMULADO MENSUAL AZOGUE",
+                            "ACUMULADO MENSUAL INDICO 1",
+                            "ACUMULADO MENSUAL INDICO 2"
+                        ], 
+                        [], 
+                        operation
+                    )
+                    segments_by_company[empresa]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II"] += get_segment_values(acumulado, 
+                        [], 
+                        [
+                            "ACUMULADO MENSUAL CHIRICOCA",
+                            "ACUMULADO MENSUAL GUACO",
+                            "ACUMULADO MENSUAL TIGANA ESTACION",
+                            "ACUMULADO MENSUAL JACANA ESTACION"
+                        ], 
+                        operation
+                    )
+
+                    segments_by_company[empresa]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"] += get_segment_values(acumulado, 
+                        [], 
+                        [
+                            "ACUMULADO MENSUAL AZOGUE",
+                            "ACUMULADO MENSUAL INDICO 1",
+                            "ACUMULADO MENSUAL CARMENTEA",
+                        ], 
+                        operation
+                    )
+                elif "PAREX" in empresa:
+                    segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
+                        [
+                            "ACUMULADO MENSUAL CHIRICOCA",
+                        ], 
+                        [
+                            "ACUMULADO MENSUAL JACANA ESTACION"
+                        ], 
+                        operation
+                    )
+                    segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
+                        [
+                            "ACUMULADO MENSUAL AZOGUE",
+                            "ACUMULADO MENSUAL CARMENTEA"
+                        ], 
+                        [], 
+                        operation
+                    )
+                    segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II"] += get_segment_values(acumulado, 
+                        [], 
+                        [
+                            "ACUMULADO MENSUAL CHIRICOCA",
+                            "ACUMULADO MENSUAL GUACO",
+                            "ACUMULADO MENSUAL TIGANA ESTACION",
+                            "ACUMULADO MENSUAL JACANA ESTACION"
+                        ], 
+                        operation
+                    )
+
+                    segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"] += get_segment_values(acumulado, 
+                        [], 
+                        [
+                            "ACUMULADO MENSUAL AZOGUE",
+                            "ACUMULADO MENSUAL CARMENTEA",
+                        ], 
+                        operation
+                    )
+                    segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
+                        [], 
+                        [], 
+                        operation
+                    )
+                    segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I"] += get_segment_values(acumulado, 
+                        [
+                            "ACUMULADO MENSUAL AKIRA",
+                            "ACUMULADO MENSUAL MARACAS",
+                            "ACUMULADO MENSUAL INDICO 1",
+                            "ACUMULADO MENSUAL INDICO 2",
+                            "ACUMULADO MENSUAL CAPACHOS",
+                        ], 
+                        [
+                            "ACUMULADO MENSUAL CABRESTERO - BACANO JACANA ESTACION"
+                        ], 
+                        operation
+                    )
+                    segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II"] += get_segment_values(acumulado, 
+                        [], 
+                        [], 
+                        operation
+                    )
+
+                    segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"] += get_segment_values(acumulado, 
+                        [], 
+                        [
+                            "ACUMULADO MENSUAL CABRESTERO - BACANO JACANA ESTACION",
+                            "ACUMULADO MENSUAL CAPACHOS",
+                        ], 
+                        operation
+                    )
             
                 if  "DESPACHO" in operation and "PAREX" in empresa:
                     mask = acumulado['tipo crudo'].isin(parex)
 
-                    #Add Parex
+                    # Add Parex
                     hoja.append({start_column: "PAREX"})
                     rows += 1
                     filas_empresas.append(rows)
@@ -336,17 +468,29 @@ def write_data_monthly_report(data, month, year):
                         hoja.append({c + start_column: value for c, value in enumerate(r)})
                         rows += 1
                     
-                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I")})
-                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II")})
-                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
-                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
-                    rows+=4
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I", ] +
+                            list(segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I", ] +
+                            list(segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II", ] +
+                            list(segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II", ] +
+                            list(segments_by_company["PAREX"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"]))
+                    })
+                    rows+=4     
 
                     hoja.append(())
                     rows += 1
 
                     # Add Verano
-                    hoja.append({start_column: "VERANO"})
+                    hoja.append({start_column: "VERANO"})           
                     rows += 1
                     filas_empresas.append(rows)
                     hoja.append({c + start_column: value for c, value in enumerate(header)})
@@ -357,10 +501,22 @@ def write_data_monthly_report(data, month, year):
                         hoja.append({c + start_column: value for c, value in enumerate(r)})
                         rows += 1
 
-                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I")})
-                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II")})
-                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
-                    hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I", ] +
+                            list(segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I", ] +
+                            list(segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II", ] +
+                            list(segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II"]))
+                    })
+                    hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II", ] +
+                            list(segments_by_company["VERANO"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"]))
+                    })
                     rows+=4
 
                     hoja.append(())
@@ -379,10 +535,22 @@ def write_data_monthly_report(data, month, year):
                         rows += 1
 
                     if "DESPACHO" in operation:
-                        hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I")})
-                        hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II")})
-                        hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
-                        hoja.append({start_column: ("ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I")})
+                        hoja.append({c + start_column: value 
+                        for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I", ] +
+                            list(segments_by_company["GEOPARK"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO I"]))
+                        })
+                        hoja.append({c + start_column: value 
+                            for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I", ] +
+                                list(segments_by_company["GEOPARK"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO I"]))
+                        })
+                        hoja.append({c + start_column: value 
+                            for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II", ] +
+                                list(segments_by_company["GEOPARK"]["ACUMULADO MENSUAL CRUDOS LLANOS 34 SEGMENTO II"]))
+                        })
+                        hoja.append({c + start_column: value 
+                            for c, value in enumerate(["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II", ] +
+                                list(segments_by_company["GEOPARK"]["ACUMULADO MENSUAL CRUDOS NO LLANOS 34 SEGMENTO II"]))
+                        })
                         rows+=4
 
                     hoja.append(())
@@ -463,3 +631,21 @@ REPORTE DE OPERACIÓN MENSUAL"""
         wb.save(f'../ReportesMensuales/Actas/{ report_name }')
         wb.close()
         return html.P(f'Se ha descargado el archivo: { report_name }')
+
+def get_segment_values(
+    data: pd.DataFrame, 
+    filter_received: list, 
+    filter_delivered: list,
+    operation: str
+):
+    if "RECIBO POR REMITENTE JACANA" in operation:
+        result = data[data['tipo crudo'].isin(filter_received)]
+        return result[["GOV", "GSV", "NSV"]].sum(axis=0)
+
+    elif "DESPACHO" in operation:
+        result = data[data['tipo crudo'].isin(filter_delivered)]
+        return result[["GOV", "GSV", "NSV"]].sum(axis=0)
+
+    return np.array([0, 0, 0])
+
+    
