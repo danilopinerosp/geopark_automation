@@ -101,6 +101,8 @@ def log_processed(report, filepath, header, type_processed):
     -----------
     reporte -> str - Cadena de caracteres con el nombre del reporte procesado
     """
+    if "Cumplimiento" in report.capitalize():
+        report = report.split("_")[1]
     data = [{'fecha actualizacion': datetime.date.today(), f'fecha {type_processed}': report}]
     write_data(filepath, header, data)
 
